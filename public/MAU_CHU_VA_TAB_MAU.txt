@@ -1,0 +1,363 @@
+================================================================================
+          HỆ THỐNG BẢNG MÀU CHỮ & TAB MÀU CHUẨN THƯƠNG MẠI (COMMERCIAL GRADE)
+          CALCULATOR PRO - DESIGN SYSTEM COLOR & TYPOGRAPHY SPECIFICATION
+================================================================================
+Phiên bản: 2.4.0 (Commercial Production Release)
+Tiêu chuẩn tương phản: WCAG 2.1 Level AA & Level AAA
+Áp dụng: Giao diện Sáng (Light Mode - Mặc định) & Giao diện Tối (Dark Mode)
+File xuất: MAU_CHU_VA_TAB_MAU.txt
+
+--------------------------------------------------------------------------------
+MỤC LỤC:
+1. NGUYÊN TẮC THIẾT KẾ ĐỘ TƯƠNG PHẢN THƯƠNG MẠI (WCAG AA/AAA RULES)
+2. BẢNG MÀU CHỮ CHI TIẾT (TYPOGRAPHY & TEXT COLORS)
+   2.1. Nhóm chữ Tiêu đề & Con số Trọng tâm (Headings & Big Numbers)
+   2.2. Nhóm chữ Nội dung Chính (Body Text)
+   2.3. Nhóm chữ Phụ, Nhãn Label & Chú thích (Secondary, Muted, Metadata)
+   2.4. Nhóm chữ Trạng thái & Tài chính (Semantic: Lãi, Thuế, Cảnh báo, Lợi ích)
+   2.5. Nhóm chữ trên Nền Nổi bật (Inverted Text trên Button, Badge)
+3. HỆ THỐNG TAB MÀU & ĐIỀU KHIỂN (TABS, PILLS, SEGMENTED CONTROLS)
+   3.1. Tab Phân đoạn Hướng tính (Calculation Direction: Gross/Net)
+   3.2. Tab Chu kỳ Trả lương / Thời hạn (Pay Frequency Pills)
+   3.3. Tab Danh mục Công cụ (Category Filter Tabs)
+   3.4. Tab / Nút Preset Số tiền Nhanh (Quick Amount Chips)
+   3.5. Nút Menu Công cụ bên Sidebar (Sidebar Tool Items)
+4. HỆ THỐNG DROPDOWN & MENU ĐIỀU HƯỚNG (LANGUAGE & CURRENCY SELECTORS)
+   4.1. Dropdown Ngôn ngữ (Language Selector Modal)
+   4.2. Dropdown Tiền tệ (Currency Selector)
+5. HỆ THỐNG KHỐI KẾT QUẢ TRỌNG TÂM (HERO RESULT CARDS & BẢNG BÁO CÁO)
+6. BẢNG TỔNG HỢP MÃ MÀU CHUẨN (HEX, RGB, TAILWIND CLASS MATRIX)
+================================================================================
+
+
+--------------------------------------------------------------------------------
+1. NGUYÊN TẮC THIẾT KẾ ĐỘ TƯƠNG PHẢN THƯƠNG MẠI (WCAG AA/AAA RULES)
+--------------------------------------------------------------------------------
+Để sản phẩm đạt chuẩn thương mại quốc tế (tương đương Stripe, Wise, TurboTax):
+- KHÔNG dùng chữ xám nhạt (như slate-200, slate-300 hay text-white) trên nền trắng.
+- Tiêu đề và con số chính phải đạt tỷ lệ tương phản tối thiểu 7:1 (chuẩn AAA).
+- Văn bản nội dung và nhãn form phải đạt tỷ lệ tương phản tối thiểu 4.5:1 (chuẩn AA).
+- Chữ phụ/placeholder phải đạt tối thiểu 3.5:1, không bị nhòe hay mờ mắt người dùng.
+- Các tab đang chọn (Active) phải có độ đậm (font-bold/font-black) và phân định rõ ràng.
+
+
+--------------------------------------------------------------------------------
+2. BẢNG MÀU CHỮ CHI TIẾT (TYPOGRAPHY & TEXT COLORS)
+--------------------------------------------------------------------------------
+
+2.1. NHÓM CHỮ TIÊU ĐỀ & CON SỐ TRỌNG TÂM (HEADINGS & BIG METRICS)
+--------------------------------------------------------------------------------
+Vai trò: Tên ứng dụng, tên công cụ H1/H2, con số kết quả tài chính to nhất.
+Yêu cầu: Đậm đà, sắc nét, tuyệt đối không bị bạc màu.
+
+[GIAO DIỆN SÁNG - LIGHT MODE]
+* Màu sắc chính: #0F172A (Slate 900 - Than đen cao cấp)
+  - Mã RGB: rgb(15, 23, 42)
+  - Tailwind Class: text-slate-900 / font-black / font-extrabold
+  - Tỷ lệ tương phản trên nền trắng (#FFFFFF): 19.8 : 1 (Đạt chuẩn AAA tuyệt đối)
+  - Áp dụng:
+    + Số tiền thực nhận: "$4,180.00"
+    + Tiêu đề công cụ: "Tính Lương Gross - Net Chuẩn Quốc Tế"
+    + Tên App: "Calculator Pro"
+    + Các con số trong ô nhập: 5000, 10000...
+
+[GIAO DIỆN TỐI - DARK MODE]
+* Màu sắc chính: #FFFFFF (Pure White) hoặc #F8FAFC (Slate 50)
+  - Mã RGB: rgb(255, 255, 255)
+  - Tailwind Class: text-white / font-black
+  - Tỷ lệ tương phản trên nền Slate 950 (#020617): 20.4 : 1 (Chuẩn AAA)
+
+
+2.2. NHÓM CHỮ NỘI DUNG CHÍNH (BODY TEXT & LABELS)
+--------------------------------------------------------------------------------
+Vai trò: Nhãn ô nhập (Input Labels), tên dòng bảng kết quả, đoạn mô tả giải thích.
+
+[GIAO DIỆN SÁNG - LIGHT MODE]
+* Màu sắc chính: #1E293B (Slate 800) hoặc #334155 (Slate 700)
+  - Mã RGB: rgb(30, 41, 59) / rgb(51, 65, 85)
+  - Tailwind Class: text-slate-800 / text-slate-700 / font-bold / font-semibold
+  - Tỷ lệ tương phản trên nền trắng: 12.6 : 1 (Chuẩn AAA)
+  - Áp dụng:
+    + Nhãn ô nhập: "HƯỚNG TÍNH LƯƠNG", "CHU KỲ TRẢ LƯƠNG", "LƯƠNG GROSS (TỔNG)"
+    + Chữ trong các nút chọn ngôn ngữ: "Tiếng Việt", "English (US)", "Français"
+    + Nhãn người phụ thuộc: "Số Người Phụ Thuộc"
+
+[GIAO DIỆN TỐI - DARK MODE]
+* Màu sắc chính: #E2E8F0 (Slate 200) hoặc #CBD5E1 (Slate 300)
+  - Mã RGB: rgb(226, 232, 240)
+  - Tailwind Class: text-slate-200 / font-semibold
+
+
+2.3. NHÓM CHỮ PHỤ, METADATA & CHÚ THÍCH (MUTED, HINTS & UNITS)
+--------------------------------------------------------------------------------
+Vai trò: Đơn vị tính ("/tháng", "/năm", "USD"), ghi chú quyền lợi giảm trừ thuế, placeholder.
+
+[GIAO DIỆN SÁNG - LIGHT MODE]
+* Màu chữ phụ rõ nét: #475569 (Slate 600)
+  - Mã RGB: rgb(71, 85, 105)
+  - Tailwind Class: text-slate-600 / font-medium
+  - Tỷ lệ tương phản: 5.9 : 1 (Đạt chuẩn AA, rất dễ đọc)
+  - Áp dụng: Chữ "Tương đương: $50,160.00/năm", dòng diễn giải "Giảm trừ gia cảnh"
+
+* Màu đơn vị & Placeholder: #64748B (Slate 500)
+  - Mã RGB: rgb(100, 116, 139)
+  - Tailwind Class: text-slate-500 / placeholder:text-slate-500 / font-semibold
+  - Tỷ lệ tương phản: 4.6 : 1 (Vượt ngưỡng tối thiểu WCAG AA 4.5:1)
+  - Áp dụng: "/mo", "/yr", placeholder "20 languages...", "Child / dependent tax relief credits"
+
+[GIAO DIỆN TỐI - DARK MODE]
+* Màu chữ phụ: #94A3B8 (Slate 400)
+  - Mã RGB: rgb(148, 163, 184)
+  - Tailwind Class: text-slate-400
+
+
+2.4. NHÓM CHỮ TRẠNG THÁI & TÀI CHÍNH (SEMANTIC FINANCIAL COLORS)
+--------------------------------------------------------------------------------
+Vai trò: Báo số tiền trừ, tiền thuế, tiền lãi tiết kiệm, cảnh báo luật.
+
+[GIAO DIỆN SÁNG - LIGHT MODE]
+* Màu Dương / Thực nhận / Tiết kiệm (Success / Net / Profit):
+  - Mã Hex: #047857 (Emerald 700) hoặc #065F46 (Emerald 800)
+  - Tailwind Class: text-emerald-700 / text-emerald-800 / font-bold
+  - Áp dụng: "LƯƠNG NET THỰC NHẬN", "Tiết kiệm được: $1,200", "83.6% Lương Gross"
+
+* Màu Khấu trừ / Thuế / Chi phí (Deductions / Taxes / Reductions):
+  - Mã Hex: #BE123C (Rose 700) hoặc #9F1239 (Rose 800)
+  - Tailwind Class: text-rose-700 / text-rose-800 / font-bold
+  - Áp dụng: "-$420.00 (Thuế TNCN)", "-$400.00 (Bảo hiểm)"
+
+* Màu Bảo hiểm & Đóng góp An sinh (Social Contributions):
+  - Mã Hex: #B45309 (Amber 700) hoặc #92400E (Amber 800)
+  - Tailwind Class: text-amber-700 / text-amber-800 / font-bold
+  - Áp dụng: "-$400.00 (8.0% Bảo hiểm)", Cảnh báo trần đóng BHXH
+
+* Màu Doanh nghiệp / Chi phí tổ chức (Employer Match / Cost):
+  - Mã Hex: #4338CA (Indigo 700) hoặc #3730A3 (Indigo 800)
+  - Tailwind Class: text-indigo-700 / text-indigo-800 / font-bold
+  - Áp dụng: "+$5,550.00 (Tổng chi phí người sử dụng lao động)"
+
+[GIAO DIỆN TỐI - DARK MODE]
+* Xanh lá: #34D399 (Emerald 400) / Đỏ: #FB7185 (Rose 400) / Vàng: #FBBF24 (Amber 400)
+
+
+2.5. NHÓM CHỮ TRÊN NỀN NỔI BẬT (INVERTED TEXT TRÊN BUTTONS & BADGES)
+--------------------------------------------------------------------------------
+* Chữ trên nút xanh chính (Primary Button):
+  - Nền: #2563EB (Blue 600)
+  - Màu chữ: #FFFFFF (White 100%) - font-bold
+  - Tỷ lệ tương phản: 8.3 : 1 (Chuẩn AAA)
+
+* Chữ trên thẻ Badge Xanh ngọc (Success Badge):
+  - Nền: #ECFDF5 (Emerald 50)
+  - Viền: #A7F3D0 (Emerald 200)
+  - Màu chữ: #047857 (Emerald 700) - font-bold
+
+
+================================================================================
+3. HỆ THỐNG TAB MÀU & ĐIỀU KHIỂN (TABS, PILLS, SEGMENTED CONTROLS)
+================================================================================
+
+3.1. TAB PHÂN ĐOẠN HƯỚNG TÍNH (CALCULATION DIRECTION: GROSS ➔ NET / NET ➔ GROSS)
+--------------------------------------------------------------------------------
+* Khung chứa Tab (Container):
+  - Nền: #F1F5F9 (Slate 100)
+  - Viền: 1px solid #E2E8F0 (Slate 200)
+  - Padding: 4px (p-1) | Bo góc: 12px (rounded-xl)
+
+* Tab ĐANG CHỌN (Active State):
+  - Nền: #FFFFFF (Pure White)
+  - Viền: 1px solid #CBD5E1 (Slate 300)
+  - Màu chữ: #1D4ED8 (Blue 700) | Kiểu: font-bold
+  - Biểu tượng mũi tên: #2563EB (Blue 600)
+  - Bóng đổ: 0 1px 3px rgba(0,0,0,0.08) (shadow-xs)
+
+* Tab CHƯA CHỌN (Inactive State):
+  - Nền: Trong suốt (transparent)
+  - Màu chữ: #475569 (Slate 600) | Kiểu: font-medium
+  - Hover: Nền #E2E8F0 (Slate 200), chữ #0F172A (Slate 900)
+
+
+3.2. TAB CHU KỲ TRẢ LƯƠNG (PAY FREQUENCY PILLS: /mo, /yr, /2w, /wk, /hr)
+--------------------------------------------------------------------------------
+* Tab ĐANG CHỌN (Active):
+  - Nền: #EFF6FF (Blue 50)
+  - Viền: 2px solid #2563EB (Blue 600)
+  - Dòng chữ chính (/mo, /yr): #1E40AF (Blue 800) | font-bold
+  - Dòng chữ phụ (monthly, annual): #2563EB (Blue 600) | font-semibold
+
+* Tab CHƯA CHỌN (Inactive):
+  - Nền: #F8FAFC (Slate 50)
+  - Viền: 1px solid #E2E8F0 (Slate 200)
+  - Dòng chữ chính: #334155 (Slate 700) | font-bold
+  - Dòng chữ phụ: #64748B (Slate 500) | font-normal
+  - Hover: Nền #F1F5F9 (Slate 100), viền #CBD5E1 (Slate 300)
+
+
+3.3. TAB DANH MỤC CÔNG CỤ TRÊN HEADER / THANH LỌC (CATEGORY TABS)
+--------------------------------------------------------------------------------
+* Tab "TẤT CẢ (62)" - ĐANG CHỌN:
+  - Nền: #2563EB (Blue 600)
+  - Màu chữ: #FFFFFF (White) | font-bold
+  - Badge số lượng: Nền rgba(255,255,255,0.25), chữ #FFFFFF
+
+* Tab "TÀI CHÍNH", "SỨC KHỎE", "TOÁN HỌC" - CHƯA CHỌN:
+  - Nền: #FFFFFF (White)
+  - Viền: 1px solid #E2E8F0 (Slate 200)
+  - Màu chữ: #334155 (Slate 700) | font-semibold
+  - Badge số lượng: Nền #F1F5F9 (Slate 100), chữ #475569 (Slate 600)
+  - Hover: Nền #F8FAFC (Slate 50), viền #CBD5E1 (Slate 300), chữ #0F172A
+
+
+3.4. NÚT PRESET SỐ TIỀN NHANH (QUICK AMOUNT CHIPS: $2,000, $5,000, $8,000...)
+--------------------------------------------------------------------------------
+* Trạng thái bình thường:
+  - Nền: #F1F5F9 (Slate 100)
+  - Viền: 1px solid #E2E8F0 (Slate 200)
+  - Màu chữ: #1E293B (Slate 800) | font-semibold
+  - Bo góc: 8px (rounded-lg)
+
+* Trạng thái Hover:
+  - Nền: #E2E8F0 (Slate 200)
+  - Viền: 1px solid #CBD5E1 (Slate 300)
+  - Màu chữ: #0F172A (Slate 900)
+
+
+3.5. NÚT MENU CÔNG CỤ BÊN SIDEBAR (SIDEBAR NAVIGATION ITEMS)
+--------------------------------------------------------------------------------
+* Mục ĐANG KÍCH HOẠT (Active Tool - Ví dụ: Salary (Gross - Net)):
+  - Nền: #2563EB (Blue 600 - Xanh hoàng gia thương mại)
+  - Viền: 1px solid #1D4ED8 (Blue 700)
+  - Màu chữ: #FFFFFF (White 100%) | font-bold (TUYỆT ĐỐI KHÔNG DÙNG CHỮ TỐI)
+  - Biểu tượng Icon: #FFFFFF (White)
+  - Đèn chỉ báo (Dot/Badge): #60A5FA (Blue 400) hoặc #34D399 (Emerald 400)
+  - Bóng đổ: 0 4px 12px rgba(37, 99, 235, 0.25)
+
+* Mục CHƯA CHỌN (Inactive Tool):
+  - Nền: Trong suốt
+  - Viền: Không viền (hoặc viền trong suốt)
+  - Màu chữ: #334155 (Slate 700) | font-medium
+  - Biểu tượng Icon: #64748B (Slate 500)
+  - Hover: Nền #F1F5F9 (Slate 100), chữ #0F172A (Slate 900), icon #2563EB
+
+
+================================================================================
+4. HỆ THỐNG DROPDOWN & MENU ĐIỀU HƯỚNG (LANGUAGE & CURRENCY SELECTORS)
+================================================================================
+
+4.1. DROPDOWN CHỌN NGÔN NGỮ (LANGUAGE SELECTOR MODAL)
+--------------------------------------------------------------------------------
+* Khung Dropdown chính (Modal Box):
+  - Nền: #FFFFFF (Pure White)
+  - Viền: 1px solid #CBD5E1 (Slate 300)
+  - Bo góc: 16px (rounded-2xl)
+  - Bóng đổ: 0 20px 25px -5px rgba(0,0,0,0.12), 0 8px 10px -6px rgba(0,0,0,0.08)
+
+* Khung Tìm kiếm Ngôn ngữ (Search Header):
+  - Nền: #FFFFFF
+  - Đường kẻ dưới: 1px solid #E2E8F0 (Slate 200)
+  - Ô Input: Nền #F8FAFC (Slate 50), viền #CBD5E1 (Slate 300)
+  - Màu chữ khi gõ: #0F172A (Slate 900) | font-semibold
+  - Placeholder: #64748B (Slate 500)
+  - Icon kính lúp: #64748B (Slate 500)
+
+* Dòng Ngôn ngữ ĐANG CHỌN (Selected Language - Ví dụ: English (US)):
+  - Nền: #2563EB (Blue 600)
+  - Tên bản địa (Native Name): #FFFFFF | font-bold
+  - Tên tiếng Anh (Sub Name): #DBEAFE (Blue 100) | font-medium
+  - Biểu tượng Check (V): #FFFFFF
+
+* Dòng Ngôn ngữ CHƯA CHỌN (Unselected Languages - Tiếng Việt, 中文, Español...):
+  - Nền: Trong suốt
+  - Tên bản địa (Native Name): #0F172A (Slate 900 - Đen than đậm, RÕ RÀNG) | font-semibold
+  - Tên tiếng Anh (Sub Name): #475569 (Slate 600 - Xám than, RÕ RÀNG) | font-medium
+  - Mã quốc gia (VN, CN, ES, FR): #475569 (Slate 600) | font-bold
+  - Hover: Nền #F1F5F9 (Slate 100), Tên bản địa chuyển thành #0F172A
+
+* Chân Dropdown (Footer):
+  - Nền: #F8FAFC (Slate 50)
+  - Đường viền trên: 1px solid #E2E8F0 (Slate 200)
+  - Chữ thông tin ("20 Ngôn ngữ - AC Studio i18n"): #475569 (Slate 600) | font-semibold
+
+
+4.2. DROPDOWN ĐƠN VỊ TIỀN TỆ (CURRENCY SELECTOR)
+--------------------------------------------------------------------------------
+* Khung Dropdown: Nền #FFFFFF, viền #CBD5E1, bóng đổ chuẩn elevation-3.
+* Dòng tiền tệ Active: Nền #2563EB, chữ trắng tinh #FFFFFF.
+* Dòng tiền tệ Inactive:
+  - Mã tiền tệ (USD, VND, EUR, JPY): #0F172A | font-bold
+  - Ký hiệu ($ , ₫ , € , ¥): #059669 (Emerald 600) | font-bold
+  - Tên quốc gia: #475569 (Slate 600) | font-medium
+  - Hover: Nền #F1F5F9
+
+
+================================================================================
+5. HỆ THỐNG KHỐI KẾT QUẢ TRỌNG TÂM (HERO RESULT CARDS & BẢNG BÁO CÁO)
+================================================================================
+
+5.1. THẺ KẾT QUẢ LƯƠNG NET (NET TAKE-HOME PAY HERO CARD)
+--------------------------------------------------------------------------------
+[GIAO DIỆN SÁNG - LIGHT MODE]
+* Thẻ chứa (Card Wrapper):
+  - Nền: #FFFFFF (Trắng tinh khôi)
+  - Viền: 1px solid #E2E8F0 (Slate 200)
+  - Bóng đổ: 0 4px 20px -2px rgba(0, 0, 0, 0.05)
+  - Bo góc: 16px (rounded-2xl)
+
+* Dòng tiêu đề trên cùng (Eyebrow):
+  - Biểu tượng ví tiền (Wallet Icon): #059669 (Emerald 600)
+  - Chữ: "LƯƠNG NET THỰC NHẬN (VỀ TÚI)": #065F46 (Emerald 800) | font-bold
+  - Badge tỷ lệ: Nền #ECFDF5 (Emerald 50), viền #A7F3D0 (Emerald 200), chữ #047857 (Emerald 700) font-bold
+
+* Con số số tiền chính:
+  - Số tiền: "$4,180.00": #0F172A (Slate 900 - Đen than cực đậm) | font-black text-3xl
+  - Đơn vị: "//mo": #64748B (Slate 500) | font-semibold text-sm
+
+* Dải quy đổi đáy thẻ (Equivalents Footer):
+  - Đường kẻ ngăn: 1px solid #E2E8F0 (Slate 200)
+  - Nhãn "Tương đương / Equivalents:": #475569 (Slate 600) | font-medium
+  - Con số quy đổi năm & tháng: #0F172A (Slate 900) | font-bold
+
+
+5.2. HỘP THÔNG TIN LỢI ÍCH & LƯU Ý (BENEFIT CALLOUT PANELS)
+--------------------------------------------------------------------------------
+* Khối thông báo Lợi ích / Hoàn thuế:
+  - Nền: #ECFDF5 (Emerald 50)
+  - Viền: 1px solid #A7F3D0 (Emerald 200)
+  - Tiêu đề: #047857 (Emerald 700) | font-bold
+  - Nội dung mô tả: #065F46 (Emerald 800) | font-medium
+
+* Khối cảnh báo / Mức phạt / Trừ thuế:
+  - Nền: #FFF1F2 (Rose 50)
+  - Viền: 1px solid #FECDD3 (Rose 200)
+  - Tiêu đề & Nội dung: #9F1239 (Rose 800) | font-semibold
+
+
+================================================================================
+6. BẢNG TỔNG HỢP MÃ MÀU CHUẨN (HEX, RGB & TAILWIND CLASS MATRIX)
+================================================================================
+
++---------------+---------+--------------------+-----------------------------+-------------------------------+
+| TÊN MÀU       | MÃ HEX  | GIÁ TRỊ RGB        | TAILWIND CLASS              | VAI TRÒ CHÍNH                 |
++---------------+---------+--------------------+-----------------------------+-------------------------------+
+| Ink Black     | #0F172A | rgb(15, 23, 42)    | text-slate-900 / bg-slate-900| Tiêu đề lớn, số tiền chính    |
+| Charcoal Dark | #1E293B | rgb(30, 41, 59)    | text-slate-800 / bg-slate-800| Tiêu đề phụ, nhãn form chính  |
+| Slate Body    | #334155 | rgb(51, 65, 85)    | text-slate-700              | Nội dung văn bản, bảng biểu   |
+| Slate Muted   | #475569 | rgb(71, 85, 105)   | text-slate-600              | Chữ phụ, metadata, tương đương|
+| Slate Hint    | #64748B | rgb(100, 116, 139) | text-slate-500              | Placeholder, đơn vị tính      |
+| Slate Border  | #CBD5E1 | rgb(203, 213, 225) | border-slate-300            | Viền dropdown, viền input     |
+| Slate Divider | #E2E8F0 | rgb(226, 232, 240) | border-slate-200            | Đường kẻ ngang, viền thẻ card |
+| Slate Surface | #F1F5F9 | rgb(241, 245, 249) | bg-slate-100                | Nền tab bar, nền chip preset  |
+| Canvas Soft   | #F8FAFC | rgb(248, 250, 252) | bg-slate-50                 | Nền ô input, nền footer modal |
+| Pure Canvas   | #FFFFFF | rgb(255, 255, 255) | bg-white / text-white       | Nền trang, nền thẻ kết quả    |
+| Royal Blue    | #2563EB | rgb(37, 99, 235)   | bg-blue-600 / text-blue-600 | Nút chính, Tab đang chọn      |
+| Deep Blue     | #1D4ED8 | rgb(29, 78, 216)   | text-blue-700 / bg-blue-700 | Chữ tab Active, hover nút     |
+| Soft Blue     | #EFF6FF | rgb(239, 246, 255) | bg-blue-50                  | Nền tab Active chu kỳ lương   |
+| Forest Green  | #047857 | rgb(4, 120, 87)    | text-emerald-700            | Lương Net, Tiết kiệm, Lãi     |
+| Mint Tint     | #ECFDF5 | rgb(236, 253, 245) | bg-emerald-50               | Nền badge lợi ích, Net badge  |
+| Crimson Red   | #BE123C | rgb(190, 18, 60)   | text-rose-700               | Thuế TNCN, Khấu trừ lương     |
+| Amber Gold    | #B45309 | rgb(180, 83, 9)    | text-amber-700              | Bảo hiểm xã hội, Cảnh báo     |
++---------------+---------+--------------------+-----------------------------+-------------------------------+
+
+================================================================================
+KẾT THÚC TÀI LIỆU HỆ THỐNG BẢNG MÀU THƯƠNG MẠI
+================================================================================

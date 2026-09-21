@@ -1,0 +1,467 @@
+import React, { useState, useRef } from 'react';
+import { X, FileDown, Printer, Check, Loader2, Calendar, Wallet, ShieldAlert, Globe, ArrowRight } from 'lucide-react';
+import { useLanguage } from '../../context/LanguageContext';
+import { exportElementPagesToPdf } from '../../utils/pdfExportHelper';
+import {
+  CountrySalaryProfile,
+  PayPeriod,
+  PERIOD_LABELS
+} from '../../data/salaryInternationalData';
+import { 
+  formatCurrency,
+  fromAnnualAmount,
+  DetailedCalculationResult 
+} from '../../utils/salaryEngine';
+
+export interface SalaryPdfModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  activeProfile: CountrySalaryProfile;
+  payPeriod: PayPeriod;
+  salaryInput: number;
+  dependents: number;
+  subRegionName?: string;
+  mode: 'gross_to_net' | 'net_to_gross';
+  calculationResult: DetailedCalculationResult;
+}
+
+export const SalaryPdfModal: React.FC<SalaryPdfModalProps> = ({
+  isOpen,
+  onClose,
+  activeProfile,
+  payPeriod,
+  salaryInput,
+  dependents,
+  subRegionName,
+  mode,
+  calculationResult
+}) => {
+  const { language } = useLanguage();
+  const isVi = language === 'vi';
+
+  const [isExporting, setIsExporting] = useState<boolean>(false);
+  const [exportProgress, setExportProgress] = useState<string>('');
+  const [isDone, setIsDone] = useState<boolean>(false);
+
+  const printContainerRef = useRef<HTMLDivElement>(null);
+
+  if (!isOpen) return null;
+
+  const currentPeriodData = calculationResult.periods[payPeriod];
+  const grossCurrent = currentPeriodData.gross;
+  const netCurrent = currentPeriodData.net;
+  const insCurrent = currentPeriodData.employeeInsurance;
+  const taxCurrent = currentPeriodData.tax;
+
+  const periodLabel = isVi ? PERIOD_LABELS[payPeriod].vi : PERIOD_LABELS[payPeriod].en;
+
+  const handleExportPDF = async () => {
+    if (isExporting || !printContainerRef.current) return;
+    try {
+      setIsExporting(true);
+      setIsDone(false);
+      setExportProgress(isVi ? 'Đang chuẩn bị trang in...' : 'Preparing payslip...');
+
+      const dateStr = new Date().toISOString().slice(0, 10);
+      const fileName = isVi
+        ? `Phieu_Luong_${activeProfile.id.toUpperCase()}_Net_${Math.round(netCurrent)}_${dateStr}.pdf`
+        : `Salary_Slip_${activeProfile.id.toUpperCase()}_Net_${Math.round(netCurrent)}_${dateStr}.pdf`;
+
+      await exportElementPagesToPdf(printContainerRef.current, {
+        fileName,
+        pageSelector: '.pdf-report-page',
+        onProgress: (text) => setExportProgress(text),
+      });
+
+      setIsDone(true);
+      setExportProgress(isVi ? 'Xuất PDF thành công!' : 'PDF export complete!');
+      setTimeout(() => {
+        setIsDone(false);
+        setExportProgress('');
+      }, 3000);
+    } catch (error) {
+      console.error('Lỗi khi xuất PDF:', error);
+      alert(isVi ? 'Có lỗi khi tạo PDF. Bạn có thể chọn In trực tiếp.' : 'Error generating PDF. Try Print directly.');
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
+  const handlePrint = () => {
+    window.print();
+  };
+
+  const currentDateFormatted = new Date().toLocaleDateString(isVi ? 'vi-VN' : 'en-US', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  });
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/80 backdrop-blur-xs animate-in fade-in duration-200 print:hidden">
+      <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 w-full max-w-xl max-h-[92vh] flex flex-col overflow-hidden text-slate-800 dark:text-slate-200">
+        {/* Header */}
+        <div className="px-5 py-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between bg-slate-100 dark:bg-slate-950/80">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-emerald-100 dark:bg-emerald-600/20 border border-emerald-300 dark:border-emerald-500/40 text-emerald-700 dark:text-emerald-400 flex items-center justify-center shadow-xs">
+              <Wallet className="w-5 h-5" />
+            </div>
+            <div>
+              <h3 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white">
+                {isVi ? 'Xuất Phiếu Lương (Gross ↔ Net)' : 'Export Payslip (Gross ↔ Net)'}
+              </h3>
+              <p className="text-xs text-slate-500 dark:text-slate-400">
+                {isVi 
+                  ? `Hồ sơ ${activeProfile.flag} ${activeProfile.name} • Chu kỳ ${periodLabel}` 
+                  : `${activeProfile.flag} ${activeProfile.name} profile • ${periodLabel}`}
+              </p>
+            </div>
+          </div>
+          <button
+            onClick={onClose}
+            disabled={isExporting}
+            className="p-2 text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors cursor-pointer disabled:opacity-50"
+          >
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+
+        {/* Modal Body */}
+        <div className="p-5 overflow-y-auto space-y-4 text-sm">
+          <div className="p-4 bg-slate-50 dark:bg-slate-950/60 rounded-xl border border-slate-200 dark:border-slate-800 space-y-3">
+            <div className="text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider flex items-center justify-between">
+              <span>{isVi ? 'Thông tin phiếu lương' : 'Payslip overview'}</span>
+              <span className="text-emerald-700 dark:text-emerald-400 font-bold">
+                {mode === 'gross_to_net' ? 'Gross → Net' : 'Net → Gross'}
+              </span>
+            </div>
+
+            <div className="grid grid-cols-2 gap-2 text-xs">
+              <div className="bg-white dark:bg-slate-900 p-2.5 rounded-lg border border-slate-200 dark:border-slate-800">
+                <span className="text-slate-500 dark:text-slate-400 block">{isVi ? 'Lương Gross' : 'Gross Salary'}</span>
+                <span className="text-sm font-bold text-slate-900 dark:text-white tabular-nums">
+                  {formatCurrency(grossCurrent, activeProfile.currencySymbol, activeProfile.decimals)}
+                </span>
+              </div>
+              <div className="bg-white dark:bg-slate-900 p-2.5 rounded-lg border border-slate-200 dark:border-slate-800">
+                <span className="text-slate-500 dark:text-slate-400 block">{isVi ? 'Khấu trừ Bảo hiểm' : 'Social Deductions'}</span>
+                <span className="text-sm font-bold text-amber-600 dark:text-amber-400 tabular-nums">
+                  -{formatCurrency(insCurrent, activeProfile.currencySymbol, activeProfile.decimals)}
+                </span>
+              </div>
+              <div className="bg-white dark:bg-slate-900 p-2.5 rounded-lg border border-slate-200 dark:border-slate-800">
+                <span className="text-slate-500 dark:text-slate-400 block">{isVi ? 'Thuế thu nhập' : 'Income Tax'}</span>
+                <span className="text-sm font-bold text-rose-600 dark:text-rose-400 tabular-nums">
+                  -{formatCurrency(taxCurrent, activeProfile.currencySymbol, activeProfile.decimals)}
+                </span>
+              </div>
+              <div className="bg-white dark:bg-slate-900 p-2.5 rounded-lg border border-slate-200 dark:border-slate-800">
+                <span className="text-slate-500 dark:text-slate-400 block">{isVi ? 'Số người phụ thuộc' : 'Dependents'}</span>
+                <span className="text-sm font-bold text-slate-900 dark:text-white tabular-nums">
+                  {dependents} {isVi ? 'người' : 'persons'}
+                </span>
+              </div>
+            </div>
+
+            <div className="p-4 rounded-xl bg-emerald-50 dark:bg-gradient-to-r dark:from-emerald-950/60 dark:via-slate-900 dark:to-emerald-950/60 border border-emerald-300 dark:border-emerald-500/40 text-center space-y-1">
+              <span className="text-xs text-emerald-800 dark:text-emerald-400 uppercase tracking-wider font-semibold">
+                {isVi ? 'Thực nhận (Net Take-home Pay)' : 'Net Take-home Pay'}
+              </span>
+              <div className="text-2xl sm:text-3xl font-extrabold text-emerald-700 dark:text-emerald-300 tabular-nums">
+                {formatCurrency(netCurrent, activeProfile.currencySymbol, activeProfile.decimals)}
+                <span className="text-xs text-slate-500 dark:text-slate-400 font-normal"> /{periodLabel.toLowerCase()}</span>
+              </div>
+            </div>
+
+            {subRegionName && (
+              <div className="text-xs text-slate-600 dark:text-slate-400 px-1">
+                {isVi ? 'Khu vực / Tùy chọn:' : 'Region / Mode:'} <strong className="text-slate-900 dark:text-slate-200">{subRegionName}</strong>
+              </div>
+            )}
+          </div>
+
+          {exportProgress && (
+            <div className="p-3 bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-300 dark:border-emerald-500/40 rounded-xl flex items-center gap-2.5 text-xs text-emerald-800 dark:text-emerald-300">
+              {isExporting ? (
+                <Loader2 className="w-4 h-4 animate-spin text-emerald-600 dark:text-emerald-400 shrink-0" />
+              ) : isDone ? (
+                <Check className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
+              ) : null}
+              <span>{exportProgress}</span>
+            </div>
+          )}
+        </div>
+
+        {/* Modal Footer */}
+        <div className="px-5 py-4 border-t border-slate-200 dark:border-slate-800 bg-slate-100 dark:bg-slate-950/80 flex flex-col sm:flex-row items-center justify-between gap-3">
+          <div className="text-xs text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
+            <ShieldAlert className="w-3.5 h-3.5 text-slate-500 shrink-0" />
+            <span>{isVi ? 'Phiếu lương chuẩn A4 rõ nét, in trực tiếp' : 'Official standard A4 payslip format'}</span>
+          </div>
+
+          <div className="flex items-center gap-2 w-full sm:w-auto">
+            <button
+              type="button"
+              onClick={handlePrint}
+              disabled={isExporting}
+              className="flex-1 sm:flex-none px-3.5 py-2 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 border border-slate-300 dark:border-slate-700 text-xs font-semibold rounded-xl flex items-center justify-center gap-1.5 transition-colors cursor-pointer disabled:opacity-50"
+            >
+              <Printer className="w-3.5 h-3.5" />
+              <span>{isVi ? 'In / Lưu PDF' : 'Print / Save'}</span>
+            </button>
+
+            <button
+              type="button"
+              id="confirm-download-salary-pdf-btn"
+              onClick={handleExportPDF}
+              disabled={isExporting}
+              className="flex-1 sm:flex-none px-5 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold rounded-xl shadow-xs flex items-center justify-center gap-2 transition-all cursor-pointer disabled:opacity-50"
+            >
+              {isExporting ? (
+                <>
+                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                  <span>{isVi ? 'Đang tạo PDF...' : 'Generating...'}</span>
+                </>
+              ) : isDone ? (
+                <>
+                  <Check className="w-3.5 h-3.5 text-emerald-300" />
+                  <span>{isVi ? 'Đã tải xong!' : 'Downloaded!'}</span>
+                </>
+              ) : (
+                <>
+                  <FileDown className="w-3.5 h-3.5" />
+                  <span>{isVi ? 'Tải phiếu lương PDF' : 'Download Payslip PDF'}</span>
+                </>
+              )}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* PRINTABLE CONTAINER (Off-screen, NOT display: none for sharp html2canvas rendering) */}
+      <div
+        ref={printContainerRef}
+        id="salary-pdf-printable-source"
+        aria-hidden="true"
+        style={{
+          position: 'fixed',
+          left: '-9999px',
+          top: 0,
+          width: '794px',
+          height: 'auto',
+          overflow: 'hidden',
+          pointerEvents: 'none',
+          backgroundColor: '#ffffff',
+          color: '#0f172a',
+          zIndex: -9999,
+        }}
+      >
+        <div
+          className="pdf-report-page bg-white text-slate-900"
+          style={{
+            width: '794px',
+            minHeight: '1123px',
+            height: '1123px',
+            padding: '36px 40px',
+            boxSizing: 'border-box',
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'space-between',
+            fontFamily: 'system-ui, -apple-system, sans-serif',
+          }}
+        >
+          <div>
+            {/* Header */}
+            <div style={{ borderBottom: '2px solid #059669', paddingBottom: '14px', marginBottom: '16px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                <div>
+                  <div style={{ fontSize: '10px', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '1px', color: '#059669' }}>
+                    PHIẾU LƯƠNG CHUẨN QUỐC TẾ • OFFICIAL PAYROLL SLIP
+                  </div>
+                  <h1 style={{ fontSize: '20px', fontWeight: 900, color: '#0f172a', margin: '4px 0 2px 0', letterSpacing: '-0.5px' }}>
+                    PHIẾU TÍNH LƯƠNG &amp; NGHĨA VỤ THUẾ, BẢO HIỂM
+                  </h1>
+                  <div style={{ fontSize: '11px', color: '#475569' }}>
+                    Quốc gia: <strong>{activeProfile.flag} {activeProfile.name}</strong> • Chu kỳ tính: <strong>{periodLabel}</strong> {subRegionName ? `• ${subRegionName}` : ''}
+                  </div>
+                </div>
+                <div style={{ textAlign: 'right', fontSize: '10px', color: '#64748b' }}>
+                  <div>Ngày xuất: <strong style={{ color: '#0f172a' }}>{currentDateFormatted}</strong></div>
+                  <div>Tiền tệ: <strong style={{ color: '#0f172a' }}>{activeProfile.currencyCode} ({activeProfile.currencySymbol})</strong></div>
+                  <div style={{ marginTop: '2px', display: 'inline-block', padding: '2px 6px', background: '#d1fae5', color: '#065f46', borderRadius: '4px', fontWeight: 700 }}>
+                    Chế độ: {mode === 'gross_to_net' ? 'Gross sang Net' : 'Net sang Gross'}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* 1. Core Summary Cards */}
+            <div style={{ marginBottom: '14px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '8px', marginBottom: '8px' }}>
+                <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '8px', padding: '9px 10px' }}>
+                  <div style={{ fontSize: '9px', color: '#64748b', fontWeight: 600 }}>LƯƠNG GROSS ({periodLabel})</div>
+                  <div style={{ fontSize: '14px', fontWeight: 900, color: '#0f172a', marginTop: '2px' }}>
+                    {formatCurrency(grossCurrent, activeProfile.currencySymbol, activeProfile.decimals)}
+                  </div>
+                </div>
+                <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '8px', padding: '9px 10px' }}>
+                  <div style={{ fontSize: '9px', color: '#b45309', fontWeight: 600 }}>BẢO HIỂM NLĐ ĐÓNG</div>
+                  <div style={{ fontSize: '14px', fontWeight: 900, color: '#d97706', marginTop: '2px' }}>
+                    -{formatCurrency(insCurrent, activeProfile.currencySymbol, activeProfile.decimals)}
+                  </div>
+                </div>
+                <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '8px', padding: '9px 10px' }}>
+                  <div style={{ fontSize: '9px', color: '#be123c', fontWeight: 600 }}>THUẾ THU NHẬP</div>
+                  <div style={{ fontSize: '14px', fontWeight: 900, color: '#e11d48', marginTop: '2px' }}>
+                    -{formatCurrency(taxCurrent, activeProfile.currencySymbol, activeProfile.decimals)}
+                  </div>
+                </div>
+                <div style={{ background: '#ecfdf5', border: '1px solid #a7f3d0', borderRadius: '8px', padding: '9px 10px' }}>
+                  <div style={{ fontSize: '9px', color: '#065f46', fontWeight: 700 }}>LƯƠNG THỰC NHẬN (NET)</div>
+                  <div style={{ fontSize: '15px', fontWeight: 900, color: '#047857', marginTop: '2px' }}>
+                    {formatCurrency(netCurrent, activeProfile.currencySymbol, activeProfile.decimals)}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* 2. Detailed Breakdown Table */}
+            <div style={{ marginBottom: '14px' }}>
+              <div style={{ fontSize: '10.5px', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.5px', color: '#0f172a', marginBottom: '6px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <span style={{ width: '7px', height: '7px', background: '#059669', borderRadius: '2px', display: 'inline-block' }} />
+                <span>1. BẢNG CHI TIẾT CÁC KHOẢN KHẤU TRỪ VÀ THỰC NHẬN ({periodLabel})</span>
+              </div>
+
+              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '10px' }}>
+                <tbody>
+                  <tr style={{ background: '#f8fafc', borderTop: '1px solid #cbd5e1', borderBottom: '1px solid #e2e8f0' }}>
+                    <td style={{ padding: '6px 8px', fontWeight: 800, color: '#0f172a' }}>1. Lương Gross (Thu nhập danh nghĩa)</td>
+                    <td style={{ padding: '6px 8px', textAlign: 'right', fontWeight: 800, color: '#0f172a' }}>
+                      {formatCurrency(grossCurrent, activeProfile.currencySymbol, activeProfile.decimals)}
+                    </td>
+                  </tr>
+
+                  {/* Insurance breakdown */}
+                  <tr style={{ borderBottom: '1px solid #e2e8f0', background: '#ffffff' }}>
+                    <td style={{ padding: '6px 8px', fontWeight: 700, color: '#b45309', paddingLeft: '16px' }}>
+                      2. Bảo hiểm bắt buộc &amp; An sinh Xã hội NLĐ đóng
+                    </td>
+                    <td style={{ padding: '6px 8px', textAlign: 'right', fontWeight: 700, color: '#d97706' }}>
+                      -{formatCurrency(insCurrent, activeProfile.currencySymbol, activeProfile.decimals)}
+                    </td>
+                  </tr>
+                  {(calculationResult.employeeInsuranceItems || []).map((item, idx) => {
+                    const itemPeriodAmount = fromAnnualAmount(item.annualAmount, payPeriod);
+                    return (
+                      <tr key={`ins-${idx}`} style={{ borderBottom: '1px solid #f1f5f9', background: '#fafafa', fontSize: '9.5px' }}>
+                        <td style={{ padding: '4px 8px 4px 28px', color: '#64748b' }}>
+                          • {item.name} ({item.rate}%)
+                        </td>
+                        <td style={{ padding: '4px 8px', textAlign: 'right', color: '#64748b' }}>
+                          -{formatCurrency(itemPeriodAmount, activeProfile.currencySymbol, activeProfile.decimals)}
+                        </td>
+                      </tr>
+                    );
+                  })}
+
+                  {/* Income Tax */}
+                  <tr style={{ borderBottom: '1px solid #e2e8f0', background: '#ffffff' }}>
+                    <td style={{ padding: '6px 8px', fontWeight: 700, color: '#be123c', paddingLeft: '16px' }}>
+                      3. Thuế thu nhập cá nhân (TNCN / Income Tax)
+                    </td>
+                    <td style={{ padding: '6px 8px', textAlign: 'right', fontWeight: 700, color: '#e11d48' }}>
+                      -{formatCurrency(taxCurrent, activeProfile.currencySymbol, activeProfile.decimals)}
+                    </td>
+                  </tr>
+
+                  {/* Net Take-home */}
+                  <tr style={{ background: '#ecfdf5', borderTop: '2px solid #059669', borderBottom: '2px solid #059669' }}>
+                    <td style={{ padding: '8px 8px', fontWeight: 900, color: '#065f46', fontSize: '11px' }}>
+                      4. LƯƠNG THỰC NHẬN (NET TAKE-HOME)
+                    </td>
+                    <td style={{ padding: '8px 8px', textAlign: 'right', fontWeight: 900, color: '#047857', fontSize: '13px' }}>
+                      {formatCurrency(netCurrent, activeProfile.currencySymbol, activeProfile.decimals)}
+                    </td>
+                  </tr>
+
+                  {/* Employer cost */}
+                  <tr style={{ borderBottom: '1px solid #e2e8f0', background: '#ffffff' }}>
+                    <td style={{ padding: '6px 8px', fontWeight: 600, color: '#475569' }}>
+                      5. Chi phí Doanh nghiệp / Người sử dụng lao động chi trả
+                    </td>
+                    <td style={{ padding: '6px 8px', textAlign: 'right', fontWeight: 700, color: '#334155' }}>
+                      {formatCurrency(currentPeriodData.totalEmployerCost, activeProfile.currencySymbol, activeProfile.decimals)}
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            {/* 3. Conversion Table Across Periods */}
+            <div style={{ marginBottom: '14px' }}>
+              <div style={{ fontSize: '10.5px', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.5px', color: '#0f172a', marginBottom: '6px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <span style={{ width: '7px', height: '7px', background: '#2563eb', borderRadius: '2px', display: 'inline-block' }} />
+                <span>2. BẢNG QUY ĐỔI MỨC LƯƠNG TƯƠNG ĐƯƠNG CÁC CHU KỲ</span>
+              </div>
+
+              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '9.5px' }}>
+                <thead>
+                  <tr style={{ background: '#f1f5f9', borderTop: '1px solid #cbd5e1', borderBottom: '1px solid #cbd5e1' }}>
+                    <th style={{ padding: '5px 8px', textAlign: 'left', fontWeight: 700, color: '#334155' }}>CHU KỲ</th>
+                    <th style={{ padding: '5px 8px', textAlign: 'right', fontWeight: 700, color: '#0f172a' }}>LƯƠNG GROSS</th>
+                    <th style={{ padding: '5px 8px', textAlign: 'right', fontWeight: 700, color: '#d97706' }}>BẢO HIỂM NLĐ</th>
+                    <th style={{ padding: '5px 8px', textAlign: 'right', fontWeight: 700, color: '#e11d48' }}>THUẾ TNCN</th>
+                    <th style={{ padding: '5px 8px', textAlign: 'right', fontWeight: 700, color: '#059669' }}>THỰC NHẬN (NET)</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {(['year', 'month', 'biweekly', 'week', 'hour'] as PayPeriod[]).map((p, idx) => {
+                    const rowData = calculationResult.periods[p];
+                    const isSelected = p === payPeriod;
+                    return (
+                      <tr
+                        key={p}
+                        style={{
+                          borderBottom: '1px solid #e2e8f0',
+                          background: isSelected ? '#ecfdf5' : idx % 2 === 0 ? '#ffffff' : '#f8fafc',
+                          fontWeight: isSelected ? 700 : 500,
+                        }}
+                      >
+                        <td style={{ padding: '5px 8px', color: isSelected ? '#047857' : '#0f172a' }}>
+                          {isVi ? PERIOD_LABELS[p].vi : PERIOD_LABELS[p].en} {isSelected ? '★' : ''}
+                        </td>
+                        <td style={{ padding: '5px 8px', textAlign: 'right', color: '#0f172a' }}>
+                          {formatCurrency(rowData.gross, activeProfile.currencySymbol, activeProfile.decimals)}
+                        </td>
+                        <td style={{ padding: '5px 8px', textAlign: 'right', color: '#d97706' }}>
+                          -{formatCurrency(rowData.employeeInsurance, activeProfile.currencySymbol, activeProfile.decimals)}
+                        </td>
+                        <td style={{ padding: '5px 8px', textAlign: 'right', color: '#e11d48' }}>
+                          -{formatCurrency(rowData.tax, activeProfile.currencySymbol, activeProfile.decimals)}
+                        </td>
+                        <td style={{ padding: '5px 8px', textAlign: 'right', color: '#059669', fontWeight: 700 }}>
+                          {formatCurrency(rowData.net, activeProfile.currencySymbol, activeProfile.decimals)}
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+
+            {/* Note block */}
+            <div style={{ padding: '8px 12px', background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '8px', fontSize: '9.5px', color: '#475569' }}>
+              ℹ️ <strong>Lưu ý pháp lý:</strong> Bảng tính tuân thủ biểu thuế lũy tiến từng phần và quy định tỷ lệ đóng bảo hiểm xã hội, y tế hiện hành của quốc gia được chọn. Kết quả mang tính tham khảo dự toán thu nhập.
+            </div>
+          </div>
+
+          {/* Footer */}
+          <div style={{ borderTop: '1px solid #e2e8f0', paddingTop: '8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '9px', color: '#94a3b8' }}>
+            <div>Web Calculator • Hệ thống Tính tiền lương quốc tế Gross - Net</div>
+            <div>Trang 1 / 1</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};

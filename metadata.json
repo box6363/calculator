@@ -1,0 +1,6 @@
+{
+  "name": "Web Calculator",
+  "description": "Bộ công cụ tính toán thông minh toàn diện chuẩn Mobile-First hỗ trợ đa ngôn ngữ với đầy đủ các công cụ chuyên sâu: Máy tính khoa học, AI Tool giải toán & đọc ảnh/PDF với Gemini AI, BMI, Lãi vay, Lương Gross/Net, Vay mua nhà Mortgage, Calorie TDEE, Tỷ lệ mỡ Body Fat, Thời gian, Ngày tháng, Tiền Tip, Giảm giá Discount, Thuế TNCN, Pace chạy bộ, Rụng trứng, Điểm GPA, Bê tông, Quay số ngẫu nhiên và Tạo mật khẩu.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

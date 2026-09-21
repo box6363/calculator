@@ -1,0 +1,20 @@
+{
+  "name": "Web Calculator – AC Studio",
+  "short_name": "WebCalculator",
+  "description": "Bộ công cụ tính toán thông minh chuẩn SEO quốc tế với 9 công cụ: Khoa học, Tiền lương Gross - Net, Lãi vay EMI, BMI, Tính tuổi, Phần trăm, Đổi đơn vị, Lượng giác và Lãi kép.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0F1628",
+  "theme_color": "#0F1628",
+  "orientation": "any",
+  "lang": "en",
+  "categories": ["utilities", "finance", "education"],
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "64x64 128x128 256x256 512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

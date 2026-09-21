@@ -1,0 +1,89 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#090E17"/>
+      <stop offset="50%" stop-color="#0F172A"/>
+      <stop offset="100%" stop-color="#1E293B"/>
+    </linearGradient>
+    <linearGradient id="blueGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#3B82F6"/>
+      <stop offset="100%" stop-color="#2563EB"/>
+    </linearGradient>
+    <linearGradient id="glowGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#60A5FA" stop-opacity="0.25"/>
+      <stop offset="100%" stop-color="#3B82F6" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1200" height="630" fill="url(#bgGrad)"/>
+  
+  <!-- Subtle Grid Accent -->
+  <circle cx="600" cy="150" r="380" fill="url(#glowGrad)"/>
+
+  <!-- Brand Badge -->
+  <rect x="80" y="80" width="220" height="42" rx="21" fill="#1E293B" stroke="#334155" stroke-width="1.5"/>
+  <circle cx="104" cy="101" r="6" fill="#10B981"/>
+  <text x="122" y="107" fill="#94A3B8" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="16" font-weight="700" letter-spacing="1">AC STUDIO • GLOBAL</text>
+
+  <!-- Main Title -->
+  <text x="80" y="200" fill="#FFFFFF" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="64" font-weight="900" letter-spacing="-1">Web Calculator</text>
+  <text x="80" y="260" fill="#38BDF8" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="36" font-weight="700">9 Smart Online Calculation Tools</text>
+
+  <!-- Description -->
+  <text x="80" y="325" fill="#94A3B8" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="22" font-weight="400">
+    <tspan x="80" dy="0">High-performance suite of international calculators: Basic Math, Salary Gross-Net,</tspan>
+    <tspan x="80" dy="34">Loan EMI, WHO BMI, Age, Percentage, Unit Conversion, Trigonometry &amp; Compound Interest.</tspan>
+  </text>
+
+  <!-- Feature Pills -->
+  <g transform="translate(80, 420)">
+    <!-- Pill 1 -->
+    <rect x="0" y="0" width="180" height="52" rx="14" fill="#1E293B" stroke="#3B82F6" stroke-width="1.5"/>
+    <text x="90" y="32" fill="#E2E8F0" font-family="-apple-system, sans-serif" font-size="16" font-weight="700" text-anchor="middle">⚡ Core Web Vitals</text>
+
+    <!-- Pill 2 -->
+    <rect x="200" y="0" width="180" height="52" rx="14" fill="#1E293B" stroke="#10B981" stroke-width="1.5"/>
+    <text x="290" y="32" fill="#E2E8F0" font-family="-apple-system, sans-serif" font-size="16" font-weight="700" text-anchor="middle">🌐 20 Languages</text>
+
+    <!-- Pill 3 -->
+    <rect x="400" y="0" width="180" height="52" rx="14" fill="#1E293B" stroke="#F59E0B" stroke-width="1.5"/>
+    <text x="490" y="32" fill="#E2E8F0" font-family="-apple-system, sans-serif" font-size="16" font-weight="700" text-anchor="middle">🔒 100% Client-Side</text>
+
+    <!-- Pill 4 -->
+    <rect x="600" y="0" width="180" height="52" rx="14" fill="#1E293B" stroke="#8B5CF6" stroke-width="1.5"/>
+    <text x="690" y="32" fill="#E2E8F0" font-family="-apple-system, sans-serif" font-size="16" font-weight="700" text-anchor="middle">📱 PWA Installable</text>
+  </g>
+
+  <!-- Graphic Preview on Right -->
+  <g transform="translate(880, 140)">
+    <rect width="240" height="340" rx="24" fill="#0B132B" stroke="#334155" stroke-width="2"/>
+    <rect x="20" y="20" width="200" height="70" rx="12" fill="#1C2541"/>
+    <text x="200" y="68" fill="#10B981" font-family="monospace" font-size="32" font-weight="bold" text-anchor="end">12,450.00</text>
+    
+    <!-- Grid buttons -->
+    <circle cx="50" cy="130" r="18" fill="#3B82F6"/>
+    <circle cx="100" cy="130" r="18" fill="#3B82F6"/>
+    <circle cx="150" cy="130" r="18" fill="#F59E0B"/>
+    <circle cx="190" cy="130" r="18" fill="#EF4444"/>
+
+    <circle cx="50" cy="180" r="18" fill="#334155"/>
+    <circle cx="100" cy="180" r="18" fill="#334155"/>
+    <circle cx="150" cy="180" r="18" fill="#334155"/>
+    <circle cx="190" cy="180" r="18" fill="#2563EB"/>
+
+    <circle cx="50" cy="230" r="18" fill="#334155"/>
+    <circle cx="100" cy="230" r="18" fill="#334155"/>
+    <circle cx="150" cy="230" r="18" fill="#334155"/>
+    <circle cx="190" cy="230" r="18" fill="#2563EB"/>
+
+    <rect x="32" y="270" width="86" height="36" rx="18" fill="#334155"/>
+    <circle cx="150" cy="288" r="18" fill="#334155"/>
+    <circle cx="190" cy="288" r="18" fill="#10B981"/>
+  </g>
+
+  <!-- Footer Info -->
+  <text x="80" y="560" fill="#64748B" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="16" font-weight="600">
+    https://web-calculator.com • Clean Subdirectories /en /vi /ja /ko /zh /es /de /fr...
+  </text>
+</svg>

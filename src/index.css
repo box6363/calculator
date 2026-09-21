@@ -1,0 +1,1263 @@
+@import "tailwindcss";
+
+:root {
+  --app-bg: #f8fafc;
+  --app-header-bg: rgba(255, 255, 255, 0.96);
+  --app-surface: #ffffff;
+  --app-subsurface: #f1f5f9;
+  --app-border: #e2e8f0;
+  --app-accent: #2563eb;
+  --app-input-bg: #ffffff;
+  --app-input-border: #cbd5e1;
+  --app-text-primary: #0f172a;
+  --app-text-secondary: #334155;
+  --app-text-muted: #64748b;
+}
+
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+  }
+
+  body {
+    font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+    background-color: var(--app-bg, #f8fafc);
+    color: var(--app-text-primary, #0f172a);
+  }
+
+  /* Universal High-Contrast Inputs for Financial and Math Calculators */
+  input[type="text"],
+  input[type="number"],
+  input[type="tel"],
+  input[type="email"],
+  input[type="search"],
+  select,
+  textarea {
+    color: var(--app-text-primary, #0f172a);
+    caret-color: var(--app-accent, #2563eb);
+  }
+
+  .dark input[type="text"],
+  .dark input[type="number"],
+  .dark input[type="tel"],
+  .dark input[type="email"],
+  .dark input[type="search"],
+  .dark select,
+  .dark textarea {
+    color: #ffffff;
+    caret-color: #38bdf8;
+  }
+
+  input::placeholder,
+  textarea::placeholder {
+    color: #94a3b8 !important;
+  }
+
+  /* Prevent browser autofill from rendering dark text on dark blue background */
+  input:-webkit-autofill,
+  input:-webkit-autofill:hover, 
+  input:-webkit-autofill:focus,
+  textarea:-webkit-autofill,
+  select:-webkit-autofill {
+    -webkit-text-fill-color: #ffffff !important;
+    -webkit-box-shadow: 0 0 0px 1000px #090a14 inset !important;
+    transition: background-color 5000s ease-in-out 0s;
+  }
+
+  /* Prevent text scaling glitches on mobile and tablet rotation */
+  input, button, select, textarea {
+    font-family: inherit;
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+  }
+
+  /* Prevent iOS Safari from zooming in on input focus by enforcing 16px minimum font size on mobile */
+  @media screen and (max-width: 768px) {
+    input[type="text"],
+    input[type="number"],
+    input[type="tel"],
+    input[type="email"],
+    select,
+    textarea {
+      font-size: 16px !important;
+    }
+  }
+
+  /* Calculator and financial displays must use clean tabular numbers with NO slashed zero */
+  *, *::before, *::after {
+    font-feature-settings: "zero" 0;
+  }
+
+  .font-mono, .tabular-nums, input, button, select, textarea {
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: "tnum" 1, "zero" 0;
+    -moz-font-feature-settings: "zero" 0, "tnum" 1;
+    -webkit-font-feature-settings: "zero" 0, "tnum" 1;
+  }
+
+  /* KaTeX math display formatting */
+  .katex-display {
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding: 0.5rem 0;
+    margin: 0.75rem 0 !important;
+  }
+
+  .katex {
+    font-size: 1.05em;
+    text-rendering: auto;
+    color: inherit;
+  }
+
+  .tool-themed-card {
+    background-color: var(--app-surface, #1b1d33);
+    border-color: var(--app-border, #272a47);
+    color: var(--app-text-primary, #f1f5f9);
+  }
+}
+
+/* ============================================================
+   CHẾ ĐỘ GIAO DIỆN: SÁNG (LIGHT - NỀN TRẮNG CHỮ ĐEN SẮC NÉT)
+   - Nền sáng trang nhã: #F8FAFC, Card bề mặt: #FFFFFF, Viền: #E2E8F0
+   - Ô nhập liệu: Nền trắng #FFFFFF, viền #CBD5E1, chữ đen #0F172A
+   - Chữ đen đậm tương phản cao chuẩn mực văn phòng / tài chính
+   ============================================================ */
+[data-theme="light"] {
+  --app-bg: #ffffff;
+  --app-header-bg: rgba(255, 255, 255, 0.98);
+  --app-surface: #ffffff;
+  --app-subsurface: #f8fafc;
+  --app-border: #e2e8f0;
+  --app-accent: #2563eb;
+  --app-input-bg: #ffffff;
+  --app-input-border: #cbd5e1;
+  --app-text-primary: #000000;
+  --app-text-secondary: #1e293b;
+  --app-text-muted: #64748b;
+}
+
+/* Thẻ card công cụ chính trong Chế độ Sáng */
+[data-theme="light"] .tool-themed-card {
+  background-color: #ffffff !important;
+  border-color: #e2e8f0 !important;
+  color: #000000 !important;
+  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.05), 0 2px 6px -1px rgba(0, 0, 0, 0.02) !important;
+}
+
+/* Toàn bộ chữ, tiêu đề trong Chế độ Sáng: Đen tuyền sắc nét */
+[data-theme="light"] h1,
+[data-theme="light"] h2,
+[data-theme="light"] h3,
+[data-theme="light"] h4,
+[data-theme="light"] h5,
+[data-theme="light"] h6 {
+  color: #0f172a !important;
+}
+
+/* Chuyển các chữ text-white trên card sang chữ đen/tối, trừ nút active màu nổi (bg-blue-600, equals, v.v.) */
+[data-theme="light"] .text-white:not(button.bg-blue-600):not(button.bg-blue-500):not(button.bg-emerald-600):not(button.bg-emerald-500):not(button.bg-rose-600):not(button.bg-rose-500):not(button.bg-indigo-600):not(button.bg-amber-600):not(button.bg-violet-600):not(.calc-equals-btn):not(.sidebar-tool-active):not(.sidebar-tool-active *):not(.badge-solid):not(button[class*="bg-blue-600"]):not(button[class*="bg-blue-600"] *):not(.bg-blue-600 *):not(.bg-blue-600):not(.calc-num-btn.bg-blue-600):not([class*="bg-gradient-to-r from-blue-600"]) {
+  color: #0f172a !important;
+}
+
+[data-theme="light"] .text-slate-100,
+[data-theme="light"] .text-slate-200,
+[data-theme="light"] .text-slate-300 {
+  color: #1e293b !important;
+}
+
+[data-theme="light"] .text-slate-400 {
+  color: #475569 !important;
+}
+
+[data-theme="light"] .text-slate-500 {
+  color: #64748b !important;
+}
+
+/* Tăng độ tương phản tối đa cho các màu số liệu nổi bật trong Chế độ Sáng (tránh chữ vàng/xanh neon mờ trên nền trắng) */
+[data-theme="light"] .text-emerald-400,
+[data-theme="light"] .text-emerald-300,
+[data-theme="light"] .text-green-400,
+[data-theme="light"] .text-teal-400 {
+  color: #047857 !important; /* Xanh lá đậm chuẩn WCAG AAA trên nền trắng */
+}
+
+[data-theme="light"] .text-violet-400,
+[data-theme="light"] .text-violet-300,
+[data-theme="light"] .text-purple-400,
+[data-theme="light"] .text-indigo-400 {
+  color: #5b21b6 !important; /* Tím đậm sang trọng, độ tương phản cao */
+}
+
+[data-theme="light"] .text-amber-400,
+[data-theme="light"] .text-amber-300,
+[data-theme="light"] .text-yellow-400,
+[data-theme="light"] .text-yellow-500,
+[data-theme="light"] .text-yellow-300 {
+  color: #b45309 !important; /* Vàng hổ phách sẫm, tuyệt đối không bị chói mờ */
+}
+
+[data-theme="light"] .text-rose-400,
+[data-theme="light"] .text-rose-300,
+[data-theme="light"] .text-pink-400,
+[data-theme="light"] .text-red-400 {
+  color: #be123c !important; /* Đỏ hồng ngọc đậm nét */
+}
+
+[data-theme="light"] .text-cyan-400,
+[data-theme="light"] .text-cyan-300,
+[data-theme="light"] .text-sky-400,
+[data-theme="light"] .text-blue-400 {
+  color: #1d4ed8 !important; /* Xanh dương đậm chuyên nghiệp */
+}
+
+/* ============================================================
+   HERO RESULT CARDS & GRADIENT RESULT BOXES IN LIGHT MODE
+   Biến đổi toàn bộ các card kết quả lớn thành nền trắng sang trọng,
+   loại bỏ tình trạng chữ đen trên nền gradient tối hoặc màu xám bẩn
+   ============================================================ */
+[data-theme="light"] .hero-result-card,
+[data-theme="light"] div[class*="bg-gradient-to-br"][class*="rounded-3xl"],
+[data-theme="light"] div[class*="bg-gradient-to-br"][class*="rounded-2xl"]:not(.tool-header-banner),
+[data-theme="light"] div[class*="bg-gradient-to-b"][class*="rounded-2xl"]:not(.tool-header-banner):not(.tool-hero-banner) {
+  background: #ffffff !important;
+  background-image: none !important;
+  border: 1px solid #e2e8f0 !important;
+  color: #0f172a !important;
+  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.05), 0 2px 6px -1px rgba(0, 0, 0, 0.02) !important;
+}
+
+[data-theme="light"] .hero-result-card span[class*="tracking-wider"] {
+  color: #2563eb !important;
+}
+
+[data-theme="light"] .hero-result-card span[class*="text-3xl"],
+[data-theme="light"] .hero-result-card span[class*="text-4xl"],
+[data-theme="light"] .hero-result-card span[class*="text-5xl"],
+[data-theme="light"] .hero-result-card div[class*="text-3xl"],
+[data-theme="light"] .hero-result-card div[class*="text-4xl"],
+[data-theme="light"] .hero-result-card div[class*="text-5xl"] {
+  color: #0f172a !important;
+}
+
+/* Các khối phụ / chip phân bổ bên trong hero result card */
+[data-theme="light"] .hero-result-card div[class*="bg-slate-800"],
+[data-theme="light"] .hero-result-card div[class*="bg-slate-900"],
+[data-theme="light"] .hero-result-card div[class*="bg-slate-950"] {
+  background-color: #f8fafc !important;
+  border: 1px solid #e2e8f0 !important;
+  color: #0f172a !important;
+}
+
+[data-theme="light"] .hero-result-card div[class*="bg-slate-800"] span[class*="text-slate-"],
+[data-theme="light"] .hero-result-card div[class*="bg-slate-900"] span[class*="text-slate-"],
+[data-theme="light"] .hero-result-card div[class*="bg-slate-950"] span[class*="text-slate-"] {
+  color: #475569 !important;
+}
+
+[data-theme="light"] .hero-result-card div[class*="bg-slate-800"] span.font-bold,
+[data-theme="light"] .hero-result-card div[class*="bg-slate-900"] span.font-bold,
+[data-theme="light"] .hero-result-card div[class*="bg-slate-950"] span.font-bold {
+  color: #0f172a !important;
+}
+
+/* Nền và viền khối bên trong công cụ trong Chế độ Sáng: Tuyệt đối nền trắng / sáng sạch sẽ */
+[data-theme="light"] div[class*="bg-slate-950"]:not(.calc-equals-btn):not(.pdf-report-page),
+[data-theme="light"] div[class*="bg-slate-900"]:not(.calc-equals-btn):not(.pdf-report-page),
+[data-theme="light"] div[class*="bg-slate-850"]:not(.calc-equals-btn):not(.pdf-report-page),
+[data-theme="light"] div[class*="bg-slate-800"]:not(.calc-equals-btn):not(.pdf-report-page),
+[data-theme="light"] div[class*="bg-slate-700"]:not(.calc-equals-btn):not(.pdf-report-page),
+[data-theme="light"] div[class*="bg-gray-900"]:not(.calc-equals-btn):not(.pdf-report-page),
+[data-theme="light"] div[class*="bg-gray-800"]:not(.calc-equals-btn):not(.pdf-report-page) {
+  background-color: #ffffff !important;
+  border-color: #e2e8f0 !important;
+  color: #0f172a !important;
+}
+
+/* Các khối phân nhóm con dạng thẻ xám sáng sạch sẽ */
+[data-theme="light"] div[class*="bg-slate-800/40"],
+[data-theme="light"] div[class*="bg-slate-800/50"],
+[data-theme="light"] div[class*="bg-slate-800/60"],
+[data-theme="light"] div[class*="bg-slate-800/70"],
+[data-theme="light"] div[class*="bg-slate-950/70"] {
+  background-color: #f8fafc !important;
+  border-color: #e2e8f0 !important;
+  color: #0f172a !important;
+}
+
+/* Nút bấm tab và nút chip chọn trong Chế độ Sáng (Unselected tabs / country cards) */
+[data-theme="light"] button[class*="bg-slate-800"]:not(.bg-blue-600):not([class*="bg-blue-600"]):not(.calc-equals-btn):not(.bg-violet-600):not([class*="bg-violet-600"]):not([class*="bg-gradient-to-r"]),
+[data-theme="light"] button[class*="bg-slate-900"]:not(.bg-blue-600):not([class*="bg-blue-600"]):not(.calc-equals-btn):not(.bg-violet-600):not([class*="bg-violet-600"]):not([class*="bg-gradient-to-r"]),
+[data-theme="light"] button[class*="bg-slate-950"]:not(.bg-blue-600):not([class*="bg-blue-600"]):not(.calc-equals-btn):not(.bg-violet-600):not([class*="bg-violet-600"]):not([class*="bg-gradient-to-r"]),
+[data-theme="light"] button[class*="bg-slate-700"]:not(.bg-blue-600):not([class*="bg-blue-600"]):not(.calc-equals-btn):not(.bg-violet-600):not([class*="bg-violet-600"]):not([class*="bg-gradient-to-r"]) {
+  background-color: #ffffff !important;
+  border-color: #e2e8f0 !important;
+  color: #334155 !important;
+}
+
+[data-theme="light"] button[class*="bg-slate-800"]:not(.bg-blue-600):not([class*="bg-blue-600"]):not(.calc-equals-btn):not(.bg-violet-600):not([class*="bg-violet-600"]):not([class*="bg-gradient-to-r"]):hover,
+[data-theme="light"] button[class*="bg-slate-900"]:not(.bg-blue-600):not([class*="bg-blue-600"]):not(.calc-equals-btn):not(.bg-violet-600):not([class*="bg-violet-600"]):not([class*="bg-gradient-to-r"]):hover,
+[data-theme="light"] button[class*="bg-slate-950"]:not(.bg-blue-600):not([class*="bg-blue-600"]):not(.calc-equals-btn):not(.bg-violet-600):not([class*="bg-violet-600"]):not([class*="bg-gradient-to-r"]):hover,
+[data-theme="light"] button[class*="bg-slate-700"]:not(.bg-blue-600):not([class*="bg-blue-600"]):not(.calc-equals-btn):not(.bg-violet-600):not([class*="bg-violet-600"]):not([class*="bg-gradient-to-r"]):hover {
+  background-color: #f1f5f9 !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
+}
+
+/* Các tab bên trong thanh tab switcher (ví dụ: Thu nhập & Giảm trừ / Bảo hiểm / Bậc thuế) */
+[data-theme="light"] div:has(> button[class*="rounded-lg"]):not(#desktop-sidebar *):not(header *):not(.calc-display-screen) {
+  border-color: #e2e8f0 !important;
+}
+
+/* Các card và khối phần phụ trợ trong Chế độ Sáng */
+[data-theme="light"] .explore-section-container,
+[data-theme="light"] #explore-more-section,
+[data-theme="light"] #seo-formula-usage > div,
+[data-theme="light"] #faq-section,
+[data-theme="light"] #internal-links-section,
+[data-theme="light"] .tool-seo-desc-card {
+  background-color: #ffffff !important;
+  border-color: #e2e8f0 !important;
+  color: #000000 !important;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03) !important;
+}
+
+[data-theme="light"] .explore-card-item,
+[data-theme="light"] #internal-links-section button,
+[data-theme="light"] #faq-section div[class*="border rounded-xl"] {
+  background-color: #f8fafc !important;
+  border-color: #e2e8f0 !important;
+  color: #000000 !important;
+}
+
+[data-theme="light"] .explore-card-item:hover,
+[data-theme="light"] #internal-links-section button:hover {
+  background-color: #f1f5f9 !important;
+  border-color: #cbd5e1 !important;
+}
+
+[data-theme="light"] .explore-chevron-btn {
+  background-color: #f1f5f9 !important;
+  border-color: #cbd5e1 !important;
+  color: #000000 !important;
+}
+
+[data-theme="light"] .explore-chevron-btn:hover {
+  background-color: #2563eb !important;
+  border-color: #2563eb !important;
+  color: #ffffff !important;
+}
+
+/* Viền các khối trong Chế độ Sáng */
+[data-theme="light"] :is(.border-slate-800, .border-slate-700, .border-slate-700\/80, .border-slate-700\/60, .border-slate-800\/90, .border-slate-800\/80, .border-slate-800\/60) {
+  border-color: #e2e8f0 !important;
+}
+
+[data-theme="light"] :is(.divide-slate-800, .divide-slate-700) > :not([hidden]) ~ :not([hidden]) {
+  border-color: #e2e8f0 !important;
+}
+
+/* Nút chọn/tab được active luôn chuẩn Nền trắng chữ đen hoặc đen chữ trắng, không xanh/tím */
+[data-theme="light"] .sidebar-tool-active {
+  background-color: #0f172a !important;
+  color: #ffffff !important;
+  border-color: #0f172a !important;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15) !important;
+}
+[data-theme="light"] .sidebar-tool-active * {
+  color: #ffffff !important;
+}
+
+/* Thanh panel xám nhẹ & Tab chọn active: Nền trắng chữ đen chuẩn mực */
+[data-theme="light"] .tab-active,
+[data-theme="light"] [role="tab"][aria-selected="true"],
+[data-theme="light"] .segment-tab-active,
+[data-theme="light"] div[class*="bg-slate-100"] > button[class*="shadow-"],
+[data-theme="light"] div[class*="bg-slate-200"] > button[class*="shadow-"],
+[data-theme="light"] button[class*="bg-blue-600"]:not(.calc-num-btn):not(#main-header *) {
+  background-color: #ffffff !important;
+  color: #000000 !important;
+  border: 1px solid #cbd5e1 !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08) !important;
+  font-weight: 700 !important;
+}
+[data-theme="light"] div[class*="bg-slate-100"] > button[class*="shadow-"] *,
+[data-theme="light"] div[class*="bg-slate-200"] > button[class*="shadow-"] *,
+[data-theme="light"] button[class*="bg-blue-600"]:not(.calc-num-btn):not(#main-header *) * {
+  color: #000000 !important;
+}
+
+/* Ô NHẬP LIỆU CHẾ ĐỘ SÁNG: Nền trắng, viền xám bạc, chữ đen đậm */
+[data-theme="light"] input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]):not([type="button"]):not([type="submit"]),
+[data-theme="light"] textarea,
+[data-theme="light"] select {
+  background-color: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
+  caret-color: #2563eb !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04) !important;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease !important;
+}
+
+[data-theme="light"] input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]):not([type="button"]):not([type="submit"]):hover,
+[data-theme="light"] textarea:hover,
+[data-theme="light"] select:hover {
+  border-color: #94a3b8 !important;
+}
+
+[data-theme="light"] input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]):not([type="button"]):not([type="submit"]):focus,
+[data-theme="light"] textarea:focus,
+[data-theme="light"] select:focus {
+  background-color: #ffffff !important;
+  border-color: #2563eb !important;
+  outline: none !important;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15) !important;
+}
+
+[data-theme="light"] input::placeholder,
+[data-theme="light"] textarea::placeholder {
+  color: #94a3b8 !important;
+  opacity: 1 !important;
+}
+
+[data-theme="light"] select option {
+  background-color: #ffffff !important;
+  color: #0f172a !important;
+}
+
+[data-theme="light"] input:-webkit-autofill,
+[data-theme="light"] input:-webkit-autofill:hover, 
+[data-theme="light"] input:-webkit-autofill:focus,
+[data-theme="light"] textarea:-webkit-autofill,
+[data-theme="light"] select:-webkit-autofill {
+  -webkit-text-fill-color: #0f172a !important;
+  -webkit-box-shadow: 0 0 0px 1000px #ffffff inset !important;
+  box-shadow: 0 0 0px 1000px #ffffff inset !important;
+}
+
+/* Header & Thanh điều hướng trên cùng trong Chế độ Sáng */
+[data-theme="light"] header#main-header {
+  background-color: rgba(255, 255, 255, 0.96) !important;
+  border-color: #e2e8f0 !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05) !important;
+}
+
+[data-theme="light"] header#main-header span.font-extrabold {
+  color: #0f172a !important;
+}
+
+[data-theme="light"] header#main-header button#quick-search-trigger {
+  background-color: #f1f5f9 !important;
+  border-color: #cbd5e1 !important;
+  color: #334155 !important;
+}
+
+[data-theme="light"] header#main-header button#quick-search-trigger:hover {
+  background-color: #e2e8f0 !important;
+  color: #0f172a !important;
+}
+
+[data-theme="light"] header#main-header button#header-terms-btn,
+[data-theme="light"] header#main-header button#share-app-btn {
+  background-color: #f1f5f9 !important;
+  border-color: #cbd5e1 !important;
+  color: #334155 !important;
+}
+
+[data-theme="light"] header#main-header button#header-terms-btn:hover,
+[data-theme="light"] header#main-header button#share-app-btn:hover {
+  background-color: #e2e8f0 !important;
+  color: #0f172a !important;
+}
+
+/* Sidebar danh mục công cụ trong Chế độ Sáng */
+[data-theme="light"] aside#desktop-sidebar {
+  background-color: #ffffff !important;
+  border-color: #e2e8f0 !important;
+}
+
+[data-theme="light"] aside#desktop-sidebar .sidebar-tool-inactive {
+  color: #334155 !important;
+}
+
+[data-theme="light"] aside#desktop-sidebar .sidebar-tool-inactive:hover {
+  background-color: #f1f5f9 !important;
+  color: #0f172a !important;
+}
+
+[data-theme="light"] aside#desktop-sidebar .sidebar-tool-inactive span.p-1\.5 {
+  background-color: #f1f5f9 !important;
+  color: #475569 !important;
+}
+
+[data-theme="light"] aside#desktop-sidebar .sidebar-tool-active {
+  background-color: #0f172a !important;
+  color: #ffffff !important;
+  border-color: #0f172a !important;
+  box-shadow: 0 2px 6px rgba(15, 23, 42, 0.15) !important;
+}
+
+[data-theme="light"] aside#desktop-sidebar .sidebar-tool-active * {
+  color: #ffffff !important;
+}
+
+[data-theme="light"] aside#desktop-sidebar input {
+  background-color: #f8fafc !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
+}
+
+/* Máy tính Cơ bản & Khoa học (BasicCalculator) trong Chế độ Sáng */
+[data-theme="light"] .calc-display-screen {
+  background-color: #f8fafc !important;
+  border: 1px solid #cbd5e1 !important;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.04) !important;
+}
+
+[data-theme="light"] .calc-display-result {
+  color: #0f172a !important;
+}
+
+[data-theme="light"] .calc-display-formula {
+  color: #64748b !important;
+}
+
+[data-theme="light"] .calc-num-btn {
+  background-color: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06) !important;
+}
+
+[data-theme="light"] .calc-num-btn:hover {
+  background-color: #f8fafc !important;
+  border-color: #94a3b8 !important;
+}
+
+[data-theme="light"] .calc-num-btn:active {
+  background-color: #e2e8f0 !important;
+}
+
+[data-theme="light"] .calc-op-btn {
+  background-color: #eff6ff !important;
+  border-color: #bfdbfe !important;
+  color: #1d4ed8 !important;
+}
+
+[data-theme="light"] .calc-op-btn:hover {
+  background-color: #dbeafe !important;
+  color: #1e40af !important;
+}
+
+[data-theme="light"] .calc-clear-btn {
+  background-color: #fff1f2 !important;
+  border-color: #fecdd3 !important;
+  color: #e11d48 !important;
+}
+
+[data-theme="light"] .calc-clear-btn:hover {
+  background-color: #ffe4e6 !important;
+  color: #be123c !important;
+}
+
+[data-theme="light"] .calc-action-btn,
+[data-theme="light"] .calc-sci-btn,
+[data-theme="light"] .calc-mem-btn,
+[data-theme="light"] .calc-mode-btn,
+[data-theme="light"] .calc-quick-btn {
+  background-color: #f1f5f9 !important;
+  border-color: #cbd5e1 !important;
+  color: #334155 !important;
+}
+
+[data-theme="light"] .calc-action-btn:hover,
+[data-theme="light"] .calc-sci-btn:hover,
+[data-theme="light"] .calc-mem-btn:hover,
+[data-theme="light"] .calc-mode-btn:hover,
+[data-theme="light"] .calc-quick-btn:hover {
+  background-color: #e2e8f0 !important;
+  color: #0f172a !important;
+}
+
+[data-theme="light"] .calc-equals-btn {
+  background-color: #0f172a !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 10px rgba(15, 23, 42, 0.25) !important;
+}
+
+[data-theme="light"] .calc-equals-btn:hover {
+  background-color: #000000 !important;
+}
+
+/* Nút bấm chip và nút xám trong Chế độ Sáng */
+[data-theme="light"] button.bg-slate-800,
+[data-theme="light"] button.bg-slate-800\/80,
+[data-theme="light"] button.bg-slate-800\/60,
+[data-theme="light"] button.bg-slate-700 {
+  background-color: #f1f5f9 !important;
+  border: 1px solid #cbd5e1 !important;
+  color: #334155 !important;
+}
+
+[data-theme="light"] button.bg-slate-800:hover,
+[data-theme="light"] button.bg-slate-800\/80:hover,
+[data-theme="light"] button.bg-slate-700:hover {
+  background-color: #e2e8f0 !important;
+  color: #0f172a !important;
+  border-color: #94a3b8 !important;
+}
+
+/* Bảng dữ liệu trong Chế độ Sáng */
+[data-theme="light"] thead {
+  background-color: #f8fafc !important;
+  border-bottom: 1px solid #e2e8f0 !important;
+  color: #475569 !important;
+}
+
+[data-theme="light"] tbody tr {
+  border-bottom-color: #e2e8f0 !important;
+}
+
+[data-theme="light"] tbody tr:hover {
+  background-color: #f8fafc !important;
+}
+
+[data-theme="light"] td {
+  color: #0f172a !important;
+}
+
+/* Thẻ kết quả nổi bật và banner (Emerald, Blue, Rose, Amber, Violet, Sky, Cyan) trong Chế độ Sáng */
+[data-theme="light"] div[class*="bg-emerald-950"],
+[data-theme="light"] div[class*="bg-emerald-900"],
+[data-theme="light"] div[class*="bg-teal-950"] {
+  background-color: #f0fdf4 !important;
+  border-color: #bbf7d0 !important;
+  color: #14532d !important;
+}
+
+[data-theme="light"] div[class*="bg-blue-950"],
+[data-theme="light"] div[class*="bg-blue-900"],
+[data-theme="light"] div[class*="bg-indigo-950"] {
+  background-color: #eff6ff !important;
+  border-color: #bfdbfe !important;
+  color: #1e3a8a !important;
+}
+
+[data-theme="light"] div[class*="bg-rose-950"],
+[data-theme="light"] div[class*="bg-rose-900"],
+[data-theme="light"] div[class*="bg-pink-950"] {
+  background-color: #fff1f2 !important;
+  border-color: #fecdd3 !important;
+  color: #881337 !important;
+}
+
+[data-theme="light"] div[class*="bg-amber-950"],
+[data-theme="light"] div[class*="bg-amber-900"],
+[data-theme="light"] div[class*="bg-yellow-950"] {
+  background-color: #fffbeb !important;
+  border-color: #fde68a !important;
+  color: #78350f !important;
+}
+
+[data-theme="light"] div[class*="bg-violet-950"],
+[data-theme="light"] div[class*="bg-violet-900"],
+[data-theme="light"] div[class*="bg-purple-950"] {
+  background-color: #f5f3ff !important;
+  border-color: #ddd6fe !important;
+  color: #4c1d95 !important;
+}
+
+[data-theme="light"] div[class*="bg-cyan-950"],
+[data-theme="light"] div[class*="bg-sky-950"] {
+  background-color: #f0f9ff !important;
+  border-color: #bae6fd !important;
+  color: #0369a1 !important;
+}
+
+/* Các nút tác vụ nhanh xuất PDF, In, Xem mẫu A4 trong Chế độ Sáng */
+[data-theme="light"] button[class*="bg-rose-950"],
+[data-theme="light"] button[class*="bg-rose-900"] {
+  background-color: #fff1f2 !important;
+  border-color: #fecdd3 !important;
+  color: #be123c !important;
+}
+[data-theme="light"] button[class*="bg-rose-950"]:hover,
+[data-theme="light"] button[class*="bg-rose-900"]:hover {
+  background-color: #ffe4e6 !important;
+  border-color: #fda4af !important;
+  color: #9f1239 !important;
+}
+[data-theme="light"] button[class*="bg-rose-950"] *,
+[data-theme="light"] button[class*="bg-rose-900"] * {
+  color: #be123c !important;
+}
+
+[data-theme="light"] button[class*="bg-sky-950"],
+[data-theme="light"] button[class*="bg-sky-900"],
+[data-theme="light"] button[class*="bg-blue-950"],
+[data-theme="light"] button[class*="bg-blue-900"] {
+  background-color: #f0f9ff !important;
+  border-color: #bae6fd !important;
+  color: #0369a1 !important;
+}
+[data-theme="light"] button[class*="bg-sky-950"]:hover,
+[data-theme="light"] button[class*="bg-sky-900"]:hover,
+[data-theme="light"] button[class*="bg-blue-950"]:hover,
+[data-theme="light"] button[class*="bg-blue-900"]:hover {
+  background-color: #e0f2fe !important;
+  border-color: #7dd3fc !important;
+  color: #075985 !important;
+}
+[data-theme="light"] button[class*="bg-sky-950"] *,
+[data-theme="light"] button[class*="bg-sky-900"] *,
+[data-theme="light"] button[class*="bg-blue-950"] *,
+[data-theme="light"] button[class*="bg-blue-900"] * {
+  color: #0369a1 !important;
+}
+
+[data-theme="light"] button[class*="bg-violet-950"],
+[data-theme="light"] button[class*="bg-violet-900"],
+[data-theme="light"] button[class*="bg-purple-950"] {
+  background-color: #f5f3ff !important;
+  border-color: #ddd6fe !important;
+  color: #6d28d9 !important;
+}
+[data-theme="light"] button[class*="bg-violet-950"]:hover,
+[data-theme="light"] button[class*="bg-violet-900"]:hover,
+[data-theme="light"] button[class*="bg-purple-950"]:hover {
+  background-color: #ede9fe !important;
+  border-color: #c4b5fd !important;
+  color: #5b21b6 !important;
+}
+[data-theme="light"] button[class*="bg-violet-950"] *,
+[data-theme="light"] button[class*="bg-violet-900"] *,
+[data-theme="light"] button[class*="bg-purple-950"] * {
+  color: #6d28d9 !important;
+}
+
+[data-theme="light"] button[class*="bg-emerald-950"],
+[data-theme="light"] button[class*="bg-emerald-900"] {
+  background-color: #f0fdf4 !important;
+  border-color: #bbf7d0 !important;
+  color: #15803d !important;
+}
+[data-theme="light"] button[class*="bg-emerald-950"]:hover,
+[data-theme="light"] button[class*="bg-emerald-900"]:hover {
+  background-color: #dcfce7 !important;
+  border-color: #86efac !important;
+  color: #166534 !important;
+}
+[data-theme="light"] button[class*="bg-emerald-950"] *,
+[data-theme="light"] button[class*="bg-emerald-900"] * {
+  color: #15803d !important;
+}
+
+[data-theme="light"] button[class*="bg-cyan-950"],
+[data-theme="light"] button[class*="bg-cyan-900"] {
+  background-color: #ecfeff !important;
+  border-color: #a5f3fc !important;
+  color: #0e7490 !important;
+}
+[data-theme="light"] button[class*="bg-cyan-950"]:hover,
+[data-theme="light"] button[class*="bg-cyan-900"]:hover {
+  background-color: #cffafe !important;
+  border-color: #67e8f9 !important;
+  color: #155e75 !important;
+}
+[data-theme="light"] button[class*="bg-cyan-950"] *,
+[data-theme="light"] button[class*="bg-cyan-900"] * {
+  color: #0e7490 !important;
+}
+
+/* Banners tiêu đề trong Chế độ Sáng */
+[data-theme="light"] .tool-header-banner,
+[data-theme="light"] div[class*="rounded-2xl"][class*="bg-gradient-to-r"] {
+  background: linear-gradient(135deg, #eff6ff 0%, #ffffff 50%, #f0fdf4 100%) !important;
+  border-color: #bfdbfe !important;
+  color: #0f172a !important;
+}
+
+[data-theme="light"] .tool-hero-banner,
+[data-theme="light"] div[class*="rounded-2xl"][class*="bg-gradient-to-b"] {
+  background: linear-gradient(180deg, #eff6ff 0%, #ffffff 100%) !important;
+  border-color: #bfdbfe !important;
+  color: #0f172a !important;
+}
+
+/* Thẻ mô tả SEO & hướng dẫn dưới máy tính */
+[data-theme="light"] .tool-seo-desc-card {
+  background-color: #ffffff !important;
+  border-color: #e2e8f0 !important;
+  color: #334155 !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05) !important;
+}
+
+[data-theme="light"] .tool-seo-desc-card h1,
+[data-theme="light"] .tool-seo-desc-card h2,
+[data-theme="light"] .tool-seo-desc-card h3 {
+  color: #0f172a !important;
+}
+
+[data-theme="light"] .tool-reset-btn,
+[data-theme="light"] .tool-share-btn {
+  background-color: #f1f5f9 !important;
+  border: 1px solid #cbd5e1 !important;
+  color: #334155 !important;
+}
+
+[data-theme="light"] .tool-reset-btn:hover,
+[data-theme="light"] .tool-share-btn:hover {
+  background-color: #e2e8f0 !important;
+  color: #0f172a !important;
+}
+
+/* Modal tìm kiếm nhanh trong Chế độ Sáng */
+[data-theme="light"] #search-modal-backdrop {
+  background-color: rgba(15, 23, 42, 0.4) !important;
+  backdrop-filter: blur(4px) !important;
+}
+
+[data-theme="light"] div:has(> input#search-input) {
+  background-color: #ffffff !important;
+  border-color: #e2e8f0 !important;
+}
+
+/* ============================================================
+   CHẾ ĐỘ GIAO DIỆN: TỐI (DARK)
+   - Nền tối chống mỏi mắt: #141526
+   - Thẻ card / surface: #1B1D33, viền #272A47
+   - Ô nhập liệu: Xám đậm #252525, viền #3F3F3F, chữ trắng #FFFFFF
+   - Focus: Viền xanh neon #00E5FF
+   - Độ tương phản WCAG AAA vượt trội, loại bỏ triệt để chữ xám/trắng trên nền xám
+   ============================================================ */
+[data-theme="dark"] {
+  --app-bg: #141526;
+  --app-header-bg: rgba(20, 21, 38, 0.96);
+  --app-surface: #1b1d33;
+  --app-subsurface: rgba(27, 29, 51, 0.75);
+  --app-border: #272a47;
+  --app-accent: #00e5ff;
+  --app-input-bg: #252525;
+  --app-input-border: #3f3f3f;
+  --app-text-primary: #ffffff;
+  --app-text-secondary: #cbd5e1;
+  --app-text-muted: #94a3b8;
+}
+
+/* ============================================================
+   1. CHỐNG MẤT TƯƠNG PHẢN CHO TẤT CẢ KHỐI NỀN SÁNG / TRẮNG / XÁM TRONG CHẾ ĐỘ TỐI
+   Biến đổi triệt để các khối bg-white, bg-slate-50, bg-slate-100, bg-slate-200 thành card tối sang trọng
+   ============================================================ */
+[data-theme="dark"] .bg-white:not(.pdf-report-page):not([id*="printable"]):not(.keep-light),
+[data-theme="dark"] .bg-slate-50:not(.pdf-report-page):not([id*="printable"]):not(.keep-light),
+[data-theme="dark"] .bg-slate-100:not(.pdf-report-page):not([id*="printable"]):not(.keep-light),
+[data-theme="dark"] .bg-slate-200:not(.pdf-report-page):not([id*="printable"]):not(.keep-light),
+[data-theme="dark"] .bg-gray-50:not(.pdf-report-page):not([id*="printable"]):not(.keep-light),
+[data-theme="dark"] .bg-gray-100:not(.pdf-report-page):not([id*="printable"]):not(.keep-light),
+[data-theme="dark"] .bg-gray-200:not(.pdf-report-page):not([id*="printable"]):not(.keep-light) {
+  background-color: #1b1d33 !important;
+  border-color: #272a47 !important;
+  color: #ffffff !important;
+}
+
+/* Các viền xám sáng chuyển sang viền tối đồng bộ */
+[data-theme="dark"] .border-slate-100:not(.pdf-report-page):not([id*="printable"]),
+[data-theme="dark"] .border-slate-200:not(.pdf-report-page):not([id*="printable"]),
+[data-theme="dark"] .border-slate-300:not(.pdf-report-page):not([id*="printable"]),
+[data-theme="dark"] .divide-slate-100:not(.pdf-report-page) > :not([hidden]) ~ :not([hidden]),
+[data-theme="dark"] .divide-slate-200:not(.pdf-report-page) > :not([hidden]) ~ :not([hidden]) {
+  border-color: #272a47 !important;
+}
+
+/* Nút bấm chip / nút chọn nhanh có nền xám (bg-slate-100 / bg-slate-200) */
+[data-theme="dark"] button.bg-slate-100:not(.pdf-report-page),
+[data-theme="dark"] button.bg-slate-200:not(.pdf-report-page),
+[data-theme="dark"] button.bg-gray-100:not(.pdf-report-page) {
+  background-color: rgba(39, 42, 71, 0.8) !important;
+  border: 1px solid #3b4068 !important;
+  color: #cbd5e1 !important;
+}
+
+[data-theme="dark"] button.bg-slate-100:not(.pdf-report-page):hover,
+[data-theme="dark"] button.bg-slate-200:not(.pdf-report-page):hover,
+[data-theme="dark"] button.bg-gray-100:not(.pdf-report-page):hover {
+  background-color: rgba(59, 64, 104, 0.95) !important;
+  color: #ffffff !important;
+  border-color: #6366f1 !important;
+}
+
+/* Thanh chuyển tab dạng pill: ví dụ chọn phương thức trả góp (Trả đều EMI / Dư nợ giảm dần) */
+[data-theme="dark"] div.bg-slate-100:has(> button):not(.pdf-report-page),
+[data-theme="dark"] div.bg-slate-200:has(> button):not(.pdf-report-page) {
+  background-color: rgba(15, 17, 32, 0.95) !important;
+  border: 1px solid #272a47 !important;
+}
+
+[data-theme="dark"] div.bg-slate-100:has(> button):not(.pdf-report-page) button.bg-white,
+[data-theme="dark"] div.bg-slate-200:has(> button):not(.pdf-report-page) button.bg-white {
+  background-color: #2563eb !important;
+  color: #ffffff !important;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4) !important;
+  font-weight: 700 !important;
+}
+
+[data-theme="dark"] div.bg-slate-100:has(> button):not(.pdf-report-page) button.text-slate-600,
+[data-theme="dark"] div.bg-slate-200:has(> button):not(.pdf-report-page) button.text-slate-600 {
+  color: #94a3b8 !important;
+}
+
+[data-theme="dark"] div.bg-slate-100:has(> button):not(.pdf-report-page) button.text-slate-600:hover,
+[data-theme="dark"] div.bg-slate-200:has(> button):not(.pdf-report-page) button.text-slate-600:hover {
+  color: #ffffff !important;
+}
+
+/* Tiêu đề bảng và hàng dữ liệu */
+[data-theme="dark"] thead.bg-slate-100:not(.pdf-report-page),
+[data-theme="dark"] thead.bg-slate-200:not(.pdf-report-page),
+[data-theme="dark"] th.bg-slate-100:not(.pdf-report-page),
+[data-theme="dark"] th.bg-slate-200:not(.pdf-report-page) {
+  background-color: #15182a !important;
+  border-bottom: 1px solid #272a47 !important;
+  color: #94a3b8 !important;
+}
+
+[data-theme="dark"] tbody tr:hover:not(.pdf-report-page) {
+  background-color: rgba(39, 42, 71, 0.4) !important;
+}
+
+/* ============================================================
+   2. TƯƠNG PHẢN CHỮ TOÀN ỨNG DỤNG TRONG CHẾ ĐỘ TỐI (TRỪ TRANG IN / PDF)
+   ============================================================ */
+[data-theme="dark"] .text-slate-900:not(.pdf-report-page):not([id*="printable"]),
+[data-theme="dark"] .text-slate-800:not(.pdf-report-page):not([id*="printable"]),
+[data-theme="dark"] .text-slate-700:not(.pdf-report-page):not([id*="printable"]),
+[data-theme="dark"] .text-gray-900:not(.pdf-report-page):not([id*="printable"]),
+[data-theme="dark"] .text-gray-800:not(.pdf-report-page):not([id*="printable"]) {
+  color: #ffffff !important;
+}
+
+[data-theme="dark"] .text-slate-600:not(.pdf-report-page):not([id*="printable"]),
+[data-theme="dark"] .text-slate-500:not(.pdf-report-page):not([id*="printable"]),
+[data-theme="dark"] .text-gray-600:not(.pdf-report-page):not([id*="printable"]),
+[data-theme="dark"] .text-gray-500:not(.pdf-report-page):not([id*="printable"]) {
+  color: #cbd5e1 !important;
+}
+
+[data-theme="dark"] .text-slate-400:not(.pdf-report-page):not([id*="printable"]),
+[data-theme="dark"] .text-gray-400:not(.pdf-report-page):not([id*="printable"]) {
+  color: #94a3b8 !important;
+}
+
+[data-theme="dark"] .text-slate-300:not(.pdf-report-page):not([id*="printable"]),
+[data-theme="dark"] .text-gray-300:not(.pdf-report-page):not([id*="printable"]) {
+  color: #e2e8f0 !important;
+}
+
+/* Huy hiệu màu (Badge/Highlight) thích ứng chế độ tối với độ tương phản rực rỡ */
+[data-theme="dark"] .bg-emerald-50:not(.pdf-report-page),
+[data-theme="dark"] .bg-emerald-100:not(.pdf-report-page) {
+  background-color: rgba(16, 185, 129, 0.15) !important;
+  border: 1px solid rgba(16, 185, 129, 0.35) !important;
+  color: #6ee7b7 !important;
+}
+
+[data-theme="dark"] .bg-rose-50:not(.pdf-report-page),
+[data-theme="dark"] .bg-rose-100:not(.pdf-report-page),
+[data-theme="dark"] .bg-red-100:not(.pdf-report-page) {
+  background-color: rgba(244, 63, 94, 0.15) !important;
+  border: 1px solid rgba(244, 63, 94, 0.35) !important;
+  color: #fca5a5 !important;
+}
+
+[data-theme="dark"] .bg-blue-50:not(.pdf-report-page),
+[data-theme="dark"] .bg-blue-100:not(.pdf-report-page) {
+  background-color: rgba(59, 130, 246, 0.15) !important;
+  border: 1px solid rgba(59, 130, 246, 0.35) !important;
+  color: #93c5fd !important;
+}
+
+[data-theme="dark"] .bg-amber-50:not(.pdf-report-page),
+[data-theme="dark"] .bg-amber-100:not(.pdf-report-page),
+[data-theme="dark"] .bg-yellow-100:not(.pdf-report-page) {
+  background-color: rgba(245, 158, 11, 0.15) !important;
+  border: 1px solid rgba(245, 158, 11, 0.35) !important;
+  color: #fef08a !important;
+}
+
+/* ============================================================
+   3. ISOLATE VÀ ÉP BUỘC BẢN IN & FILE PDF 100% ĐEN TRẮNG CHUẨN IN ẤN
+   (Chữ đen, nền trắng, viền sắc nét, không bị đảo màu bởi giao diện tối)
+   ============================================================ */
+.pdf-report-page,
+[id*="pdf-printable-source"],
+#pdf-isolated-render-host,
+.printable-tax-statement,
+#tax-statement-modal-sheet,
+#tax-statement-printable,
+[id*="printable"] {
+  background-color: #ffffff !important;
+  color: #000000 !important;
+}
+
+.pdf-report-page *,
+[id*="pdf-printable-source"] *,
+#pdf-isolated-render-host *,
+.printable-tax-statement *,
+#tax-statement-modal-sheet *,
+#tax-statement-printable *,
+[id*="printable"] * {
+  box-sizing: border-box;
+}
+
+/* Đảm bảo ngay cả khi html/body mang [data-theme="dark"], tài liệu PDF luôn là nền trắng chữ đen thuần túy */
+[data-theme="dark"] .pdf-report-page,
+[data-theme="dark"] [id*="pdf-printable-source"],
+[data-theme="dark"] #pdf-isolated-render-host,
+[data-theme="dark"] .printable-tax-statement,
+[data-theme="dark"] #tax-statement-modal-sheet,
+[data-theme="dark"] #tax-statement-printable,
+[data-theme="dark"] [id*="printable"] {
+  background-color: #ffffff !important;
+  color: #000000 !important;
+}
+
+/* Khắc phục triệt để lỗi thanh màu đen: Tất cả thanh phân mục bg-slate-100 / thead trong PDF luôn là xám nhạt với chữ đen */
+:is(.pdf-report-page, [id*="pdf-printable-source"], #pdf-isolated-render-host, #tax-statement-modal-sheet, #tax-statement-printable, [id*="printable"]) :is(.bg-slate-100, .bg-slate-200, .bg-gray-100, .bg-gray-200, thead),
+[data-theme="dark"] :is(.pdf-report-page, [id*="pdf-printable-source"], #pdf-isolated-render-host, #tax-statement-modal-sheet, #tax-statement-printable, [id*="printable"]) :is(.bg-slate-100, .bg-slate-200, .bg-gray-100, .bg-gray-200, thead) {
+  background-color: #f1f5f9 !important;
+  color: #000000 !important;
+  border-color: #cbd5e1 !important;
+}
+
+/* Nền phụ và hàng tổng trong bảng PDF */
+:is(.pdf-report-page, [id*="pdf-printable-source"], #pdf-isolated-render-host, #tax-statement-modal-sheet, #tax-statement-printable, [id*="printable"]) :is(.bg-slate-50, .bg-gray-50, .bg-white),
+[data-theme="dark"] :is(.pdf-report-page, [id*="pdf-printable-source"], #pdf-isolated-render-host, #tax-statement-modal-sheet, #tax-statement-printable, [id*="printable"]) :is(.bg-slate-50, .bg-gray-50, .bg-white) {
+  background-color: #f8fafc !important;
+  color: #000000 !important;
+}
+
+/* Biến tất cả các card màu (emerald, violet, rose, blue...) trong PDF thành card đen trắng có viền sắc nét */
+:is(.pdf-report-page, [id*="pdf-printable-source"], #pdf-isolated-render-host, #tax-statement-modal-sheet, #tax-statement-printable, [id*="printable"]) :is(.bg-emerald-50, .bg-emerald-100, .bg-violet-50, .bg-violet-100, .bg-rose-50, .bg-rose-100, .bg-blue-50, .bg-blue-100, .bg-amber-50, .bg-amber-100),
+[data-theme="dark"] :is(.pdf-report-page, [id*="pdf-printable-source"], #pdf-isolated-render-host, #tax-statement-modal-sheet, #tax-statement-printable, [id*="printable"]) :is(.bg-emerald-50, .bg-emerald-100, .bg-violet-50, .bg-violet-100, .bg-rose-50, .bg-rose-100, .bg-blue-50, .bg-blue-100, .bg-amber-50, .bg-amber-100) {
+  background-color: #f8fafc !important;
+  border: 1px solid #000000 !important;
+  color: #000000 !important;
+}
+
+/* Toàn bộ chữ, tiêu đề, số tiền và nhãn trong PDF: Đen tuyền chuẩn in */
+:is(.pdf-report-page, [id*="pdf-printable-source"], #pdf-isolated-render-host, #tax-statement-modal-sheet, #tax-statement-printable, [id*="printable"]) :is(h1, h2, h3, h4, th, td, strong, b, .text-slate-900, .text-slate-800, .text-slate-700, .text-gray-900, .text-gray-800, .text-gray-700),
+[data-theme="dark"] :is(.pdf-report-page, [id*="pdf-printable-source"], #pdf-isolated-render-host, #tax-statement-modal-sheet, #tax-statement-printable, [id*="printable"]) :is(h1, h2, h3, h4, th, td, strong, b, .text-slate-900, .text-slate-800, .text-slate-700, .text-gray-900, .text-gray-800, .text-gray-700) {
+  color: #000000 !important;
+}
+
+/* Triệt tiêu toàn bộ màu sắc rực rỡ (đỏ, xanh, tím...) chuyển thành đen đậm chuẩn mực tài chính */
+:is(.pdf-report-page, [id*="pdf-printable-source"], #pdf-isolated-render-host, #tax-statement-modal-sheet, #tax-statement-printable, [id*="printable"]) [class*="text-rose-"],
+:is(.pdf-report-page, [id*="pdf-printable-source"], #pdf-isolated-render-host, #tax-statement-modal-sheet, #tax-statement-printable, [id*="printable"]) [class*="text-red-"],
+:is(.pdf-report-page, [id*="pdf-printable-source"], #pdf-isolated-render-host, #tax-statement-modal-sheet, #tax-statement-printable, [id*="printable"]) [class*="text-emerald-"],
+:is(.pdf-report-page, [id*="pdf-printable-source"], #pdf-isolated-render-host, #tax-statement-modal-sheet, #tax-statement-printable, [id*="printable"]) [class*="text-violet-"],
+:is(.pdf-report-page, [id*="pdf-printable-source"], #pdf-isolated-render-host, #tax-statement-modal-sheet, #tax-statement-printable, [id*="printable"]) [class*="text-blue-"],
+:is(.pdf-report-page, [id*="pdf-printable-source"], #pdf-isolated-render-host, #tax-statement-modal-sheet, #tax-statement-printable, [id*="printable"]) [class*="text-amber-"],
+[data-theme="dark"] :is(.pdf-report-page, [id*="pdf-printable-source"], #pdf-isolated-render-host, #tax-statement-modal-sheet, #tax-statement-printable, [id*="printable"]) [class*="text-rose-"],
+[data-theme="dark"] :is(.pdf-report-page, [id*="pdf-printable-source"], #pdf-isolated-render-host, #tax-statement-modal-sheet, #tax-statement-printable, [id*="printable"]) [class*="text-red-"],
+[data-theme="dark"] :is(.pdf-report-page, [id*="pdf-printable-source"], #pdf-isolated-render-host, #tax-statement-modal-sheet, #tax-statement-printable, [id*="printable"]) [class*="text-emerald-"],
+[data-theme="dark"] :is(.pdf-report-page, [id*="pdf-printable-source"], #pdf-isolated-render-host, #tax-statement-modal-sheet, #tax-statement-printable, [id*="printable"]) [class*="text-violet-"],
+[data-theme="dark"] :is(.pdf-report-page, [id*="pdf-printable-source"], #pdf-isolated-render-host, #tax-statement-modal-sheet, #tax-statement-printable, [id*="printable"]) [class*="text-blue-"],
+[data-theme="dark"] :is(.pdf-report-page, [id*="pdf-printable-source"], #pdf-isolated-render-host, #tax-statement-modal-sheet, #tax-statement-printable, [id*="printable"]) [class*="text-amber-"] {
+  color: #000000 !important;
+}
+
+/* Các nhãn phụ, ngày giờ, số bậc trong PDF: Xám đậm (#334155), không bị mờ nhạt */
+:is(.pdf-report-page, [id*="pdf-printable-source"], #pdf-isolated-render-host, #tax-statement-modal-sheet, #tax-statement-printable, [id*="printable"]) :is(.text-slate-600, .text-slate-500, .text-slate-400, .text-gray-600, .text-gray-500, .text-gray-400),
+[data-theme="dark"] :is(.pdf-report-page, [id*="pdf-printable-source"], #pdf-isolated-render-host, #tax-statement-modal-sheet, #tax-statement-printable, [id*="printable"]) :is(.text-slate-600, .text-slate-500, .text-slate-400, .text-gray-600, .text-gray-500, .text-gray-400) {
+  color: #334155 !important;
+}
+
+/* Đường kẻ và viền bảng trong PDF */
+:is(.pdf-report-page, [id*="pdf-printable-source"], #pdf-isolated-render-host, #tax-statement-modal-sheet, #tax-statement-printable, [id*="printable"]) :is(.border-slate-200, .border-slate-300, tr.border-b),
+[data-theme="dark"] :is(.pdf-report-page, [id*="pdf-printable-source"], #pdf-isolated-render-host, #tax-statement-modal-sheet, #tax-statement-printable, [id*="printable"]) :is(.border-slate-200, .border-slate-300, tr.border-b) {
+  border-color: #cbd5e1 !important;
+}
+
+:is(.pdf-report-page, [id*="pdf-printable-source"], #pdf-isolated-render-host, #tax-statement-modal-sheet, #tax-statement-printable, [id*="printable"]) :is(.border-t-2, .border-b-2, hr),
+[data-theme="dark"] :is(.pdf-report-page, [id*="pdf-printable-source"], #pdf-isolated-render-host, #tax-statement-modal-sheet, #tax-statement-printable, [id*="printable"]) :is(.border-t-2, .border-b-2, hr) {
+  border-color: #000000 !important;
+}
+
+/* Ô NHẬP LIỆU CHẾ ĐỘ TỐI:
+   - Màu nền ô: Xám đậm (#252525)
+   - Viền: Xám nhạt (#3F3F3F)
+   - Chữ: Trắng (#FFFFFF)
+   - Focus: Xanh neon (#00E5FF) */
+[data-theme="dark"] input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]):not([type="button"]):not([type="submit"]),
+[data-theme="dark"] textarea,
+[data-theme="dark"] select {
+  background-color: #252525 !important;
+  border-color: #3f3f3f !important;
+  color: #ffffff !important;
+  caret-color: #00e5ff !important;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease !important;
+}
+
+[data-theme="dark"] input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]):not([type="button"]):not([type="submit"]):hover,
+[data-theme="dark"] textarea:hover,
+[data-theme="dark"] select:hover {
+  border-color: #555555 !important;
+}
+
+[data-theme="dark"] input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]):not([type="button"]):not([type="submit"]):focus,
+[data-theme="dark"] textarea:focus,
+[data-theme="dark"] select:focus {
+  background-color: #252525 !important;
+  border-color: #00e5ff !important;
+  outline: none !important;
+  box-shadow: 0 0 0 2px rgba(0, 229, 255, 0.35) !important;
+}
+
+/* Dropdown option trong select */
+[data-theme="dark"] select option {
+  background-color: #252525 !important;
+  color: #ffffff !important;
+}
+
+/* Accent controls */
+[data-theme="dark"] input[type="range"],
+[data-theme="dark"] input[type="checkbox"],
+[data-theme="dark"] input[type="radio"] {
+  accent-color: #00e5ff !important;
+}
+
+/* Khung chứa quanh ô nhập liệu */
+[data-theme="dark"] div.relative:has(> input:not([type="checkbox"]):not([type="radio"]):not([type="range"])),
+[data-theme="dark"] div.rounded-xl:has(> input:not([type="checkbox"]):not([type="radio"]):not([type="range"])),
+[data-theme="dark"] div.rounded-2xl:has(> input:not([type="checkbox"]):not([type="radio"]):not([type="range"])),
+[data-theme="dark"] div:has(> input).bg-white,
+[data-theme="dark"] div:has(> input).border-slate-300,
+[data-theme="dark"] div:has(> input).border-slate-200 {
+  background-color: #252525 !important;
+  border-color: #3f3f3f !important;
+}
+
+[data-theme="dark"] div.relative:has(> input:not([type="checkbox"]):not([type="radio"]):not([type="range"])):focus-within,
+[data-theme="dark"] div.rounded-xl:has(> input:not([type="checkbox"]):not([type="radio"]):not([type="range"])):focus-within,
+[data-theme="dark"] div.rounded-2xl:has(> input:not([type="checkbox"]):not([type="radio"]):not([type="range"])):focus-within,
+[data-theme="dark"] div:has(> input):focus-within {
+  border-color: #00e5ff !important;
+  box-shadow: 0 0 0 2px rgba(0, 229, 255, 0.35) !important;
+}
+
+/* Chữ nhãn/đơn vị ở đầu/đuôi ô nhập liệu */
+[data-theme="dark"] div:has(> input) .text-slate-400,
+[data-theme="dark"] div:has(> input) .text-slate-500,
+[data-theme="dark"] div:has(> input) .text-slate-600 {
+  color: #e0e0e0 !important;
+}
+
+[data-theme="dark"] div:has(> input) .bg-slate-800 {
+  background-color: #333333 !important;
+  border-color: #4a4a4a !important;
+  color: #ffffff !important;
+}
+
+[data-theme="dark"] input::placeholder,
+[data-theme="dark"] textarea::placeholder {
+  color: #a0a0a0 !important;
+  opacity: 0.95;
+}
+
+[data-theme="dark"] input:-webkit-autofill,
+[data-theme="dark"] input:-webkit-autofill:hover, 
+[data-theme="dark"] input:-webkit-autofill:focus,
+[data-theme="dark"] textarea:-webkit-autofill,
+[data-theme="dark"] select:-webkit-autofill {
+  -webkit-text-fill-color: #ffffff !important;
+  -webkit-box-shadow: 0 0 0px 1000px #252525 inset !important;
+  box-shadow: 0 0 0px 1000px #252525 inset !important;
+}
+
+[data-theme="dark"] .border-slate-800,
+[data-theme="dark"] .border-slate-700 {
+  border-color: #272a47 !important;
+}
+
+[data-theme="dark"] .bg-slate-900\/60,
+[data-theme="dark"] .bg-slate-900\/80,
+[data-theme="dark"] .bg-slate-900\/90 {
+  background-color: rgba(27, 29, 51, 0.85) !important;
+}
+
+[data-theme="dark"] .bg-slate-800\/80,
+[data-theme="dark"] .bg-slate-800\/60 {
+  background-color: rgba(39, 42, 71, 0.75) !important;
+}
+
+/* Banner xanh lá cây đậm sang trọng trong Chế độ Tối */
+[data-theme="dark"] .tool-header-banner,
+[data-theme="dark"] div[class*="rounded-2xl"][class*="bg-gradient-to-r"] {
+  background: linear-gradient(135deg, rgba(6, 78, 59, 0.45) 0%, rgba(15, 23, 42, 0.9) 50%, rgba(6, 78, 59, 0.25) 100%) !important;
+  border-color: rgba(16, 185, 129, 0.35) !important;
+}
+
+[data-theme="dark"] .tool-hero-banner,
+[data-theme="dark"] div[class*="rounded-2xl"][class*="bg-gradient-to-b"] {
+  background: linear-gradient(180deg, rgba(6, 78, 59, 0.35) 0%, rgba(15, 23, 42, 0.95) 100%) !important;
+  border-color: rgba(16, 185, 129, 0.4) !important;
+}
+
+
+/* ============================================================
+   REDUCED MOTION SUPPORT
+   ============================================================ */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ============================================================
+   PRINT STYLES
+   ============================================================ */
+@media print {
+  body {
+    background: #ffffff !important;
+    color: #0f172a !important;
+  }
+  header, nav, aside, footer, button, .no-print, [data-no-print="true"], .fixed:not([id*="pdf-printable-source"]) {
+    display: none !important;
+  }
+  .print-only {
+    display: block !important;
+  }
+  #tax-calculator {
+    max-width: 100% !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+  .printable-tax-statement {
+    display: block !important;
+    background: #ffffff !important;
+    color: #0f172a !important;
+    box-shadow: none !important;
+  }
+  [id*="pdf-printable-source"] {
+    display: block !important;
+    position: static !important;
+    left: 0 !important;
+    top: 0 !important;
+    visibility: visible !important;
+  }
+  .pdf-report-page {
+    display: flex !important;
+    page-break-after: always !important;
+    break-after: page !important;
+    box-shadow: none !important;
+  }
+}
