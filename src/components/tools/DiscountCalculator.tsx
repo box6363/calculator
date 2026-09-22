@@ -41,24 +41,29 @@ export const DiscountCalculator: React.FC = () => {
     }
     const priceAfterDiscounts = priceAfterFirst - extraDiscountAmount;
 
+    // Helper to round based on currency decimal precision
+    const roundCurr = (val: number) => {
+      return currencyInfo.decimals === 0 ? Math.round(val) : Number(val.toFixed(currencyInfo.decimals));
+    };
+
     // 3. Tax / VAT
     const taxAmount = (priceAfterDiscounts * taxPercent) / 100;
-    const finalPrice = Math.round(priceAfterDiscounts + taxAmount);
+    const finalPrice = roundCurr(priceAfterDiscounts + taxAmount);
 
-    const totalSavings = Math.round(originalPrice - priceAfterDiscounts);
+    const totalSavings = roundCurr(originalPrice - priceAfterDiscounts);
     const effectiveDiscountPercent = originalPrice > 0 
       ? Number(((totalSavings / originalPrice) * 100).toFixed(1)) 
       : 0;
 
     return {
-      firstDiscountAmount: Math.round(firstDiscountAmount),
-      extraDiscountAmount: Math.round(extraDiscountAmount),
-      taxAmount: Math.round(taxAmount),
+      firstDiscountAmount: roundCurr(firstDiscountAmount),
+      extraDiscountAmount: roundCurr(extraDiscountAmount),
+      taxAmount: roundCurr(taxAmount),
       finalPrice,
       totalSavings,
       effectiveDiscountPercent
     };
-  }, [originalPrice, discountPercent, extraDiscountPercent, enableExtraDiscount, taxPercent]);
+  }, [originalPrice, discountPercent, extraDiscountPercent, enableExtraDiscount, taxPercent, currencyInfo.decimals]);
 
   const handleCopy = () => {
     const text = `Tính giá khuyến mãi:

@@ -150,7 +150,8 @@ export const SEOManager: React.FC<SEOManagerProps> = ({ tool, lang }) => {
     canonical.href = currentCanonicalUrl;
 
     // 6. Dynamic Hreflang Alternates (20 International Markets + x-default) directly in <head>
-    document.querySelectorAll('link[data-dynamic-hreflang="true"]').forEach(el => el.remove());
+    // Remove all previous alternate hreflang tags (including static template tags from index.html) to prevent duplicates
+    document.querySelectorAll('link[rel="alternate"][hreflang]').forEach(el => el.remove());
 
     // x-default points to English
     const xDefaultLink = document.createElement('link');

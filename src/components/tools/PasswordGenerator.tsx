@@ -9,6 +9,29 @@ import {
   EyeOff
 } from 'lucide-react';
 
+// Cryptographically Secure Pseudo-Random Number Generator (CSPRNG)
+function secureRandomInt(max: number): number {
+  if (max <= 0) return 0;
+  if (typeof crypto !== 'undefined' && crypto.getRandomValues) {
+    const arr = new Uint32Array(1);
+    crypto.getRandomValues(arr);
+    return arr[0] % max;
+  }
+  return Math.floor(Math.random() * max);
+}
+
+// Unbiased Fisher-Yates Shuffle
+function secureShuffle<T>(arr: T[]): T[] {
+  const result = [...arr];
+  for (let i = result.length - 1; i > 0; i--) {
+    const j = secureRandomInt(i + 1);
+    const temp = result[i];
+    result[i] = result[j];
+    result[j] = temp;
+  }
+  return result;
+}
+
 export const PasswordGenerator: React.FC = () => {
   const [length, setLength] = useState<number>(16);
   const [includeUpper, setIncludeUpper] = useState<boolean>(true);
@@ -41,19 +64,19 @@ export const PasswordGenerator: React.FC = () => {
 
     if (includeUpper) {
       charPool += upper;
-      guaranteed.push(upper[Math.floor(Math.random() * upper.length)]);
+      guaranteed.push(upper[secureRandomInt(upper.length)]);
     }
     if (includeLower) {
       charPool += lower;
-      guaranteed.push(lower[Math.floor(Math.random() * lower.length)]);
+      guaranteed.push(lower[secureRandomInt(lower.length)]);
     }
     if (includeNumbers) {
       charPool += numbers;
-      guaranteed.push(numbers[Math.floor(Math.random() * numbers.length)]);
+      guaranteed.push(numbers[secureRandomInt(numbers.length)]);
     }
     if (includeSymbols) {
       charPool += symbols;
-      guaranteed.push(symbols[Math.floor(Math.random() * symbols.length)]);
+      guaranteed.push(symbols[secureRandomInt(symbols.length)]);
     }
 
     if (charPool.length === 0) {
@@ -64,10 +87,10 @@ export const PasswordGenerator: React.FC = () => {
     const genOne = () => {
       let pwd = [...guaranteed];
       for (let i = pwd.length; i < length; i++) {
-        pwd.push(charPool[Math.floor(Math.random() * charPool.length)]);
+        pwd.push(charPool[secureRandomInt(charPool.length)]);
       }
-      // Shuffle
-      return pwd.sort(() => Math.random() - 0.5).join('');
+      // Cryptographically secure unbiased shuffle
+      return secureShuffle(pwd).join('');
     };
 
     const main = genOne();

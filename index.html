@@ -127,8 +127,33 @@
       ]
     }
     </script>
+    <!-- Early Theme Detection Script (Zero-Flicker & Zero-Lag on Initial Page Load) -->
+    <script>
+      (function() {
+        try {
+          var saved = localStorage.getItem('ac_studio_theme_mode');
+          if (saved === 'dark') {
+            document.documentElement.setAttribute('data-theme', 'dark');
+            document.documentElement.classList.add('dark');
+            document.documentElement.style.setProperty('--app-bg', '#141526');
+            document.documentElement.style.setProperty('--app-header-bg', 'rgba(20, 21, 38, 0.95)');
+            document.documentElement.style.setProperty('--app-surface', '#1B1D33');
+            document.documentElement.style.setProperty('--app-border', '#272A47');
+            document.documentElement.style.setProperty('--app-text-primary', '#FFFFFF');
+          } else {
+            document.documentElement.setAttribute('data-theme', 'light');
+            document.documentElement.classList.remove('dark');
+            document.documentElement.style.setProperty('--app-bg', '#FFFFFF');
+            document.documentElement.style.setProperty('--app-header-bg', 'rgba(255, 255, 255, 0.98)');
+            document.documentElement.style.setProperty('--app-surface', '#FFFFFF');
+            document.documentElement.style.setProperty('--app-border', '#E2E8F0');
+            document.documentElement.style.setProperty('--app-text-primary', '#000000');
+          }
+        } catch (e) {}
+      })();
+    </script>
   </head>
-  <body class="bg-[#0F1628] text-slate-100 font-['Inter',sans-serif] antialiased selection:bg-blue-600 selection:text-white">
+  <body class="font-['Inter',sans-serif] antialiased selection:bg-blue-600 selection:text-white" style="background-color: var(--app-bg, #ffffff); color: var(--app-text-primary, #000000);">
     <div id="root">
       <!-- Prerender Fallback Content for Crawlers (Googlebot, Bingbot, Yandex...) before JS Hydration -->
       <div style="padding: 24px; max-width: 960px; margin: 0 auto; color: #f8fafc; font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;">

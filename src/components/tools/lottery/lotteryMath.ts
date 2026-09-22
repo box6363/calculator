@@ -378,7 +378,6 @@ export function calculateExpectedValue(
   applyTax: boolean = true
 ): { ev: number; evReturnRate: number } {
   const totalCombos = getTotalCombinations(config);
-  const taxRate = applyTax ? 0.37 : 0; // US Federal top tax bracket
 
   let totalExpectedPayout = 0;
   for (const tier of config.tiers) {
@@ -386,8 +385,25 @@ export function calculateExpectedValue(
     if (tier.isJackpot && customJackpot) {
       prize = customJackpot;
     }
-    // After tax payout
-    const netPrize = prize * (1 - taxRate);
+
+    let netPrize = prize;
+    if (applyTax) {
+      if (tier.isJackpot) {
+        // Advertised jackpot is a 30-year annuity. Cash lump sum is ~50%, followed by 37% top federal tax
+        const lumpSumCash = prize * 0.50;
+        netPrize = lumpSumCash * (1 - 0.37);
+      } else if (prize >= 1_000_000) {
+        // Large fixed prize ($1M+): 37% top federal tax
+        netPrize = prize * (1 - 0.37);
+      } else if (prize > 600) {
+        // Mid-tier prizes ($600 - $50,000): 24% standard federal withholding
+        netPrize = prize * (1 - 0.24);
+      } else {
+        // Small prizes (<= $600): exempt from mandatory withholding, received in full
+        netPrize = prize;
+      }
+    }
+
     const p = tier.winningCombinations / totalCombos;
     totalExpectedPayout += p * netPrize;
   }

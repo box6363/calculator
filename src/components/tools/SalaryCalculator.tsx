@@ -142,6 +142,20 @@ export const SalaryCalculator: React.FC = () => {
     setCustomRate(5.0);
   };
 
+  // Convert salary input amount when user switches pay period (e.g. annual $75,000 to monthly $6,250)
+  const handlePayPeriodChange = (newPeriod: PayPeriod) => {
+    if (newPeriod === payPeriod) return;
+    if (salaryInput > 0) {
+      const annualEquivalent = toAnnualAmount(salaryInput, payPeriod);
+      const converted = fromAnnualAmount(annualEquivalent, newPeriod);
+      const rounded = activeProfile.decimals === 0 
+        ? Math.round(converted) 
+        : Number(converted.toFixed(activeProfile.decimals));
+      setSalaryInput(rounded);
+    }
+    setPayPeriod(newPeriod);
+  };
+
   // Save customized profile
   const handleSaveProfile = (updatedProfile: CountrySalaryProfile) => {
     setProfilesState(prev => ({
@@ -408,7 +422,7 @@ ${isVi ? 'Quy đổi Tháng' : 'Monthly Net'}: ${formatCurrency(calculationResul
                   return (
                     <button
                       key={p}
-                      onClick={() => setPayPeriod(p)}
+                      onClick={() => handlePayPeriodChange(p)}
                       className={`py-2 px-1 rounded-xl text-xs font-bold text-center transition-all cursor-pointer ${
                         isCur
                           ? 'bg-blue-600 text-white border border-blue-500 shadow-xs'

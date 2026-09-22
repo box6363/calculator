@@ -7,16 +7,22 @@ import {
   Check,
   Sparkles
 } from 'lucide-react';
+import {
+  parseLocalDate,
+  formatLocalISODate,
+  getTodayLocalISODate,
+  calculateCalendarAge
+} from '../../utils/dateUtils';
 
 export const AgeCalculator: React.FC = () => {
-  // Default birth date: 25 years ago
+  // Default birth date: 25 years ago in local time
   const defaultBirthDate = useMemo(() => {
     const d = new Date();
     d.setFullYear(d.getFullYear() - 25);
-    return d.toISOString().split('T')[0];
+    return formatLocalISODate(d);
   }, []);
 
-  const todayStr = useMemo(() => new Date().toISOString().split('T')[0], []);
+  const todayStr = useMemo(() => getTodayLocalISODate(), []);
 
   const [birthDateStr, setBirthDateStr] = useState<string>(defaultBirthDate);
   const [targetDateStr, setTargetDateStr] = useState<string>(todayStr);
@@ -24,43 +30,30 @@ export const AgeCalculator: React.FC = () => {
 
   // Age calculations
   const ageData = useMemo(() => {
-    const birth = new Date(birthDateStr);
-    const target = new Date(targetDateStr);
+    const birth = parseLocalDate(birthDateStr);
+    const target = parseLocalDate(targetDateStr);
 
     if (isNaN(birth.getTime()) || isNaN(target.getTime()) || target < birth) {
       return null;
     }
 
-    let years = target.getFullYear() - birth.getFullYear();
-    let months = target.getMonth() - birth.getMonth();
-    let days = target.getDate() - birth.getDate();
-
-    if (days < 0) {
-      months -= 1;
-      // Days in previous month of target
-      const prevMonth = new Date(target.getFullYear(), target.getMonth(), 0);
-      days += prevMonth.getDate();
-    }
-
-    if (months < 0) {
-      years -= 1;
-      months += 12;
-    }
+    const { years, months, days } = calculateCalendarAge(birth, target);
 
     // Total milliseconds
     const diffMs = target.getTime() - birth.getTime();
-    const totalDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+    const totalDays = Math.round(diffMs / (1000 * 60 * 60 * 24));
     const totalWeeks = Math.floor(totalDays / 7);
     const totalMonths = years * 12 + months;
     const totalHours = totalDays * 24;
     const totalMinutes = totalHours * 60;
 
     // Next birthday calculation
-    let nextBday = new Date(target.getFullYear(), birth.getMonth(), birth.getDate());
+    let nextBdayYear = target.getFullYear();
+    let nextBday = new Date(nextBdayYear, birth.getMonth(), birth.getDate(), 0, 0, 0, 0);
     if (nextBday < target) {
-      nextBday = new Date(target.getFullYear() + 1, birth.getMonth(), birth.getDate());
+      nextBday = new Date(nextBdayYear + 1, birth.getMonth(), birth.getDate(), 0, 0, 0, 0);
     }
-    const daysToNextBday = Math.ceil((nextBday.getTime() - target.getTime()) / (1000 * 60 * 60 * 24));
+    const daysToNextBday = Math.max(0, Math.ceil((nextBday.getTime() - target.getTime()) / (1000 * 60 * 60 * 24)));
     
     // Day of week born
     const daysOfWeek = ['Chủ Nhật', 'Thứ Hai', 'Thứ Ba', 'Thứ Tư', 'Thứ Năm', 'Thứ Sáu', 'Thứ Bảy'];

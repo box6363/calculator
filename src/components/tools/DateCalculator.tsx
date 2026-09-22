@@ -8,18 +8,23 @@ import {
   Clock,
   Briefcase
 } from 'lucide-react';
+import {
+  parseLocalDate,
+  formatLocalISODate,
+  getTodayLocalISODate
+} from '../../utils/dateUtils';
 
 export const DateCalculator: React.FC = () => {
   const [tab, setTab] = useState<'difference' | 'add_subtract'>('difference');
   const [copied, setCopied] = useState<boolean>(false);
 
   // Mode 1: Difference
-  const todayStr = new Date().toISOString().split('T')[0];
+  const todayStr = useMemo(() => getTodayLocalISODate(), []);
   const [startDate, setStartDate] = useState<string>(todayStr);
   const [endDate, setEndDate] = useState<string>(() => {
     const d = new Date();
     d.setDate(d.getDate() + 45);
-    return d.toISOString().split('T')[0];
+    return formatLocalISODate(d);
   });
   const [includeEndDate, setIncludeEndDate] = useState<boolean>(false);
 
@@ -33,8 +38,8 @@ export const DateCalculator: React.FC = () => {
 
   // Calculation for Difference
   const diffResult = useMemo(() => {
-    const start = new Date(startDate);
-    const end = new Date(endDate);
+    const start = parseLocalDate(startDate);
+    const end = parseLocalDate(endDate);
 
     if (isNaN(start.getTime()) || isNaN(end.getTime())) {
       return null;
@@ -44,7 +49,7 @@ export const DateCalculator: React.FC = () => {
     const isReversed = diffMs < 0;
     if (isReversed) diffMs = Math.abs(diffMs);
 
-    let totalDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+    let totalDays = Math.round(diffMs / (1000 * 60 * 60 * 24));
     if (includeEndDate && !isReversed) totalDays += 1;
 
     const weeks = Math.floor(totalDays / 7);
@@ -82,7 +87,7 @@ export const DateCalculator: React.FC = () => {
 
   // Calculation for Add/Subtract
   const calcDateResult = useMemo(() => {
-    const d = new Date(baseDate);
+    const d = parseLocalDate(baseDate);
     if (isNaN(d.getTime())) return null;
 
     const sign = op === 'add' ? 1 : -1;
@@ -103,7 +108,7 @@ export const DateCalculator: React.FC = () => {
       dateObj: d,
       dayOfWeek,
       formatted,
-      iso: d.toISOString().split('T')[0]
+      iso: formatLocalISODate(d)
     };
   }, [baseDate, op, addYears, addMonths, addWeeks, addDays]);
 

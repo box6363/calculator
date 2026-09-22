@@ -261,16 +261,16 @@ export function calculateFromAnnualGross(
       }];
     } else {
       // Citizen / PR standard CPF
-      const monthlyCap = 6800; // Ordinary wage ceiling
+      const monthlyCap = 6800; // Ordinary wage ceiling (S$6,800/mo)
       const subjectMonthly = Math.min(insBaseMonthly, monthlyCap);
       const monthlyCpf = subjectMonthly * 0.20;
-      const annualCpf = Math.min(monthlyCpf * 12, 102000 * 0.20);
+      const annualCpf = monthlyCpf * 12;
       employeeInsuranceItems = [{
         id: 'cpf',
         name: 'Central Provident Fund (CPF 20%)',
         rate: 20.0,
         annualAmount: annualCpf,
-        monthlyAmount: annualCpf / 12,
+        monthlyAmount: monthlyCpf,
         description: '20% up to Ordinary Wage ceiling S$6,800/mo'
       }];
     }
@@ -326,11 +326,21 @@ export function calculateFromAnnualGross(
       let annualAmount = 0;
 
       if (item.capAnnual) {
-        const subjectSalaryAnnual = Math.min(annualGross, item.capAnnual);
+        const minVal = item.minAnnual || 0;
+        const subjectSalaryAnnual = Math.max(0, Math.min(annualGross, item.capAnnual) - minVal);
+        annualAmount = subjectSalaryAnnual * (item.rate / 100);
+        monthlyAmount = annualAmount / 12;
+      } else if (item.minAnnual) {
+        const subjectSalaryAnnual = Math.max(0, annualGross - item.minAnnual);
         annualAmount = subjectSalaryAnnual * (item.rate / 100);
         monthlyAmount = annualAmount / 12;
       } else if (item.capMonthly) {
-        const subjectSalaryMonthly = Math.min(insBaseMonthly, item.capMonthly);
+        const minVal = item.minMonthly || 0;
+        const subjectSalaryMonthly = Math.max(0, Math.min(insBaseMonthly, item.capMonthly) - minVal);
+        monthlyAmount = subjectSalaryMonthly * (item.rate / 100);
+        annualAmount = monthlyAmount * 12;
+      } else if (item.minMonthly) {
+        const subjectSalaryMonthly = Math.max(0, insBaseMonthly - item.minMonthly);
         monthlyAmount = subjectSalaryMonthly * (item.rate / 100);
         annualAmount = monthlyAmount * 12;
       } else {
@@ -529,7 +539,7 @@ export function calculateFromAnnualGross(
 
     employerContributionItems = profile.employerContributions.map(item => {
       let monthlyAmount = 0;
-      if (item.id === 'comp_bhxh' || item.id === 'comp_bhyt') {
+      if (item.id === 'comp_bhxh' || item.id === 'comp_bhyt' || item.id === 'comp_union') {
         const salaryForIns = Math.min(insBaseMonthly, maxBhxhMonthly);
         monthlyAmount = salaryForIns * (item.rate / 100);
       } else if (item.id === 'comp_bhtn') {
@@ -569,11 +579,21 @@ export function calculateFromAnnualGross(
       let annualAmount = 0;
 
       if (item.capAnnual) {
-        const subjectSalary = Math.min(annualGross, item.capAnnual);
+        const minVal = item.minAnnual || 0;
+        const subjectSalary = Math.max(0, Math.min(annualGross, item.capAnnual) - minVal);
+        annualAmount = subjectSalary * (item.rate / 100);
+        monthlyAmount = annualAmount / 12;
+      } else if (item.minAnnual) {
+        const subjectSalary = Math.max(0, annualGross - item.minAnnual);
         annualAmount = subjectSalary * (item.rate / 100);
         monthlyAmount = annualAmount / 12;
       } else if (item.capMonthly) {
-        const subjectSalary = Math.min(insBaseMonthly, item.capMonthly);
+        const minVal = item.minMonthly || 0;
+        const subjectSalary = Math.max(0, Math.min(insBaseMonthly, item.capMonthly) - minVal);
+        monthlyAmount = subjectSalary * (item.rate / 100);
+        annualAmount = monthlyAmount * 12;
+      } else if (item.minMonthly) {
+        const subjectSalary = Math.max(0, insBaseMonthly - item.minMonthly);
         monthlyAmount = subjectSalary * (item.rate / 100);
         annualAmount = monthlyAmount * 12;
       } else {

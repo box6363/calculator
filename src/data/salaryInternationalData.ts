@@ -18,6 +18,7 @@ export interface InsuranceItem {
   capAnnual?: number; // annual cap ceiling if any
   capMonthly?: number; // monthly cap ceiling if any
   minAnnual?: number; // threshold under which 0%
+  minMonthly?: number; // monthly threshold under which 0%
   aboveCapRate?: number; // rate for amount above ceiling (e.g. UK NI 2% above UEL)
   description?: string;
 }
@@ -123,7 +124,7 @@ export const COUNTRY_PROFILES: Record<string, CountrySalaryProfile> = {
       { id: 'comp_bhxh', name: 'Employer Social (BHXH DN)', nameVi: 'BHXH Doanh nghiệp', rate: 17.5, capMonthly: 2340000 * 20 },
       { id: 'comp_bhyt', name: 'Employer Health (BHYT DN)', nameVi: 'BHYT Doanh nghiệp', rate: 3.0, capMonthly: 2340000 * 20 },
       { id: 'comp_bhtn', name: 'Employer Unemp (BHTN DN)', nameVi: 'BHTN Doanh nghiệp', rate: 1.0, capMonthly: 4960000 * 20 },
-      { id: 'comp_union', name: 'Trade Union (Công đoàn)', nameVi: 'Kinh phí Công đoàn', rate: 2.0 }
+      { id: 'comp_union', name: 'Trade Union (Công đoàn)', nameVi: 'Kinh phí Công đoàn', rate: 2.0, capMonthly: 2340000 * 20, description: 'Trần 20 lần mức lương cơ sở theo NĐ 191/2013' }
     ],
     taxBracketsAnnual: [
       { bracket: 1, min: 0, max: 5000000 * 12, rate: 5 },
@@ -359,7 +360,7 @@ export const COUNTRY_PROFILES: Record<string, CountrySalaryProfile> = {
       { bracket: 5, min: 80000, max: 120000, rate: 11.5 },
       { bracket: 6, min: 120000, max: 160000, rate: 15 },
       { bracket: 7, min: 160000, max: 200000, rate: 18 },
-      { bracket: 8, min: 20000, max: 240000, rate: 19 },
+      { bracket: 8, min: 200000, max: 240000, rate: 19 },
       { bracket: 9, min: 240000, max: 280000, rate: 19.5 },
       { bracket: 10, min: 280000, max: 320000, rate: 20 },
       { bracket: 11, min: 320000, max: 500000, rate: 22 },

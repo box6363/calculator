@@ -1,17 +1,25 @@
 import React, { useState, useMemo } from 'react';
 import { Baby, Calendar, RotateCcw, Heart } from 'lucide-react';
+import {
+  parseLocalDate,
+  formatLocalISODate
+} from '../../utils/dateUtils';
 
 export const PregnancyCalculator: React.FC = () => {
   // Method: lmp (Last Menstrual Period), conception (Conception Date), ivf (IVF Transfer)
   const [calcMethod, setCalcMethod] = useState<'lmp' | 'conception'>('lmp');
   
-  // Default to 8 weeks ago
-  const defaultLmp = new Date(Date.now() - 56 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+  // Default to 8 weeks ago in local time
+  const defaultLmp = useMemo(() => {
+    const d = new Date();
+    d.setDate(d.getDate() - 56);
+    return formatLocalISODate(d);
+  }, []);
   const [inputDate, setInputDate] = useState<string>(defaultLmp);
   const [cycleLengthDays, setCycleLengthDays] = useState<number>(28);
 
   const calculations = useMemo(() => {
-    const baseDate = new Date(inputDate);
+    const baseDate = parseLocalDate(inputDate);
     if (isNaN(baseDate.getTime())) {
       return null;
     }
@@ -25,19 +33,19 @@ export const PregnancyCalculator: React.FC = () => {
       dueDate.setDate(dueDate.getDate() + 280 + cycleAdjustment);
       
       const today = new Date();
-      gestationalDays = Math.floor((today.getTime() - baseDate.getTime()) / (1000 * 60 * 60 * 24));
+      gestationalDays = Math.round((today.getTime() - baseDate.getTime()) / (1000 * 60 * 60 * 24));
     } else {
       // Conception date: Conception + 266 days
       dueDate.setDate(dueDate.getDate() + 266);
       
       const today = new Date();
       // Conception is gestational day 14 approximately
-      gestationalDays = Math.floor((today.getTime() - baseDate.getTime()) / (1000 * 60 * 60 * 24)) + 14;
+      gestationalDays = Math.round((today.getTime() - baseDate.getTime()) / (1000 * 60 * 60 * 24)) + 14;
     }
 
     const currentWeeks = Math.floor(gestationalDays / 7);
     const currentDays = gestationalDays % 7;
-    const daysRemaining = Math.max(0, Math.floor((dueDate.getTime() - Date.now()) / (1000 * 60 * 60 * 24)));
+    const daysRemaining = Math.max(0, Math.round((dueDate.getTime() - Date.now()) / (1000 * 60 * 60 * 24)));
 
     // Trimester
     let trimester = 'Tam cá nguyệt thứ nhất (Tuần 1 - 13)';

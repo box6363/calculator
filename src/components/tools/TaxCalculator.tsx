@@ -584,26 +584,30 @@ export const TaxCalculator: React.FC = () => {
 
   const handleDownloadPDF = async () => {
     if (isExportingPdf) return;
+
     try {
       setIsExportingPdf(true);
       setExportError(null);
       setExportSuccess(false);
 
-      // Look for the modal sheet first if open, or the dedicated printable element
-      const modalSheet = document.getElementById('tax-statement-modal-sheet');
+      // Tìm element nguồn: nếu xem trước đang mở thì dùng modal sheet, nếu không dùng printable container
+      const modalEl = document.getElementById('tax-statement-modal-sheet');
       const printableContainer = document.getElementById('tax-statement-printable');
-      const targetElement = (showPrintModal && modalSheet) ? modalSheet : (printableContainer || modalSheet);
-      if (!targetElement) {
-        setShowPrintModal(true);
+      const source = (showPrintModal && modalEl) ? modalEl : (modalEl || printableContainer);
+
+      if (!source) {
+        window.print();
         return;
       }
 
-      const now = new Date();
-      const dateStr = now.toISOString().slice(0, 10);
-      const fileName = `Bang_Du_Toan_Thue_${selectedRegionId}_${dateStr}.pdf`;
+      // Escape tên file an toàn cho mọi hệ điều hành (tránh ký tự đặc biệt)
+      const safeRegion = selectedRegionId.replace(/[^a-z0-9_-]/gi, '_');
+      const dateStr = new Date().toISOString().slice(0, 10);
+      const fileName = `Bang_Du_Toan_Thue_${safeRegion}_${dateStr}.pdf`;
 
-      await exportElementPagesToPdf(targetElement, {
+      await exportElementPagesToPdf(source, {
         fileName,
+        pageSelector: '.pdf-report-page',
       });
 
       setExportSuccess(true);
@@ -611,8 +615,13 @@ export const TaxCalculator: React.FC = () => {
         setExportSuccess(false);
       }, 4000);
     } catch (err: any) {
-      console.error('Lỗi tạo PDF trực tiếp:', err);
+      console.error('Lỗi khi xuất PDF:', err);
       setExportError(err?.message || 'Có lỗi khi tạo file PDF. Bạn có thể mở "Xem mẫu A4" để xem hoặc in trực tiếp.');
+      try {
+        window.print();
+      } catch {
+        // ignore
+      }
       setTimeout(() => {
         setExportError(null);
       }, 6000);
@@ -623,8 +632,10 @@ export const TaxCalculator: React.FC = () => {
 
   return (
     <div id="tax-calculator" className="w-full max-w-6xl mx-auto space-y-6">
-      {/* Header Banner */}
-      <div className="tool-header-banner p-4 sm:p-6 rounded-2xl bg-gradient-to-r from-emerald-950/40 via-slate-800 to-slate-900 border border-emerald-500/30 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+      {/* Interactive Form Controls (Hidden during Window Print) */}
+      <div className="no-print space-y-6">
+        {/* Header Banner */}
+        <div className="tool-header-banner p-4 sm:p-6 rounded-2xl bg-gradient-to-r from-emerald-950/40 via-slate-800 to-slate-900 border border-emerald-500/30 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div className="flex items-center gap-3">
           <div className="banner-icon-box p-3 bg-emerald-600/20 text-emerald-400 rounded-xl border border-emerald-500/30">
             <Building2 className="w-6 h-6" />
@@ -1491,6 +1502,7 @@ export const TaxCalculator: React.FC = () => {
         </div>
 
       </div>
+      </div>
 
       {/* --- PREVIEW MODAL & PRINTABLE A4 STATEMENT --- */}
       {showPrintModal && (
@@ -1769,21 +1781,23 @@ export const TaxCalculator: React.FC = () => {
         </div>
       )}
 
-      {/* Printable Container for browser printing & PDF capture (off-screen, not display:none) */}
+      {/* Printable Container for browser printing & PDF capture (rendered in-viewport but transparent to avoid culling/off-screen bugs) */}
       <div 
         id="tax-statement-printable"
         aria-hidden="true"
+        className="printable-tax-statement print-only"
         style={{
-          position: 'fixed',
-          left: '-9999px',
-          top: 0,
+          position: 'absolute',
+          left: '0',
+          top: '0',
           width: '794px',
           height: 'auto',
-          overflow: 'hidden',
+          overflow: 'visible',
+          opacity: 0,
           pointerEvents: 'none',
           backgroundColor: '#ffffff',
           color: '#0f172a',
-          zIndex: -9999,
+          zIndex: -1,
         }}
       >
         <div
@@ -1791,12 +1805,11 @@ export const TaxCalculator: React.FC = () => {
           style={{
             width: '794px',
             minHeight: '1123px',
+            height: 'auto',
             boxSizing: 'border-box',
             backgroundColor: '#ffffff',
             color: '#0f172a',
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'space-between',
+            display: 'block',
           }}
         >
           <div className="space-y-4">

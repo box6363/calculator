@@ -208,8 +208,8 @@ export async function exportElementPagesToPdf(
       if (isFixedPage) {
         clone.style.width = '794px';
         clone.style.minHeight = '1123px';
-        clone.style.height = '1123px';
-        clone.style.maxHeight = '1123px';
+        clone.style.height = 'auto';
+        clone.style.maxHeight = 'none';
         clone.style.display = 'flex';
         clone.style.flexDirection = 'column';
         clone.style.justifyContent = 'space-between';
@@ -234,7 +234,7 @@ export async function exportElementPagesToPdf(
       const canvas = await html2canvas(clone, {
         scale: 2, // Độ phân giải 2x cho chữ và số liệu sắc nét chuẩn Retina
         useCORS: true,
-        allowTaint: true,
+        allowTaint: false, // Ngăn chặn tainted canvas làm lỗi khi gọi toDataURL
         logging: false,
         backgroundColor: '#ffffff',
         scrollX: 0,
@@ -264,17 +264,17 @@ export async function exportElementPagesToPdf(
         console.warn('Canvas B&W post-processing:', canvasErr);
       }
 
-      const imgData = canvas.toDataURL('image/jpeg', 0.95);
+      const imgData = canvas.toDataURL('image/png');
 
       const a4Ratio = pdfHeight / pdfWidth; // 297 / 210 = 1.4142857
       const canvasRatio = canvas.height / canvas.width;
 
-      if (isFixedPage || canvasRatio <= a4Ratio * 1.05) {
+      if (canvasRatio <= a4Ratio * 1.05) {
         if (i > 0) {
           pdf.addPage();
         }
         const renderedHeight = Math.min(pdfHeight, (canvas.height * pdfWidth) / canvas.width);
-        pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, renderedHeight, undefined, 'FAST');
+        pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, renderedHeight, undefined, 'FAST');
       } else {
         // Tự động phân trang cho tài liệu dài liên tục
         const pageCanvasHeight = Math.floor(canvas.width * a4Ratio);
@@ -305,8 +305,8 @@ export async function exportElementPagesToPdf(
               canvas.width,
               sliceHeight
             );
-            const pageImg = pageCanvas.toDataURL('image/jpeg', 0.95);
-            pdf.addImage(pageImg, 'JPEG', 0, 0, pdfWidth, pdfHeight, undefined, 'FAST');
+            const pageImg = pageCanvas.toDataURL('image/png');
+            pdf.addImage(pageImg, 'PNG', 0, 0, pdfWidth, pdfHeight, undefined, 'FAST');
           }
 
           renderedOffset += sliceHeight;
@@ -319,33 +319,49 @@ export async function exportElementPagesToPdf(
       options.onProgress('Đang chuẩn bị file PDF...', pageElements.length, pageElements.length);
     }
 
-    const rawName = options.fileName || 'Bang_Tinh_Thue.pdf';
+    const rawName = (options.fileName || 'Bang_Tinh_Thue.pdf').replace(/[^a-z0-9_.-]/gi, '_');
     const finalFileName = rawName.endsWith('.pdf') ? rawName : `${rawName}.pdf`;
 
     // Tạo blob trước để đảm bảo có sẵn file ngay cả khi trình duyệt sandbox chặn phương thức download ngầm
     const pdfBlob = pdf.output('blob');
     const pdfBlobUrl = URL.createObjectURL(pdfBlob);
 
-    // Kích hoạt download
+    // Kích hoạt download an toàn: thử pdf.save() trước, nếu thất bại (do iframe/sandbox) thì fallback thẻ <a>
+    let savedSuccessfully = false;
     try {
       pdf.save(finalFileName);
+      savedSuccessfully = true;
     } catch (saveError) {
-      console.warn('pdf.save() gặp lỗi, kích hoạt thẻ tải trực tiếp:', saveError);
+      console.warn('pdf.save() gặp lỗi, kích hoạt phương thức tải dự phòng:', saveError);
     }
 
-    // Luôn tạo liên kết tải về trực tiếp để tương thích tối đa với iframe / webview
-    const downloadLink = document.createElement('a');
-    downloadLink.href = pdfBlobUrl;
-    downloadLink.download = finalFileName;
-    downloadLink.target = '_blank';
-    downloadLink.rel = 'noopener noreferrer';
-    document.body.appendChild(downloadLink);
-    downloadLink.click();
-    setTimeout(() => {
-      if (document.body.contains(downloadLink)) {
-        document.body.removeChild(downloadLink);
+    if (!savedSuccessfully) {
+      try {
+        const downloadLink = document.createElement('a');
+        downloadLink.href = pdfBlobUrl;
+        downloadLink.download = finalFileName;
+        downloadLink.target = '_blank';
+        downloadLink.rel = 'noopener noreferrer';
+        document.body.appendChild(downloadLink);
+        downloadLink.click();
+        setTimeout(() => {
+          if (document.body.contains(downloadLink)) {
+            document.body.removeChild(downloadLink);
+          }
+        }, 4000);
+      } catch (linkError) {
+        console.warn('Fallback download link gặp lỗi:', linkError);
       }
-    }, 4000);
+    }
+
+    // Tự động thu hồi URL blob sau 60 giây để tránh rò rỉ bộ nhớ
+    setTimeout(() => {
+      try {
+        URL.revokeObjectURL(pdfBlobUrl);
+      } catch {
+        // ignore
+      }
+    }, 60000);
 
     return {
       blob: pdfBlob,

@@ -401,7 +401,7 @@
   color: #0f172a !important;
   caret-color: #2563eb !important;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04) !important;
-  transition: border-color 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease !important;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease !important;
 }
 
 [data-theme="light"] input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]):not([type="button"]):not([type="submit"]):hover,
@@ -1100,7 +1100,7 @@
   border-color: #3f3f3f !important;
   color: #ffffff !important;
   caret-color: #00e5ff !important;
-  transition: border-color 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease !important;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease !important;
 }
 
 [data-theme="dark"] input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]):not([type="button"]):not([type="submit"]):hover,
@@ -1230,7 +1230,7 @@
     background: #ffffff !important;
     color: #0f172a !important;
   }
-  header, nav, aside, footer, button, .no-print, [data-no-print="true"], .fixed:not([id*="pdf-printable-source"]) {
+  header, nav, aside, footer, button, .no-print, [data-no-print="true"], .fixed:not([id*="pdf-printable-source"]):not(:has(#tax-statement-modal-sheet)) {
     display: none !important;
   }
   .print-only {
@@ -1241,11 +1241,34 @@
     padding: 0 !important;
     margin: 0 !important;
   }
-  .printable-tax-statement {
+  .printable-tax-statement,
+  #tax-statement-printable {
     display: block !important;
+    position: static !important;
+    left: 0 !important;
+    top: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    opacity: 1 !important;
+    visibility: visible !important;
     background: #ffffff !important;
     color: #0f172a !important;
     box-shadow: none !important;
+  }
+  #tax-statement-modal-sheet {
+    display: block !important;
+    position: static !important;
+    left: 0 !important;
+    top: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    background: #ffffff !important;
+    color: #0f172a !important;
+    box-shadow: none !important;
+    border: none !important;
+    padding: 0 !important;
   }
   [id*="pdf-printable-source"] {
     display: block !important;

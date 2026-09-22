@@ -5,16 +5,20 @@ import {
   Copy,
   Baby
 } from 'lucide-react';
+import {
+  parseLocalDate,
+  getTodayLocalISODate
+} from '../../utils/dateUtils';
 
 export const OvulationCalculator: React.FC = () => {
-  const todayStr = new Date().toISOString().split('T')[0];
+  const todayStr = useMemo(() => getTodayLocalISODate(), []);
   const [lastPeriodDate, setLastPeriodDate] = useState<string>(todayStr);
   const [cycleLength, setCycleLength] = useState<number>(28);
   const [lutealPhase, setLutealPhase] = useState<number>(14);
   const [copied, setCopied] = useState<boolean>(false);
 
   const calculations = useMemo(() => {
-    const lmp = new Date(lastPeriodDate);
+    const lmp = parseLocalDate(lastPeriodDate);
     if (isNaN(lmp.getTime())) return null;
 
     // Ovulation date: LMP + (cycleLength - lutealPhase)

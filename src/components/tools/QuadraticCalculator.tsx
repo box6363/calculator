@@ -90,6 +90,55 @@ export const QuadraticCalculator: React.FC = () => {
     }
   }, [a, b, c]);
 
+  const keyPoints = useMemo<KeyPoint[]>(() => {
+    const pts: KeyPoint[] = [];
+    if (calculations.rawVx !== undefined && calculations.rawVy !== undefined) {
+      pts.push({
+        x: calculations.rawVx,
+        y: calculations.rawVy,
+        label: `Đỉnh I(${calculations.vertexX}; ${calculations.vertexY})`,
+        type: 'vertex',
+        color: a > 0 ? '#fbbf24' : '#34d399'
+      });
+    }
+    if (calculations.type === 'two_real' && calculations.rawX1 !== undefined && calculations.rawX2 !== undefined) {
+      pts.push({
+        x: calculations.rawX1,
+        y: 0,
+        label: `x₁ = ${calculations.x1}`,
+        type: 'root',
+        color: '#38bdf8'
+      });
+      pts.push({
+        x: calculations.rawX2,
+        y: 0,
+        label: `x₂ = ${calculations.x2}`,
+        type: 'root',
+        color: '#38bdf8'
+      });
+    } else if (calculations.type === 'double_real' && calculations.rawX1 !== undefined) {
+      pts.push({
+        x: calculations.rawX1,
+        y: 0,
+        label: `Nghiệm kép x = ${calculations.x1}`,
+        type: 'root',
+        color: '#38bdf8'
+      });
+    }
+    // y-intercept (0, c): only if non-zero
+    if (Math.abs(c) > 1e-4) {
+      const cExact = formatExactMath(c);
+      pts.push({
+        x: 0,
+        y: c,
+        label: `Oy (0; ${cExact.exact || cExact.formatted})`,
+        type: 'y-intercept',
+        color: '#c084fc'
+      });
+    }
+    return pts;
+  }, [calculations, a, c]);
+
   return (
     <div className="w-full max-w-5xl mx-auto space-y-6">
       <div className="p-4 sm:p-6 rounded-2xl bg-gradient-to-r from-blue-900/40 via-slate-800 to-slate-900 border border-blue-500/30 flex items-center justify-between">
@@ -187,54 +236,7 @@ export const QuadraticCalculator: React.FC = () => {
           <InteractiveGraphPlotter
             expression={`${a}*x^2 ${b >= 0 ? `+ ${b}` : `- ${Math.abs(b)}`}*x ${c >= 0 ? `+ ${c}` : `- ${Math.abs(c)}`}`}
             title={`Đồ thị Parabol y = ${a}x² ${b >= 0 ? `+ ${b}` : `- ${Math.abs(b)}`}x ${c >= 0 ? `+ ${c}` : `- ${Math.abs(c)}`}`}
-            keyPoints={useMemo(() => {
-              const pts: KeyPoint[] = [];
-              if (calculations.rawVx !== undefined && calculations.rawVy !== undefined) {
-                pts.push({
-                  x: calculations.rawVx,
-                  y: calculations.rawVy,
-                  label: `Đỉnh I(${calculations.vertexX}; ${calculations.vertexY})`,
-                  type: 'vertex',
-                  color: a > 0 ? '#fbbf24' : '#34d399'
-                });
-              }
-              if (calculations.type === 'two_real' && calculations.rawX1 !== undefined && calculations.rawX2 !== undefined) {
-                pts.push({
-                  x: calculations.rawX1,
-                  y: 0,
-                  label: `x₁ = ${calculations.x1}`,
-                  type: 'root',
-                  color: '#38bdf8'
-                });
-                pts.push({
-                  x: calculations.rawX2,
-                  y: 0,
-                  label: `x₂ = ${calculations.x2}`,
-                  type: 'root',
-                  color: '#38bdf8'
-                });
-              } else if (calculations.type === 'double_real' && calculations.rawX1 !== undefined) {
-                pts.push({
-                  x: calculations.rawX1,
-                  y: 0,
-                  label: `Nghiệm kép x = ${calculations.x1}`,
-                  type: 'root',
-                  color: '#38bdf8'
-                });
-              }
-              // y-intercept (0, c): only if non-zero
-              if (Math.abs(c) > 1e-4) {
-                const cExact = formatExactMath(c);
-                pts.push({
-                  x: 0,
-                  y: c,
-                  label: `Oy (0; ${cExact.exact || cExact.formatted})`,
-                  type: 'y-intercept',
-                  color: '#c084fc'
-                });
-              }
-              return pts;
-            }, [calculations, a, c])}
+            keyPoints={keyPoints}
           />
         </div>
       </div>
