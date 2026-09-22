@@ -1,8 +1,8 @@
 import React, { useState, useRef, useMemo } from 'react';
-import { X, FileDown, Printer, Check, Loader2, Calendar, Car, ShieldAlert } from 'lucide-react';
+import { X, FileDown, Printer, Check, Loader2, Calendar, Car, ShieldAlert, CheckCircle2, Share2 } from 'lucide-react';
 import { useCurrency } from '../../context/CurrencyContext';
 import { useLanguage } from '../../context/LanguageContext';
-import { exportElementPagesToPdf } from '../../utils/pdfExportHelper';
+import { exportElementPagesToPdf, PdfExportResult } from '../../utils/pdfExportHelper';
 
 export interface AutoLoanPdfModalProps {
   isOpen: boolean;
@@ -44,6 +44,7 @@ export const AutoLoanPdfModal: React.FC<AutoLoanPdfModalProps> = ({
   const [isExporting, setIsExporting] = useState<boolean>(false);
   const [exportProgress, setExportProgress] = useState<string>('');
   const [isDone, setIsDone] = useState<boolean>(false);
+  const [exportResult, setExportResult] = useState<PdfExportResult | null>(null);
 
   const printContainerRef = useRef<HTMLDivElement>(null);
 
@@ -91,18 +92,19 @@ export const AutoLoanPdfModal: React.FC<AutoLoanPdfModalProps> = ({
         ? `Lich_Tra_No_Vay_O_To_${Math.round(calculations.loanAmount)}_${currencyInfo.code}_${dateStr}.pdf`
         : `Auto_Loan_Payment_Plan_${Math.round(calculations.loanAmount)}_${currencyInfo.code}_${dateStr}.pdf`;
 
-      await exportElementPagesToPdf(printContainerRef.current, {
+      const result = await exportElementPagesToPdf(printContainerRef.current, {
         fileName,
         pageSelector: '.pdf-report-page',
         onProgress: (text) => setExportProgress(text),
       });
 
+      setExportResult(result);
       setIsDone(true);
       setExportProgress(isVi ? 'Xuất PDF thành công!' : 'PDF export complete!');
       setTimeout(() => {
         setIsDone(false);
         setExportProgress('');
-      }, 3000);
+      }, 4000);
     } catch (error) {
       console.error('Lỗi khi xuất PDF:', error);
       alert(isVi ? 'Có lỗi khi tạo PDF. Bạn có thể chọn In trực tiếp.' : 'Error generating PDF. Try Print directly.');
@@ -244,6 +246,52 @@ export const AutoLoanPdfModal: React.FC<AutoLoanPdfModalProps> = ({
                 <Check className="w-4 h-4 text-emerald-400 shrink-0" />
               ) : null}
               <span>{exportProgress}</span>
+            </div>
+          )}
+
+          {/* Khi file PDF đã sẵn sàng, hiển thị nút tải trực tiếp và share (đặc biệt hữu ích trên iPhone/Android) */}
+          {exportResult && (
+            <div className="p-3 bg-emerald-950/60 border border-emerald-500/50 rounded-xl flex flex-col sm:flex-row items-center justify-between gap-3 text-xs shadow-xs">
+              <div className="flex items-center gap-2 text-emerald-300 min-w-0">
+                <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                <span className="font-semibold shrink-0">{isVi ? 'File PDF đã sẵn sàng:' : 'PDF ready:'}</span>
+                <span className="font-mono text-[11px] truncate max-w-[170px] text-slate-300">{exportResult.fileName}</span>
+              </div>
+              <div className="flex items-center gap-2 w-full sm:w-auto shrink-0">
+                <a
+                  href={exportResult.blobUrl}
+                  download={exportResult.fileName}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex-1 sm:flex-none px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-lg text-center shadow-xs flex items-center justify-center gap-1.5 transition-colors"
+                >
+                  <FileDown className="w-3.5 h-3.5" />
+                  <span>{isVi ? 'Mở / Tải file' : 'Open / Save'}</span>
+                </a>
+                {typeof navigator !== 'undefined' && !!navigator.share && (
+                  <button
+                    type="button"
+                    onClick={async () => {
+                      try {
+                        const file = new File([exportResult.blob], exportResult.fileName, { type: 'application/pdf' });
+                        if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                          await navigator.share({ files: [file], title: exportResult.fileName });
+                        } else {
+                          window.open(exportResult.blobUrl, '_blank');
+                        }
+                      } catch (err: any) {
+                        if (err.name !== 'AbortError') {
+                          window.open(exportResult.blobUrl, '_blank');
+                        }
+                      }
+                    }}
+                    className="flex-1 sm:flex-none px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold rounded-lg flex items-center justify-center gap-1.5 border border-slate-700 transition-colors cursor-pointer"
+                  >
+                    <Share2 className="w-3.5 h-3.5" />
+                    <span>{isVi ? 'Lưu vào Tệp' : 'Save to Files'}</span>
+                  </button>
+                )}
+              </div>
             </div>
           )}
         </div>

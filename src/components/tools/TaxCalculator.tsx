@@ -19,9 +19,11 @@ import {
   FileText,
   Eye,
   X,
-  Loader2
+  Loader2,
+  CheckCircle2,
+  Share2
 } from 'lucide-react';
-import { exportElementPagesToPdf } from '../../utils/pdfExportHelper';
+import { exportElementPagesToPdf, PdfExportResult } from '../../utils/pdfExportHelper';
 import { useCurrency, CurrencyCode } from '../../context/CurrencyContext';
 import { CurrencySelector } from '../common/CurrencySelector';
 
@@ -581,6 +583,7 @@ export const TaxCalculator: React.FC = () => {
   const [isExportingPdf, setIsExportingPdf] = useState<boolean>(false);
   const [exportSuccess, setExportSuccess] = useState<boolean>(false);
   const [exportError, setExportError] = useState<string | null>(null);
+  const [exportResult, setExportResult] = useState<PdfExportResult | null>(null);
 
   const handleDownloadPDF = async () => {
     if (isExportingPdf) return;
@@ -605,11 +608,12 @@ export const TaxCalculator: React.FC = () => {
       const dateStr = new Date().toISOString().slice(0, 10);
       const fileName = `Bang_Du_Toan_Thue_${safeRegion}_${dateStr}.pdf`;
 
-      await exportElementPagesToPdf(source, {
+      const result = await exportElementPagesToPdf(source, {
         fileName,
         pageSelector: '.pdf-report-page',
       });
 
+      setExportResult(result);
       setExportSuccess(true);
       setTimeout(() => {
         setExportSuccess(false);
@@ -710,6 +714,60 @@ export const TaxCalculator: React.FC = () => {
           </button>
         </div>
       </div>
+
+      {/* Thông báo và nút thao tác trực tiếp khi file PDF đã tạo xong (tối ưu cho iPhone & Android) */}
+      {exportResult && (
+        <div className="p-3.5 bg-emerald-950/80 border border-emerald-500/50 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-3 text-xs shadow-lg">
+          <div className="flex items-center gap-2 text-emerald-300 min-w-0">
+            <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+            <span className="font-semibold shrink-0">Đã tạo file PDF thành công:</span>
+            <span className="font-mono text-[11px] truncate max-w-[200px] text-slate-300">{exportResult.fileName}</span>
+          </div>
+          <div className="flex items-center gap-2 w-full sm:w-auto shrink-0">
+            <a
+              href={exportResult.blobUrl}
+              download={exportResult.fileName}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex-1 sm:flex-none px-4 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-lg text-center shadow-xs flex items-center justify-center gap-1.5 transition-colors"
+            >
+              <FileDown className="w-3.5 h-3.5" />
+              <span>Mở / Tải file PDF</span>
+            </a>
+            {typeof navigator !== 'undefined' && !!navigator.share && (
+              <button
+                type="button"
+                onClick={async () => {
+                  try {
+                    const file = new File([exportResult.blob], exportResult.fileName, { type: 'application/pdf' });
+                    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                      await navigator.share({ files: [file], title: exportResult.fileName });
+                    } else {
+                      window.open(exportResult.blobUrl, '_blank');
+                    }
+                  } catch (err: any) {
+                    if (err.name !== 'AbortError') {
+                      window.open(exportResult.blobUrl, '_blank');
+                    }
+                  }
+                }}
+                className="flex-1 sm:flex-none px-3.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold rounded-lg flex items-center justify-center gap-1.5 border border-slate-700 transition-colors cursor-pointer"
+              >
+                <Share2 className="w-3.5 h-3.5" />
+                <span>Lưu vào Tệp</span>
+              </button>
+            )}
+            <button
+              type="button"
+              onClick={() => setExportResult(null)}
+              className="p-1 text-slate-400 hover:text-white cursor-pointer ml-1"
+              title="Đóng thông báo"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+      )}
 
       {exportError && (
         <div className="p-3 bg-rose-950/90 border border-rose-500/60 rounded-xl text-rose-200 text-xs flex items-center justify-between gap-2 shadow-lg">
