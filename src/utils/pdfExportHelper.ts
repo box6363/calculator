@@ -238,7 +238,7 @@ export async function exportElementPagesToPdf(
   host.style.opacity = '1';
   host.style.visibility = 'visible';
 
-  // Nhúng style cưỡng chế tài liệu PDF in ra 100% đen trắng rõ nét, độ tương phản cao
+  // Nhúng style hỗ trợ tài liệu in rõ nét, chuẩn màu
   const bwStyle = document.createElement('style');
   bwStyle.id = 'pdf-bw-style-enforcer';
   bwStyle.textContent = `
@@ -250,71 +250,12 @@ export async function exportElementPagesToPdf(
     }
     #pdf-isolated-render-host {
       background-color: #ffffff !important;
-      color: #000000 !important;
+      color: #0f172a !important;
     }
     #pdf-isolated-render-host .pdf-report-page {
       background-color: #ffffff !important;
-      color: #000000 !important;
+      color: #0f172a !important;
       box-shadow: none !important;
-    }
-    #pdf-isolated-render-host *:not(style) {
-      color: #000000 !important;
-    }
-    #pdf-isolated-render-host .text-slate-400,
-    #pdf-isolated-render-host .text-slate-500,
-    #pdf-isolated-render-host .text-slate-600,
-    #pdf-isolated-render-host .text-gray-400,
-    #pdf-isolated-render-host .text-gray-500 {
-      color: #334155 !important;
-    }
-    #pdf-isolated-render-host .bg-slate-100,
-    #pdf-isolated-render-host .bg-slate-200,
-    #pdf-isolated-render-host .bg-gray-100,
-    #pdf-isolated-render-host .bg-gray-200,
-    #pdf-isolated-render-host thead {
-      background-color: #f1f5f9 !important;
-      color: #000000 !important;
-      border: 1px solid #cbd5e1 !important;
-    }
-    #pdf-isolated-render-host .bg-slate-50,
-    #pdf-isolated-render-host .bg-gray-50 {
-      background-color: #f8fafc !important;
-      color: #000000 !important;
-    }
-    #pdf-isolated-render-host .bg-emerald-50,
-    #pdf-isolated-render-host .bg-emerald-100,
-    #pdf-isolated-render-host .bg-violet-50,
-    #pdf-isolated-render-host .bg-violet-100,
-    #pdf-isolated-render-host .bg-rose-50,
-    #pdf-isolated-render-host .bg-rose-100,
-    #pdf-isolated-render-host .bg-blue-50,
-    #pdf-isolated-render-host .bg-blue-100,
-    #pdf-isolated-render-host .bg-amber-50,
-    #pdf-isolated-render-host .bg-amber-100 {
-      background-color: #f8fafc !important;
-      border: 1px solid #000000 !important;
-      color: #000000 !important;
-    }
-    #pdf-isolated-render-host table {
-      border-color: #cbd5e1 !important;
-    }
-    #pdf-isolated-render-host th,
-    #pdf-isolated-render-host td {
-      border-color: #e2e8f0 !important;
-      color: #000000 !important;
-    }
-    #pdf-isolated-render-host .border-t-2,
-    #pdf-isolated-render-host .border-b-2 {
-      border-color: #000000 !important;
-    }
-    #pdf-isolated-render-host hr,
-    #pdf-isolated-render-host .border-b,
-    #pdf-isolated-render-host .border-t {
-      border-color: #cbd5e1 !important;
-    }
-    #pdf-isolated-render-host svg {
-      stroke: #000000 !important;
-      color: #000000 !important;
     }
   `;
   host.appendChild(bwStyle);
@@ -380,13 +321,12 @@ export async function exportElementPagesToPdf(
         allowTaint: true,
         logging: false,
         backgroundColor: '#ffffff',
+        imageTimeout: 15000,
         scrollX: 0,
-        scrollY: 0,
+        scrollY: -window.scrollY,
         windowWidth: 794,
         width: 794,
         height: targetHeight,
-        x: 0,
-        y: 0,
       });
 
       if (!canvas || canvas.width === 0 || canvas.height === 0) {
@@ -488,15 +428,13 @@ export async function exportElementPagesToPdf(
         const downloadLink = document.createElement('a');
         downloadLink.href = pdfBlobUrl;
         downloadLink.download = finalFileName;
-        downloadLink.target = '_blank';
-        downloadLink.rel = 'noopener noreferrer';
         document.body.appendChild(downloadLink);
         downloadLink.click();
         setTimeout(() => {
           if (document.body.contains(downloadLink)) {
             document.body.removeChild(downloadLink);
           }
-        }, 4000);
+        }, 3000);
       } catch (linkError) {
         console.warn('Tải tự động qua liên kết bị hạn chế:', linkError);
       }

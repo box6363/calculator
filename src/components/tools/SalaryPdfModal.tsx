@@ -1,7 +1,9 @@
 import React, { useState, useRef } from 'react';
 import { X, FileDown, Printer, Check, Loader2, Calendar, Wallet, ShieldAlert, Globe, ArrowRight, CheckCircle2, Share2 } from 'lucide-react';
+import html2canvas from 'html2canvas-pro';
+import jsPDF from 'jspdf';
 import { useLanguage } from '../../context/LanguageContext';
-import { exportElementPagesToPdf, PdfExportResult } from '../../utils/pdfExportHelper';
+import { PdfExportResult } from '../../utils/pdfExportHelper';
 import {
   CountrySalaryProfile,
   PayPeriod,
@@ -57,33 +59,115 @@ export const SalaryPdfModal: React.FC<SalaryPdfModalProps> = ({
   const periodLabel = isVi ? PERIOD_LABELS[payPeriod].vi : PERIOD_LABELS[payPeriod].en;
 
   const handleExportPDF = async () => {
-    if (isExporting || !printContainerRef.current) return;
+    if (isExporting) return;
+    const source = printContainerRef.current || document.getElementById('salary-pdf-printable-source');
+    if (!source) {
+      window.print();
+      return;
+    }
+
     try {
       setIsExporting(true);
       setIsDone(false);
       setExportProgress(isVi ? 'Đang chuẩn bị trang in...' : 'Preparing payslip...');
 
       const dateStr = new Date().toISOString().slice(0, 10);
+      const safeCountry = (activeProfile.id || 'VN').toUpperCase().replace(/[^a-z0-9_-]/gi, '_');
       const fileName = isVi
-        ? `Phieu_Luong_${activeProfile.id.toUpperCase()}_Net_${Math.round(netCurrent)}_${dateStr}.pdf`
-        : `Salary_Slip_${activeProfile.id.toUpperCase()}_Net_${Math.round(netCurrent)}_${dateStr}.pdf`;
+        ? `Phieu_Luong_${safeCountry}_Net_${Math.round(netCurrent)}_${dateStr}.pdf`
+        : `Salary_Slip_${safeCountry}_Net_${Math.round(netCurrent)}_${dateStr}.pdf`;
 
-      const result = await exportElementPagesToPdf(printContainerRef.current, {
-        fileName,
-        pageSelector: '.pdf-report-page',
-        onProgress: (text) => setExportProgress(text),
+      // Kích hoạt hiển thị cho html2canvas chụp chính xác
+      const originalStyle = source.getAttribute('style') || '';
+      source.style.cssText = [
+        'position: fixed !important',
+        'left: -9999px !important',
+        'top: 0px !important',
+        'width: 800px !important',
+        'display: block !important',
+        'visibility: visible !important',
+        'z-index: -9999 !important',
+        'background-color: #ffffff !important',
+        'color: #0f172a !important',
+        'pointer-events: none !important',
+      ].join('; ');
+
+      await new Promise((r) => setTimeout(r, 100));
+
+      setExportProgress(isVi ? 'Đang kết xuất phiếu lương chuẩn A4...' : 'Rendering A4 payslip...');
+
+      const canvas = await html2canvas(source, {
+        scale: 2,
+        useCORS: true,
+        allowTaint: true,
+        logging: false,
+        backgroundColor: '#ffffff',
+        imageTimeout: 15000,
+        scrollX: 0,
+        scrollY: -window.scrollY,
+        windowWidth: 800,
       });
 
-      setExportResult(result);
+      if (originalStyle !== '') {
+        source.setAttribute('style', originalStyle);
+      }
+
+      if (!canvas || canvas.width === 0 || canvas.height === 0) {
+        throw new Error('Canvas render returned empty dimensions');
+      }
+
+      setExportProgress(isVi ? 'Đang tạo tệp PDF...' : 'Generating PDF file...');
+
+      const imgData = canvas.toDataURL('image/jpeg', 0.95);
+      const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+
+      const pdfWidth = 210;
+      const pdfHeight = 297;
+      const imgHeight = (canvas.height * pdfWidth) / canvas.width;
+
+      // Trang 1
+      pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, imgHeight);
+
+      // Các trang tiếp theo nếu nội dung dài hơn 1 trang
+      let heightLeft = imgHeight - pdfHeight;
+      let yOffset = -pdfHeight;
+      while (heightLeft > 1) {
+        pdf.addPage();
+        pdf.addImage(imgData, 'JPEG', 0, yOffset, pdfWidth, imgHeight);
+        yOffset -= pdfHeight;
+        heightLeft -= pdfHeight;
+      }
+
+      const pdfBlob = pdf.output('blob');
+      const blobUrl = URL.createObjectURL(pdfBlob);
+
+      // Kích hoạt download trực tiếp
+      const link = document.createElement('a');
+      link.href = blobUrl;
+      link.download = fileName;
+      document.body.appendChild(link);
+      link.click();
+      setTimeout(() => {
+        if (document.body.contains(link)) {
+          document.body.removeChild(link);
+        }
+      }, 3000);
+
+      setExportResult({
+        blob: pdfBlob,
+        blobUrl,
+        fileName,
+      });
+
       setIsDone(true);
-      setExportProgress(isVi ? 'Xuất PDF thành công!' : 'PDF export complete!');
+      setExportProgress(isVi ? 'Xuất PDF thành công! Đang tải file...' : 'PDF exported successfully! Downloading...');
       setTimeout(() => {
         setIsDone(false);
         setExportProgress('');
-      }, 4000);
+      }, 4500);
     } catch (error) {
       console.error('Lỗi khi xuất PDF:', error);
-      alert(isVi ? 'Có lỗi khi tạo PDF. Bạn có thể chọn In trực tiếp.' : 'Error generating PDF. Try Print directly.');
+      alert(isVi ? 'Có lỗi khi tạo PDF. Bạn có thể bấm "In / Lưu PDF" để in trực tiếp.' : 'Error generating PDF. Try "Print / Save" directly.');
     } finally {
       setIsExporting(false);
     }
@@ -100,8 +184,10 @@ export const SalaryPdfModal: React.FC<SalaryPdfModalProps> = ({
   });
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/80 backdrop-blur-xs animate-in fade-in duration-200 print:hidden">
-      <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 w-full max-w-xl max-h-[92vh] flex flex-col overflow-hidden text-slate-800 dark:text-slate-200">
+    <div className="salary-modal-root">
+      {/* Modal Dialog for screen view */}
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/80 backdrop-blur-xs animate-in fade-in duration-200 print:hidden">
+        <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 w-full max-w-xl max-h-[92vh] flex flex-col overflow-hidden text-slate-800 dark:text-slate-200">
         {/* Header */}
         <div className="px-5 py-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between bg-slate-100 dark:bg-slate-950/80">
           <div className="flex items-center gap-3">
@@ -205,8 +291,6 @@ export const SalaryPdfModal: React.FC<SalaryPdfModalProps> = ({
                 <a
                   href={exportResult.blobUrl}
                   download={exportResult.fileName}
-                  target="_blank"
-                  rel="noopener noreferrer"
                   className="flex-1 sm:flex-none px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-lg text-center shadow-xs flex items-center justify-center gap-1.5 transition-colors"
                 >
                   <FileDown className="w-3.5 h-3.5" />
@@ -285,6 +369,7 @@ export const SalaryPdfModal: React.FC<SalaryPdfModalProps> = ({
           </div>
         </div>
       </div>
+    </div>
 
       {/* PRINTABLE CONTAINER (Off-screen, NOT display: none for sharp html2canvas rendering) */}
       <div
