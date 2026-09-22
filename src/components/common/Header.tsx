@@ -2,11 +2,8 @@ import React, { useState } from 'react';
 import { 
   Calculator, 
   Search, 
-  Share2, 
-  Check, 
   Command, 
   X, 
-  ShieldCheck,
   Sun,
   Moon
 } from 'lucide-react';
@@ -34,7 +31,6 @@ export const Header: React.FC<HeaderProps> = ({
 }) => {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-  const [copiedNotification, setCopiedNotification] = useState(false);
   const { t, language } = useLanguage();
   const { themeId, toggleTheme } = useTheme();
   const isVi = language === 'vi';
@@ -51,22 +47,6 @@ export const Header: React.FC<HeaderProps> = ({
       tool.description.toLowerCase().includes(query)
     );
   });
-
-  const getTestUrl = () => {
-    if (typeof window !== 'undefined' && window.location.href && !window.location.href.includes('about:blank')) {
-      return window.location.href;
-    }
-    return 'https://ais-pre-k6khfyf4sc6x3tvba3nvkt-241826408007.asia-southeast1.run.app';
-  };
-
-  const handleShare = () => {
-    const url = getTestUrl();
-    if (navigator.clipboard) {
-      navigator.clipboard.writeText(url);
-      setCopiedNotification(true);
-      setTimeout(() => setCopiedNotification(false), 2000);
-    }
-  };
 
   return (
     <>
@@ -155,34 +135,6 @@ export const Header: React.FC<HeaderProps> = ({
                 <Moon className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-cyan-400" />
                 <span className="hidden lg:inline text-xs font-semibold text-slate-200">Tối</span>
               </>
-            )}
-          </button>
-
-          {/* Terms button */}
-          {onOpenTerms && (
-            <button
-              id="header-terms-btn"
-              onClick={onOpenTerms}
-              title={t.termsTitle}
-              className="hidden sm:flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-semibold text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white bg-slate-100 dark:bg-slate-800/60 hover:bg-slate-200 dark:hover:bg-slate-800 border border-slate-300 dark:border-slate-700/60 rounded-xl transition-all cursor-pointer"
-            >
-              <ShieldCheck className="w-3.5 h-3.5 text-blue-500 dark:text-blue-400" />
-              <span>{t.termsTitle}</span>
-            </button>
-          )}
-
-          {/* Share tool link */}
-          <button
-            id="share-app-btn"
-            onClick={handleShare}
-            title={t.shareButton}
-            aria-label={t.shareButton}
-            className="flex items-center justify-center w-8 h-8 sm:w-9 sm:h-9 rounded-xl text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white bg-slate-100 dark:bg-slate-800/40 hover:bg-slate-200 dark:hover:bg-slate-800 border border-slate-300 dark:border-slate-700/60 transition-colors cursor-pointer"
-          >
-            {copiedNotification ? (
-              <Check className="w-4 h-4 text-[#10B981]" />
-            ) : (
-              <Share2 className="w-4 h-4" />
             )}
           </button>
         </div>

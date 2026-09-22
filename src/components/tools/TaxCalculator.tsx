@@ -23,6 +23,8 @@ import {
   CheckCircle2,
   Share2
 } from 'lucide-react';
+import html2canvas from 'html2canvas-pro';
+import jsPDF from 'jspdf';
 import { exportElementPagesToPdf, PdfExportResult } from '../../utils/pdfExportHelper';
 import { useCurrency, CurrencyCode } from '../../context/CurrencyContext';
 import { CurrencySelector } from '../common/CurrencySelector';
@@ -593,27 +595,96 @@ export const TaxCalculator: React.FC = () => {
       setExportError(null);
       setExportSuccess(false);
 
-      // Tìm element nguồn: nếu xem trước đang mở thì dùng modal sheet, nếu không dùng printable container
-      const modalEl = document.getElementById('tax-statement-modal-sheet');
-      const printableContainer = document.getElementById('tax-statement-printable');
-      const source = (showPrintModal && modalEl) ? modalEl : (modalEl || printableContainer);
+      // Ưu tiên 1: nếu modal đang mở, dùng element đó
+      let targetElement = document.getElementById('tax-statement-modal-sheet') as HTMLElement | null;
+      let restoredStyle = '';
 
-      if (!source) {
-        window.print();
-        return;
+      if (!targetElement) {
+        // Ưu tiên 2: dùng printable element ẩn
+        const source = document.getElementById('tax-statement-printable') as HTMLElement | null;
+        if (!source) {
+          // Fallback: mở dialog in của trình duyệt
+          window.print();
+          return;
+        }
+        // Tạm thời force visible để html2canvas capture được
+        restoredStyle = source.getAttribute('style') || '';
+        source.style.cssText = [
+          'position: fixed !important',
+          'left: -9999px !important',
+          'top: 0px !important',
+          'width: 800px !important',
+          'display: block !important',
+          'visibility: visible !important',
+          'z-index: -9999 !important',
+          'background-color: #ffffff !important',
+          'color: #0f172a !important',
+          'pointer-events: none !important',
+        ].join('; ');
+        targetElement = source;
       }
 
-      // Escape tên file an toàn cho mọi hệ điều hành (tránh ký tự đặc biệt)
-      const safeRegion = selectedRegionId.replace(/[^a-z0-9_-]/gi, '_');
-      const dateStr = new Date().toISOString().slice(0, 10);
-      const fileName = `Bang_Du_Toan_Thue_${safeRegion}_${dateStr}.pdf`;
+      // Đợi trình duyệt reflow sau khi thay style
+      await new Promise(r => setTimeout(r, 100));
 
-      const result = await exportElementPagesToPdf(source, {
-        fileName,
-        pageSelector: '.pdf-report-page',
+      const canvas = await html2canvas(targetElement, {
+        scale: 2,
+        useCORS: true,
+        allowTaint: true,
+        logging: false,
+        backgroundColor: '#ffffff',
+        imageTimeout: 15000,
+        scrollX: 0,
+        scrollY: -window.scrollY,
+        windowWidth: 800,
       });
 
-      setExportResult(result);
+      // Khôi phục style ẩn ban đầu nếu đã thay
+      if (restoredStyle !== '') {
+        const src = document.getElementById('tax-statement-printable');
+        if (src) src.setAttribute('style', restoredStyle);
+      }
+
+      const imgData = canvas.toDataURL('image/jpeg', 0.95);
+      const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+
+      const pdfWidth = 210;
+      const pdfHeight = 297;
+      const imgHeight = (canvas.height * pdfWidth) / canvas.width;
+
+      // Trang đầu
+      pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, imgHeight);
+
+      // Các trang tiếp theo — FIX lỗi offset sai
+      let heightLeft = imgHeight - pdfHeight;
+      let yOffset = -pdfHeight;
+      while (heightLeft > 1) {
+        pdf.addPage();
+        pdf.addImage(imgData, 'JPEG', 0, yOffset, pdfWidth, imgHeight);
+        yOffset -= pdfHeight;
+        heightLeft -= pdfHeight;
+      }
+
+      // Download tương thích mọi trình duyệt (kể cả iOS Safari)
+      const dateStr = new Date().toISOString().slice(0, 10);
+      const safeRegion = selectedRegionId.replace(/[^a-z0-9_-]/gi, '_');
+      const fileName = `Bang_Du_Toan_Thue_${safeRegion}_${dateStr}.pdf`;
+
+      const pdfBlob = pdf.output('blob');
+      const blobUrl = URL.createObjectURL(pdfBlob);
+      const link = document.createElement('a');
+      link.href = blobUrl;
+      link.download = fileName;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      // Lưu exportResult để hiện thẻ UI download/share trực tiếp cho điện thoại
+      setExportResult({
+        blob: pdfBlob,
+        blobUrl,
+        fileName,
+      });
       setExportSuccess(true);
       setTimeout(() => {
         setExportSuccess(false);
@@ -1839,23 +1910,21 @@ export const TaxCalculator: React.FC = () => {
         </div>
       )}
 
-      {/* Printable Container for browser printing & PDF capture (rendered in-viewport but transparent to avoid culling/off-screen bugs) */}
+      {/* Hidden Printable Container — dùng position offscreen thay vì display:none */}
       <div 
         id="tax-statement-printable"
         aria-hidden="true"
-        className="printable-tax-statement print-only"
+        className="printable-tax-statement bg-white text-slate-900 p-8 space-y-6 text-sm"
         style={{
-          position: 'absolute',
-          left: '0',
-          top: '0',
-          width: '794px',
-          height: 'auto',
-          overflow: 'visible',
-          opacity: 0,
+          position: 'fixed',
+          left: '-9999px',
+          top: 0,
+          width: '800px',
+          visibility: 'hidden',
           pointerEvents: 'none',
+          zIndex: -9999,
           backgroundColor: '#ffffff',
           color: '#0f172a',
-          zIndex: -1,
         }}
       >
         <div
