@@ -140,6 +140,11 @@ export const SEOManager: React.FC<SEOManagerProps> = ({ tool, lang }) => {
     updateOrCreateMeta('twitter:description', localizedSEO.description, true);
     updateOrCreateMeta('twitter:image', `${DOMAIN}/og-image.png`, true);
 
+    // Enforce No-Index & No-Follow for Testing & Staging (Googlebot, Bingbot, etc.)
+    updateOrCreateMeta('robots', 'noindex, nofollow, noarchive, nosnippet', true);
+    updateOrCreateMeta('googlebot', 'noindex, nofollow, noarchive, nosnippet', true);
+    updateOrCreateMeta('googlebot-news', 'noindex, nofollow', true);
+
     // 5. Update Canonical Link
     let canonical = document.querySelector('link[rel="canonical"]') as HTMLLinkElement | null;
     if (!canonical) {

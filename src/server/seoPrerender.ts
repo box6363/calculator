@@ -292,6 +292,12 @@ export function renderServerHtml(
   // Replace meta description
   result = result.replace(/<meta\s+name=["']description["'][\s\S]*?>/i, `<meta name="description" content="${pageDescription}" />`);
 
+  // Enforce noindex robots meta tags
+  result = result.replace(/<meta\s+name=["']robots["'][\s\S]*?>/i, `<meta name="robots" content="noindex, nofollow, noarchive, nosnippet" />`);
+  if (!result.includes('name="googlebot"')) {
+    result = result.replace('</head>', `    <meta name="googlebot" content="noindex, nofollow, noarchive, nosnippet" />\n  </head>`);
+  }
+
   // Replace canonical link
   result = result.replace(/<link\s+rel=["']canonical["'][\s\S]*?>/i, `<link rel="canonical" href="${canonicalUrl}" />`);
 
@@ -391,7 +397,6 @@ export function generateDynamicSitemap(baseUrl: string): string {
   return xml;
 }
 
-export function generateRobotsTxt(baseUrl: string): string {
-  const cleanBase = baseUrl.replace(/\/+$/, '');
-  return `User-agent: *\nAllow: /\n\n# Dynamic International Sitemaps\nSitemap: ${cleanBase}/sitemap.xml\n`;
+export function generateRobotsTxt(_baseUrl: string): string {
+  return `User-agent: *\nDisallow: /\n\nUser-agent: Googlebot\nDisallow: /\n\nUser-agent: Googlebot-Image\nDisallow: /\n\nUser-agent: Mediapartners-Google\nDisallow: /\n`;
 }

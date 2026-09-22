@@ -1,5 +1,11 @@
 User-agent: *
-Allow: /
+Disallow: /
 
-# Dynamic International Sitemaps
-Sitemap: https://web-calculator.com/sitemap.xml
+User-agent: Googlebot
+Disallow: /
+
+User-agent: Googlebot-Image
+Disallow: /
+
+User-agent: Mediapartners-Google
+Disallow: /

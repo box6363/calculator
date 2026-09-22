@@ -9,9 +9,12 @@ import {
   FileCode,
   Check,
   Copy,
-  X
+  X,
+  Tag
 } from 'lucide-react';
 import { ToolId } from '../../types';
+import { useLanguage } from '../../context/LanguageContext';
+import { getKeywordDirectory } from '../../data/keywordDirectory';
 
 interface GlobalFooterEcosystemProps {
   onSelectTool: (id: ToolId) => void;
@@ -24,6 +27,8 @@ export const GlobalFooterEcosystem: React.FC<GlobalFooterEcosystemProps> = ({
   onOpenTerms,
   onOpenGemini
 }) => {
+  const { language } = useLanguage();
+  const keywordItems = getKeywordDirectory(language);
   const [showCodeModal, setShowCodeModal] = useState(false);
   const [copiedCode, setCopiedCode] = useState(false);
 
@@ -538,6 +543,29 @@ export const GlobalFooterEcosystem: React.FC<GlobalFooterEcosystemProps> = ({
           </div>
 
         </div>
+
+        {/* Multilingual SEO Keyword Directory Badges */}
+        {keywordItems && keywordItems.length > 0 && (
+          <div className="mt-8 pt-6 border-t border-slate-800/80">
+            <div className="flex items-center gap-2 mb-3 text-xs font-semibold text-slate-400">
+              <Tag className="w-3.5 h-3.5 text-blue-400" />
+              <span>Chủ đề & Tiện ích tính toán phổ biến:</span>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {keywordItems.map((item, idx) => (
+                <button
+                  key={`${item.toolId}-${idx}`}
+                  onClick={() => handleToolClick(item.toolId)}
+                  title={item.label}
+                  className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-medium bg-slate-900/80 hover:bg-slate-800 text-slate-300 hover:text-white border border-slate-800 hover:border-slate-700 transition-all cursor-pointer"
+                >
+                  <span className="text-slate-500 font-mono text-[10px]">#</span>
+                  <span>{item.tag}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
 
       </section>
 

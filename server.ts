@@ -44,6 +44,7 @@ async function startServer() {
 
   // Global HTTP Security Headers (Cloudflare & Core Web Vitals best practices)
   app.use((_req, res, next) => {
+    res.setHeader("X-Robots-Tag", "noindex, nofollow, noarchive, nosnippet");
     res.setHeader("X-Content-Type-Options", "nosniff");
     res.setHeader("X-XSS-Protection", "1; mode=block");
     res.setHeader("Referrer-Policy", "strict-origin-when-cross-origin");
