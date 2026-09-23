@@ -238,7 +238,7 @@ export async function exportElementPagesToPdf(
   host.style.opacity = '1';
   host.style.visibility = 'visible';
 
-  // Nhúng style hỗ trợ tài liệu in rõ nét, chuẩn màu
+  // Nhúng style cưỡng chế tài liệu PDF in ra 100% đen trắng rõ nét, độ tương phản cao
   const bwStyle = document.createElement('style');
   bwStyle.id = 'pdf-bw-style-enforcer';
   bwStyle.textContent = `
@@ -250,12 +250,49 @@ export async function exportElementPagesToPdf(
     }
     #pdf-isolated-render-host {
       background-color: #ffffff !important;
-      color: #0f172a !important;
+      color: #000000 !important;
     }
     #pdf-isolated-render-host .pdf-report-page {
       background-color: #ffffff !important;
-      color: #0f172a !important;
+      color: #000000 !important;
       box-shadow: none !important;
+      filter: grayscale(100%) !important;
+    }
+    #pdf-isolated-render-host [class*="text-emerald"],
+    #pdf-isolated-render-host [class*="text-blue"],
+    #pdf-isolated-render-host [class*="text-amber"],
+    #pdf-isolated-render-host [class*="text-rose"],
+    #pdf-isolated-render-host [class*="text-red"],
+    #pdf-isolated-render-host [class*="text-cyan"],
+    #pdf-isolated-render-host [class*="text-indigo"],
+    #pdf-isolated-render-host [class*="text-violet"],
+    #pdf-isolated-render-host [class*="text-purple"] {
+      color: #000000 !important;
+    }
+    #pdf-isolated-render-host [class*="border-emerald"],
+    #pdf-isolated-render-host [class*="border-blue"],
+    #pdf-isolated-render-host [class*="border-amber"],
+    #pdf-isolated-render-host [class*="border-rose"],
+    #pdf-isolated-render-host [class*="border-cyan"],
+    #pdf-isolated-render-host [class*="border-indigo"] {
+      border-color: #cbd5e1 !important;
+    }
+    #pdf-isolated-render-host thead {
+      background-color: #f1f5f9 !important;
+      color: #000000 !important;
+      border: 1px solid #000000 !important;
+    }
+    #pdf-isolated-render-host table {
+      border-color: #cbd5e1 !important;
+    }
+    #pdf-isolated-render-host th,
+    #pdf-isolated-render-host td {
+      border-color: #cbd5e1 !important;
+      color: #000000 !important;
+    }
+    #pdf-isolated-render-host svg {
+      stroke: #000000 !important;
+      color: #000000 !important;
     }
   `;
   host.appendChild(bwStyle);
@@ -286,6 +323,7 @@ export async function exportElementPagesToPdf(
       clone.style.color = '#000000';
       clone.style.transform = 'none';
       clone.style.opacity = '1';
+      clone.style.filter = 'grayscale(100%)';
 
       if (isFixedPage) {
         clone.style.width = '794px';

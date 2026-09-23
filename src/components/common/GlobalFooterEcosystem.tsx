@@ -1,15 +1,10 @@
-import React, { useState } from 'react';
+import React from 'react';
 import {
   Activity,
   Binary,
   Compass,
   ShieldCheck,
-  ExternalLink,
   Landmark,
-  FileCode,
-  Check,
-  Copy,
-  X,
   Tag
 } from 'lucide-react';
 import { ToolId } from '../../types';
@@ -29,18 +24,10 @@ export const GlobalFooterEcosystem: React.FC<GlobalFooterEcosystemProps> = ({
 }) => {
   const { language } = useLanguage();
   const keywordItems = getKeywordDirectory(language);
-  const [showCodeModal, setShowCodeModal] = useState(false);
-  const [copiedCode, setCopiedCode] = useState(false);
 
   const handleToolClick = (toolId: ToolId) => {
     onSelectTool(toolId);
     window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
-
-  const handleCopySourceUrl = () => {
-    navigator.clipboard?.writeText(window.location.href);
-    setCopiedCode(true);
-    setTimeout(() => setCopiedCode(false), 2000);
   };
 
   return (
@@ -510,20 +497,6 @@ export const GlobalFooterEcosystem: React.FC<GlobalFooterEcosystemProps> = ({
                 </button>
               </li>
 
-              {/* Exact Highlighted Yellow Item with External Icon from Screenshot */}
-              <li className="pt-1.5">
-                <button 
-                  onClick={() => setShowCodeModal(true)}
-                  className="flex items-center gap-1.5 text-amber-400 hover:text-amber-300 font-bold transition-colors cursor-pointer group text-left"
-                  title="Toàn bộ mã nguồn và cấu trúc hệ thống"
-                >
-                  <ExternalLink className="w-3.5 h-3.5 text-amber-400 shrink-0 group-hover:scale-110 transition-transform" />
-                  <span className="hover:underline">
-                    Toàn bộ mã nguồn (1 file all-code)
-                  </span>
-                </button>
-              </li>
-
               <li className="pt-1">
                 <button 
                   onClick={() => {
@@ -568,50 +541,6 @@ export const GlobalFooterEcosystem: React.FC<GlobalFooterEcosystemProps> = ({
         )}
 
       </section>
-
-      {/* Code Modal when clicking "Toàn bộ mã nguồn (1 file all-code)" */}
-      {showCodeModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-xs animate-in fade-in duration-200">
-          <div className="bg-[#0f172a] border border-slate-700 w-full max-w-lg rounded-2xl p-6 shadow-2xl space-y-4 text-slate-200">
-            <div className="flex items-center justify-between pb-3 border-b border-slate-800">
-              <div className="flex items-center gap-2 font-bold text-white text-base">
-                <FileCode className="w-5 h-5 text-amber-400" />
-                <span>Toàn Bộ Mã Nguồn & Tài Liệu Kỹ Thuật</span>
-              </div>
-              <button 
-                onClick={() => setShowCodeModal(false)}
-                className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors cursor-pointer"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            </div>
-
-            <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
-              Hệ thống được phát triển với cấu trúc full-stack React 18, TypeScript, Tailwind CSS và Express SSR Engine. Toàn bộ logic tính toán được tối ưu hoá theo kiến trúc client-side zero-latency kết hợp máy chủ prerender SEO đa ngôn ngữ.
-            </p>
-
-            <div className="bg-slate-950 p-3 rounded-xl border border-slate-800 font-mono text-xs text-slate-300 flex items-center justify-between">
-              <span className="truncate pr-2">Engine: React 18 + Vite + TypeScript + Tailwind</span>
-              <button
-                onClick={handleCopySourceUrl}
-                className="flex items-center gap-1 px-2.5 py-1 rounded bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold cursor-pointer shrink-0 transition-colors"
-              >
-                {copiedCode ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
-                <span>{copiedCode ? 'Đã sao chép' : 'Sao chép link'}</span>
-              </button>
-            </div>
-
-            <div className="flex justify-end pt-2">
-              <button
-                onClick={() => setShowCodeModal(false)}
-                className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-white text-xs font-semibold cursor-pointer transition-colors"
-              >
-                Đóng
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </>
   );
 };

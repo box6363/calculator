@@ -1145,17 +1145,19 @@ ${isVi ? 'Quy đổi Tháng' : 'Monthly Net'}: ${formatCurrency(calculationResul
       />
 
       {/* 6. SALARY PAYSLIP PDF EXPORT MODAL */}
-      <SalaryPdfModal
-        isOpen={isPdfModalOpen}
-        onClose={() => setIsPdfModalOpen(false)}
-        activeProfile={activeProfile}
-        payPeriod={payPeriod}
-        salaryInput={salaryInput}
-        dependents={dependents}
-        subRegionName={selectedSubRegionObj?.nameVi || selectedSubRegionObj?.name}
-        mode={mode}
-        calculationResult={calculationResult}
-      />
+      {isPdfModalOpen && (
+        <SalaryPdfModal
+          isOpen={isPdfModalOpen}
+          onClose={() => setIsPdfModalOpen(false)}
+          activeProfile={activeProfile}
+          payPeriod={payPeriod}
+          salaryInput={salaryInput}
+          dependents={dependents}
+          subRegionName={selectedSubRegionObj?.nameVi || selectedSubRegionObj?.name}
+          mode={mode}
+          calculationResult={calculationResult}
+        />
+      )}
     </div>
   );
 };

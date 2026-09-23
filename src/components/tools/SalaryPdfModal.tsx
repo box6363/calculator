@@ -50,13 +50,24 @@ export const SalaryPdfModal: React.FC<SalaryPdfModalProps> = ({
 
   if (!isOpen) return null;
 
-  const currentPeriodData = calculationResult.periods[payPeriod];
-  const grossCurrent = currentPeriodData.gross;
-  const netCurrent = currentPeriodData.net;
-  const insCurrent = currentPeriodData.employeeInsurance;
-  const taxCurrent = currentPeriodData.tax;
+  const currentPeriodData = calculationResult?.periods?.[payPeriod] || {
+    gross: salaryInput || 0,
+    net: calculationResult?.monthlyNet || 0,
+    employeeInsurance: 0,
+    tax: 0,
+    totalEmployerCost: salaryInput || 0,
+    period: payPeriod,
+    taxableIncome: 0,
+    employerContribution: 0,
+  };
+  const grossCurrent = currentPeriodData.gross || 0;
+  const netCurrent = currentPeriodData.net || 0;
+  const insCurrent = currentPeriodData.employeeInsurance || 0;
+  const taxCurrent = currentPeriodData.tax || 0;
 
-  const periodLabel = isVi ? PERIOD_LABELS[payPeriod].vi : PERIOD_LABELS[payPeriod].en;
+  const periodLabel = isVi 
+    ? (PERIOD_LABELS[payPeriod]?.vi || payPeriod) 
+    : (PERIOD_LABELS[payPeriod]?.en || payPeriod);
 
   const handleExportPDF = async () => {
     if (isExporting) return;
@@ -77,22 +88,7 @@ export const SalaryPdfModal: React.FC<SalaryPdfModalProps> = ({
         ? `Phieu_Luong_${safeCountry}_Net_${Math.round(netCurrent)}_${dateStr}.pdf`
         : `Salary_Slip_${safeCountry}_Net_${Math.round(netCurrent)}_${dateStr}.pdf`;
 
-      // Kích hoạt hiển thị cho html2canvas chụp chính xác
-      const originalStyle = source.getAttribute('style') || '';
-      source.style.cssText = [
-        'position: fixed !important',
-        'left: -9999px !important',
-        'top: 0px !important',
-        'width: 800px !important',
-        'display: block !important',
-        'visibility: visible !important',
-        'z-index: -9999 !important',
-        'background-color: #ffffff !important',
-        'color: #0f172a !important',
-        'pointer-events: none !important',
-      ].join('; ');
-
-      await new Promise((r) => setTimeout(r, 100));
+      await new Promise((r) => setTimeout(r, 120));
 
       setExportProgress(isVi ? 'Đang kết xuất phiếu lương chuẩn A4...' : 'Rendering A4 payslip...');
 
@@ -103,14 +99,23 @@ export const SalaryPdfModal: React.FC<SalaryPdfModalProps> = ({
         logging: false,
         backgroundColor: '#ffffff',
         imageTimeout: 15000,
-        scrollX: 0,
-        scrollY: -window.scrollY,
-        windowWidth: 800,
+        onclone: (clonedDoc) => {
+          const el = clonedDoc.getElementById('salary-pdf-printable-source');
+          if (el) {
+            el.style.position = 'static';
+            el.style.left = '0px';
+            el.style.top = '0px';
+            el.style.width = '794px';
+            el.style.visibility = 'visible';
+            el.style.display = 'block';
+            el.style.opacity = '1';
+            el.style.zIndex = '1';
+            el.style.filter = 'grayscale(100%)';
+            el.style.backgroundColor = '#ffffff';
+            el.style.color = '#000000';
+          }
+        },
       });
-
-      if (originalStyle !== '') {
-        source.setAttribute('style', originalStyle);
-      }
 
       if (!canvas || canvas.width === 0 || canvas.height === 0) {
         throw new Error('Canvas render returned empty dimensions');
@@ -405,23 +410,23 @@ export const SalaryPdfModal: React.FC<SalaryPdfModalProps> = ({
         >
           <div>
             {/* Header */}
-            <div style={{ borderBottom: '2px solid #059669', paddingBottom: '14px', marginBottom: '16px' }}>
+            <div style={{ borderBottom: '2px solid #000000', paddingBottom: '14px', marginBottom: '16px' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                 <div>
-                  <div style={{ fontSize: '10px', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '1px', color: '#059669' }}>
+                  <div style={{ fontSize: '10px', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '1px', color: '#000000' }}>
                     PHIẾU LƯƠNG CHUẨN QUỐC TẾ • OFFICIAL PAYROLL SLIP
                   </div>
-                  <h1 style={{ fontSize: '20px', fontWeight: 900, color: '#0f172a', margin: '4px 0 2px 0', letterSpacing: '-0.5px' }}>
+                  <h1 style={{ fontSize: '20px', fontWeight: 900, color: '#000000', margin: '4px 0 2px 0', letterSpacing: '-0.5px' }}>
                     PHIẾU TÍNH LƯƠNG &amp; NGHĨA VỤ THUẾ, BẢO HIỂM
                   </h1>
-                  <div style={{ fontSize: '11px', color: '#475569' }}>
+                  <div style={{ fontSize: '11px', color: '#334155' }}>
                     Quốc gia: <strong>{activeProfile.flag} {activeProfile.name}</strong> • Chu kỳ tính: <strong>{periodLabel}</strong> {subRegionName ? `• ${subRegionName}` : ''}
                   </div>
                 </div>
-                <div style={{ textAlign: 'right', fontSize: '10px', color: '#64748b' }}>
-                  <div>Ngày xuất: <strong style={{ color: '#0f172a' }}>{currentDateFormatted}</strong></div>
-                  <div>Tiền tệ: <strong style={{ color: '#0f172a' }}>{activeProfile.currencyCode} ({activeProfile.currencySymbol})</strong></div>
-                  <div style={{ marginTop: '2px', display: 'inline-block', padding: '2px 6px', background: '#d1fae5', color: '#065f46', borderRadius: '4px', fontWeight: 700 }}>
+                <div style={{ textAlign: 'right', fontSize: '10px', color: '#475569' }}>
+                  <div>Ngày xuất: <strong style={{ color: '#000000' }}>{currentDateFormatted}</strong></div>
+                  <div>Tiền tệ: <strong style={{ color: '#000000' }}>{activeProfile.currencyCode} ({activeProfile.currencySymbol})</strong></div>
+                  <div style={{ marginTop: '2px', display: 'inline-block', padding: '2px 6px', background: '#f1f5f9', color: '#000000', border: '1px solid #94a3b8', borderRadius: '4px', fontWeight: 700 }}>
                     Chế độ: {mode === 'gross_to_net' ? 'Gross sang Net' : 'Net sang Gross'}
                   </div>
                 </div>
@@ -431,27 +436,27 @@ export const SalaryPdfModal: React.FC<SalaryPdfModalProps> = ({
             {/* 1. Core Summary Cards */}
             <div style={{ marginBottom: '14px' }}>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '8px', marginBottom: '8px' }}>
-                <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '8px', padding: '9px 10px' }}>
-                  <div style={{ fontSize: '9px', color: '#64748b', fontWeight: 600 }}>LƯƠNG GROSS ({periodLabel})</div>
-                  <div style={{ fontSize: '14px', fontWeight: 900, color: '#0f172a', marginTop: '2px' }}>
+                <div style={{ background: '#ffffff', border: '1px solid #cbd5e1', borderRadius: '8px', padding: '9px 10px' }}>
+                  <div style={{ fontSize: '9px', color: '#475569', fontWeight: 600 }}>LƯƠNG GROSS ({periodLabel})</div>
+                  <div style={{ fontSize: '14px', fontWeight: 900, color: '#000000', marginTop: '2px' }}>
                     {formatCurrency(grossCurrent, activeProfile.currencySymbol, activeProfile.decimals)}
                   </div>
                 </div>
-                <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '8px', padding: '9px 10px' }}>
-                  <div style={{ fontSize: '9px', color: '#b45309', fontWeight: 600 }}>BẢO HIỂM NLĐ ĐÓNG</div>
-                  <div style={{ fontSize: '14px', fontWeight: 900, color: '#d97706', marginTop: '2px' }}>
+                <div style={{ background: '#ffffff', border: '1px solid #cbd5e1', borderRadius: '8px', padding: '9px 10px' }}>
+                  <div style={{ fontSize: '9px', color: '#475569', fontWeight: 600 }}>BẢO HIỂM NLĐ ĐÓNG</div>
+                  <div style={{ fontSize: '14px', fontWeight: 900, color: '#000000', marginTop: '2px' }}>
                     -{formatCurrency(insCurrent, activeProfile.currencySymbol, activeProfile.decimals)}
                   </div>
                 </div>
-                <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '8px', padding: '9px 10px' }}>
-                  <div style={{ fontSize: '9px', color: '#be123c', fontWeight: 600 }}>THUẾ THU NHẬP</div>
-                  <div style={{ fontSize: '14px', fontWeight: 900, color: '#e11d48', marginTop: '2px' }}>
+                <div style={{ background: '#ffffff', border: '1px solid #cbd5e1', borderRadius: '8px', padding: '9px 10px' }}>
+                  <div style={{ fontSize: '9px', color: '#475569', fontWeight: 600 }}>THUẾ THU NHẬP</div>
+                  <div style={{ fontSize: '14px', fontWeight: 900, color: '#000000', marginTop: '2px' }}>
                     -{formatCurrency(taxCurrent, activeProfile.currencySymbol, activeProfile.decimals)}
                   </div>
                 </div>
-                <div style={{ background: '#ecfdf5', border: '1px solid #a7f3d0', borderRadius: '8px', padding: '9px 10px' }}>
-                  <div style={{ fontSize: '9px', color: '#065f46', fontWeight: 700 }}>LƯƠNG THỰC NHẬN (NET)</div>
-                  <div style={{ fontSize: '15px', fontWeight: 900, color: '#047857', marginTop: '2px' }}>
+                <div style={{ background: '#f8fafc', border: '2px solid #000000', borderRadius: '8px', padding: '9px 10px' }}>
+                  <div style={{ fontSize: '9px', color: '#000000', fontWeight: 700 }}>LƯƠNG THỰC NHẬN (NET)</div>
+                  <div style={{ fontSize: '15px', fontWeight: 900, color: '#000000', marginTop: '2px' }}>
                     {formatCurrency(netCurrent, activeProfile.currencySymbol, activeProfile.decimals)}
                   </div>
                 </div>
@@ -460,26 +465,26 @@ export const SalaryPdfModal: React.FC<SalaryPdfModalProps> = ({
 
             {/* 2. Detailed Breakdown Table */}
             <div style={{ marginBottom: '14px' }}>
-              <div style={{ fontSize: '10.5px', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.5px', color: '#0f172a', marginBottom: '6px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                <span style={{ width: '7px', height: '7px', background: '#059669', borderRadius: '2px', display: 'inline-block' }} />
+              <div style={{ fontSize: '10.5px', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.5px', color: '#000000', marginBottom: '6px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <span style={{ width: '7px', height: '7px', background: '#000000', borderRadius: '2px', display: 'inline-block' }} />
                 <span>1. BẢNG CHI TIẾT CÁC KHOẢN KHẤU TRỪ VÀ THỰC NHẬN ({periodLabel})</span>
               </div>
 
               <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '10px' }}>
                 <tbody>
-                  <tr style={{ background: '#f8fafc', borderTop: '1px solid #cbd5e1', borderBottom: '1px solid #e2e8f0' }}>
-                    <td style={{ padding: '6px 8px', fontWeight: 800, color: '#0f172a' }}>1. Lương Gross (Thu nhập danh nghĩa)</td>
-                    <td style={{ padding: '6px 8px', textAlign: 'right', fontWeight: 800, color: '#0f172a' }}>
+                  <tr style={{ background: '#f8fafc', borderTop: '1px solid #000000', borderBottom: '1px solid #cbd5e1' }}>
+                    <td style={{ padding: '6px 8px', fontWeight: 800, color: '#000000' }}>1. Lương Gross (Thu nhập danh nghĩa)</td>
+                    <td style={{ padding: '6px 8px', textAlign: 'right', fontWeight: 800, color: '#000000' }}>
                       {formatCurrency(grossCurrent, activeProfile.currencySymbol, activeProfile.decimals)}
                     </td>
                   </tr>
 
                   {/* Insurance breakdown */}
                   <tr style={{ borderBottom: '1px solid #e2e8f0', background: '#ffffff' }}>
-                    <td style={{ padding: '6px 8px', fontWeight: 700, color: '#b45309', paddingLeft: '16px' }}>
+                    <td style={{ padding: '6px 8px', fontWeight: 700, color: '#000000', paddingLeft: '16px' }}>
                       2. Bảo hiểm bắt buộc &amp; An sinh Xã hội NLĐ đóng
                     </td>
-                    <td style={{ padding: '6px 8px', textAlign: 'right', fontWeight: 700, color: '#d97706' }}>
+                    <td style={{ padding: '6px 8px', textAlign: 'right', fontWeight: 700, color: '#000000' }}>
                       -{formatCurrency(insCurrent, activeProfile.currencySymbol, activeProfile.decimals)}
                     </td>
                   </tr>
@@ -487,10 +492,10 @@ export const SalaryPdfModal: React.FC<SalaryPdfModalProps> = ({
                     const itemPeriodAmount = fromAnnualAmount(item.annualAmount, payPeriod);
                     return (
                       <tr key={`ins-${idx}`} style={{ borderBottom: '1px solid #f1f5f9', background: '#fafafa', fontSize: '9.5px' }}>
-                        <td style={{ padding: '4px 8px 4px 28px', color: '#64748b' }}>
+                        <td style={{ padding: '4px 8px 4px 28px', color: '#475569' }}>
                           • {item.name} ({item.rate}%)
                         </td>
-                        <td style={{ padding: '4px 8px', textAlign: 'right', color: '#64748b' }}>
+                        <td style={{ padding: '4px 8px', textAlign: 'right', color: '#475569' }}>
                           -{formatCurrency(itemPeriodAmount, activeProfile.currencySymbol, activeProfile.decimals)}
                         </td>
                       </tr>
@@ -499,30 +504,30 @@ export const SalaryPdfModal: React.FC<SalaryPdfModalProps> = ({
 
                   {/* Income Tax */}
                   <tr style={{ borderBottom: '1px solid #e2e8f0', background: '#ffffff' }}>
-                    <td style={{ padding: '6px 8px', fontWeight: 700, color: '#be123c', paddingLeft: '16px' }}>
+                    <td style={{ padding: '6px 8px', fontWeight: 700, color: '#000000', paddingLeft: '16px' }}>
                       3. Thuế thu nhập cá nhân (TNCN / Income Tax)
                     </td>
-                    <td style={{ padding: '6px 8px', textAlign: 'right', fontWeight: 700, color: '#e11d48' }}>
+                    <td style={{ padding: '6px 8px', textAlign: 'right', fontWeight: 700, color: '#000000' }}>
                       -{formatCurrency(taxCurrent, activeProfile.currencySymbol, activeProfile.decimals)}
                     </td>
                   </tr>
 
                   {/* Net Take-home */}
-                  <tr style={{ background: '#ecfdf5', borderTop: '2px solid #059669', borderBottom: '2px solid #059669' }}>
-                    <td style={{ padding: '8px 8px', fontWeight: 900, color: '#065f46', fontSize: '11px' }}>
+                  <tr style={{ background: '#f1f5f9', borderTop: '2px solid #000000', borderBottom: '2px solid #000000' }}>
+                    <td style={{ padding: '8px 8px', fontWeight: 900, color: '#000000', fontSize: '11px' }}>
                       4. LƯƠNG THỰC NHẬN (NET TAKE-HOME)
                     </td>
-                    <td style={{ padding: '8px 8px', textAlign: 'right', fontWeight: 900, color: '#047857', fontSize: '13px' }}>
+                    <td style={{ padding: '8px 8px', textAlign: 'right', fontWeight: 900, color: '#000000', fontSize: '13px' }}>
                       {formatCurrency(netCurrent, activeProfile.currencySymbol, activeProfile.decimals)}
                     </td>
                   </tr>
 
                   {/* Employer cost */}
-                  <tr style={{ borderBottom: '1px solid #e2e8f0', background: '#ffffff' }}>
-                    <td style={{ padding: '6px 8px', fontWeight: 600, color: '#475569' }}>
+                  <tr style={{ borderBottom: '1px solid #cbd5e1', background: '#ffffff' }}>
+                    <td style={{ padding: '6px 8px', fontWeight: 600, color: '#334155' }}>
                       5. Chi phí Doanh nghiệp / Người sử dụng lao động chi trả
                     </td>
-                    <td style={{ padding: '6px 8px', textAlign: 'right', fontWeight: 700, color: '#334155' }}>
+                    <td style={{ padding: '6px 8px', textAlign: 'right', fontWeight: 700, color: '#000000' }}>
                       {formatCurrency(currentPeriodData.totalEmployerCost, activeProfile.currencySymbol, activeProfile.decimals)}
                     </td>
                   </tr>
@@ -532,47 +537,50 @@ export const SalaryPdfModal: React.FC<SalaryPdfModalProps> = ({
 
             {/* 3. Conversion Table Across Periods */}
             <div style={{ marginBottom: '14px' }}>
-              <div style={{ fontSize: '10.5px', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.5px', color: '#0f172a', marginBottom: '6px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                <span style={{ width: '7px', height: '7px', background: '#2563eb', borderRadius: '2px', display: 'inline-block' }} />
+              <div style={{ fontSize: '10.5px', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.5px', color: '#000000', marginBottom: '6px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <span style={{ width: '7px', height: '7px', background: '#000000', borderRadius: '2px', display: 'inline-block' }} />
                 <span>2. BẢNG QUY ĐỔI MỨC LƯƠNG TƯƠNG ĐƯƠNG CÁC CHU KỲ</span>
               </div>
 
               <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '9.5px' }}>
                 <thead>
-                  <tr style={{ background: '#f1f5f9', borderTop: '1px solid #cbd5e1', borderBottom: '1px solid #cbd5e1' }}>
-                    <th style={{ padding: '5px 8px', textAlign: 'left', fontWeight: 700, color: '#334155' }}>CHU KỲ</th>
-                    <th style={{ padding: '5px 8px', textAlign: 'right', fontWeight: 700, color: '#0f172a' }}>LƯƠNG GROSS</th>
-                    <th style={{ padding: '5px 8px', textAlign: 'right', fontWeight: 700, color: '#d97706' }}>BẢO HIỂM NLĐ</th>
-                    <th style={{ padding: '5px 8px', textAlign: 'right', fontWeight: 700, color: '#e11d48' }}>THUẾ TNCN</th>
-                    <th style={{ padding: '5px 8px', textAlign: 'right', fontWeight: 700, color: '#059669' }}>THỰC NHẬN (NET)</th>
+                  <tr style={{ background: '#f1f5f9', borderTop: '1px solid #000000', borderBottom: '1px solid #000000' }}>
+                    <th style={{ padding: '5px 8px', textAlign: 'left', fontWeight: 700, color: '#000000' }}>CHU KỲ</th>
+                    <th style={{ padding: '5px 8px', textAlign: 'right', fontWeight: 700, color: '#000000' }}>LƯƠNG GROSS</th>
+                    <th style={{ padding: '5px 8px', textAlign: 'right', fontWeight: 700, color: '#000000' }}>BẢO HIỂM NLĐ</th>
+                    <th style={{ padding: '5px 8px', textAlign: 'right', fontWeight: 700, color: '#000000' }}>THUẾ TNCN</th>
+                    <th style={{ padding: '5px 8px', textAlign: 'right', fontWeight: 700, color: '#000000' }}>THỰC NHẬN (NET)</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {(['year', 'month', 'biweekly', 'week', 'hour'] as PayPeriod[]).map((p, idx) => {
-                    const rowData = calculationResult.periods[p];
+                  {(['annual', 'monthly', 'biweekly', 'weekly', 'hourly'] as PayPeriod[]).map((p, idx) => {
+                    const rowData = calculationResult?.periods?.[p];
+                    if (!rowData) return null;
                     const isSelected = p === payPeriod;
+                    const labelObj = PERIOD_LABELS[p];
+                    const labelText = isVi ? labelObj?.vi : labelObj?.en;
                     return (
                       <tr
                         key={p}
                         style={{
                           borderBottom: '1px solid #e2e8f0',
-                          background: isSelected ? '#ecfdf5' : idx % 2 === 0 ? '#ffffff' : '#f8fafc',
-                          fontWeight: isSelected ? 700 : 500,
+                          background: isSelected ? '#f1f5f9' : idx % 2 === 0 ? '#ffffff' : '#f8fafc',
+                          fontWeight: isSelected ? 800 : 500,
                         }}
                       >
-                        <td style={{ padding: '5px 8px', color: isSelected ? '#047857' : '#0f172a' }}>
-                          {isVi ? PERIOD_LABELS[p].vi : PERIOD_LABELS[p].en} {isSelected ? '★' : ''}
+                        <td style={{ padding: '5px 8px', color: '#000000' }}>
+                          {labelText || p} {isSelected ? '★' : ''}
                         </td>
-                        <td style={{ padding: '5px 8px', textAlign: 'right', color: '#0f172a' }}>
+                        <td style={{ padding: '5px 8px', textAlign: 'right', color: '#000000' }}>
                           {formatCurrency(rowData.gross, activeProfile.currencySymbol, activeProfile.decimals)}
                         </td>
-                        <td style={{ padding: '5px 8px', textAlign: 'right', color: '#d97706' }}>
+                        <td style={{ padding: '5px 8px', textAlign: 'right', color: '#000000' }}>
                           -{formatCurrency(rowData.employeeInsurance, activeProfile.currencySymbol, activeProfile.decimals)}
                         </td>
-                        <td style={{ padding: '5px 8px', textAlign: 'right', color: '#e11d48' }}>
+                        <td style={{ padding: '5px 8px', textAlign: 'right', color: '#000000' }}>
                           -{formatCurrency(rowData.tax, activeProfile.currencySymbol, activeProfile.decimals)}
                         </td>
-                        <td style={{ padding: '5px 8px', textAlign: 'right', color: '#059669', fontWeight: 700 }}>
+                        <td style={{ padding: '5px 8px', textAlign: 'right', color: '#000000', fontWeight: isSelected ? 900 : 700 }}>
                           {formatCurrency(rowData.net, activeProfile.currencySymbol, activeProfile.decimals)}
                         </td>
                       </tr>
@@ -583,13 +591,13 @@ export const SalaryPdfModal: React.FC<SalaryPdfModalProps> = ({
             </div>
 
             {/* Note block */}
-            <div style={{ padding: '8px 12px', background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '8px', fontSize: '9.5px', color: '#475569' }}>
+            <div style={{ padding: '8px 12px', background: '#f8fafc', border: '1px solid #cbd5e1', borderRadius: '8px', fontSize: '9.5px', color: '#334155' }}>
               ℹ️ <strong>Lưu ý pháp lý:</strong> Bảng tính tuân thủ biểu thuế lũy tiến từng phần và quy định tỷ lệ đóng bảo hiểm xã hội, y tế hiện hành của quốc gia được chọn. Kết quả mang tính tham khảo dự toán thu nhập.
             </div>
           </div>
 
           {/* Footer */}
-          <div style={{ borderTop: '1px solid #e2e8f0', paddingTop: '8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '9px', color: '#94a3b8' }}>
+          <div style={{ borderTop: '1px solid #cbd5e1', paddingTop: '8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '9px', color: '#64748b' }}>
             <div>Web Calculator • Hệ thống Tính tiền lương quốc tế Gross - Net</div>
             <div>Trang 1 / 1</div>
           </div>

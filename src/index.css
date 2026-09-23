@@ -1223,12 +1223,16 @@
 }
 
 /* ============================================================
-   PRINT STYLES
+   PRINT STYLES (100% BLACK & WHITE / MONOCHROME)
    ============================================================ */
 @media print {
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
   body {
     background: #ffffff !important;
-    color: #0f172a !important;
+    color: #000000 !important;
   }
   header, nav, aside, footer, button, .no-print, [data-no-print="true"], .fixed:not([id*="pdf-printable-source"]):not(:has(#tax-statement-modal-sheet)) {
     display: none !important;
@@ -1252,8 +1256,9 @@
     opacity: 1 !important;
     visibility: visible !important;
     background: #ffffff !important;
-    color: #0f172a !important;
+    color: #000000 !important;
     box-shadow: none !important;
+    filter: grayscale(100%) !important;
   }
   #tax-statement-modal-sheet {
     display: block !important;
@@ -1265,10 +1270,11 @@
     opacity: 1 !important;
     visibility: visible !important;
     background: #ffffff !important;
-    color: #0f172a !important;
+    color: #000000 !important;
     box-shadow: none !important;
     border: none !important;
     padding: 0 !important;
+    filter: grayscale(100%) !important;
   }
   #salary-pdf-printable-source,
   [id*="pdf-printable-source"] {
@@ -1281,13 +1287,17 @@
     visibility: visible !important;
     opacity: 1 !important;
     background: #ffffff !important;
-    color: #0f172a !important;
+    color: #000000 !important;
     box-shadow: none !important;
+    filter: grayscale(100%) !important;
   }
   .pdf-report-page {
     display: flex !important;
     page-break-after: always !important;
     break-after: page !important;
     box-shadow: none !important;
+    background: #ffffff !important;
+    color: #000000 !important;
+    filter: grayscale(100%) !important;
   }
 }

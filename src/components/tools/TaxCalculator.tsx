@@ -637,6 +637,14 @@ export const TaxCalculator: React.FC = () => {
         scrollX: 0,
         scrollY: -window.scrollY,
         windowWidth: 800,
+        onclone: (clonedDoc) => {
+          const el = clonedDoc.getElementById('tax-statement-modal-sheet') || clonedDoc.getElementById('tax-statement-printable');
+          if (el) {
+            el.style.filter = 'grayscale(100%)';
+            el.style.backgroundColor = '#ffffff';
+            el.style.color = '#000000';
+          }
+        },
       });
 
       // Khôi phục style ẩn ban đầu nếu đã thay
