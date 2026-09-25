@@ -457,6 +457,11 @@ export const AiTool: React.FC = () => {
     setLoading(true);
     setError(null);
 
+    // Immediately scroll down to the result & solution section on mobile and desktop
+    setTimeout(() => {
+      resultRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 60);
+
     try {
       const defaultPrompt = attachedFile?.category === 'image'
         ? 'Hãy trích xuất chính xác 100% đề bài từ hình ảnh, sau đó giải chi tiết từng bước theo phương pháp sư phạm chuẩn SGK và kết luận đáp số rõ ràng.'
@@ -1201,21 +1206,21 @@ export const AiTool: React.FC = () => {
         </div>
 
         {/* Right column: Answer Display & Solution */}
-        <div className="lg:col-span-5 space-y-4" ref={resultRef}>
+        <div className="lg:col-span-5 space-y-4 scroll-mt-6 sm:scroll-mt-10" ref={resultRef}>
           <div className="bg-white dark:bg-[#161F36] border border-slate-200 dark:border-slate-700/80 rounded-2xl p-5 shadow-xs dark:shadow-xl flex flex-col h-full min-h-[440px]">
             <div className="flex items-center justify-between pb-3 border-b border-slate-200 dark:border-slate-700/80 mb-3">
               <div className="flex items-center gap-2">
-                <div className="w-2.5 h-2.5 rounded-full bg-violet-600 dark:bg-violet-400 animate-pulse" />
+                <div className={`w-2.5 h-2.5 rounded-full ${loading ? 'bg-amber-500 animate-ping' : 'bg-violet-600 dark:bg-violet-400 animate-pulse'}`} />
                 <h3 className="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wider">
                   Kết Quả & Lời Giải Chi Tiết
                 </h3>
               </div>
 
-              {currentAnswer && (
+              {currentAnswer && !loading && (
                 <button
                   type="button"
                   onClick={handleCopy}
-                  className="flex items-center gap-1.5 text-xs text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 transition-colors"
+                  className="flex items-center gap-1.5 text-xs text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 transition-colors cursor-pointer"
                 >
                   {copied ? (
                     <>
@@ -1233,15 +1238,35 @@ export const AiTool: React.FC = () => {
             </div>
 
             {loading ? (
-              <div className="flex-1 flex flex-col items-center justify-center text-center p-6 space-y-3">
+              <div className="flex-1 flex flex-col items-center justify-center text-center p-4 sm:p-6 space-y-4 animate-in fade-in duration-200">
                 <div className="relative">
-                  <div className="w-12 h-12 rounded-full border-4 border-violet-500/20 border-t-violet-600 animate-spin" />
-                  <Sparkles className="w-5 h-5 text-violet-600 dark:text-violet-400 absolute inset-0 m-auto" />
+                  <div className="w-14 h-14 rounded-full border-4 border-violet-500/20 border-t-violet-600 animate-spin" />
+                  <Sparkles className="w-6 h-6 text-violet-600 dark:text-violet-400 absolute inset-0 m-auto animate-pulse" />
                 </div>
-                <p className="text-sm font-medium text-slate-900 dark:text-white">Gemini đang giải đáp và phân tích...</p>
-                <p className="text-xs text-slate-500 dark:text-slate-400 max-w-xs">
-                  Hệ thống đang trích xuất dữ kiện từ tài liệu, tính toán các bước và xây dựng lời giải sư phạm hoàn chỉnh.
-                </p>
+
+                <div className="space-y-1.5">
+                  <h4 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white">
+                    Vui lòng chờ, AI đang giải câu hỏi...
+                  </h4>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 max-w-xs mx-auto">
+                    Hệ thống đang trích xuất dữ kiện, tính toán các bước và xây dựng lời giải sư phạm chi tiết.
+                  </p>
+                </div>
+
+                {/* Animated shimmer skeleton simulating step-by-step progress */}
+                <div className="w-full max-w-sm bg-slate-50 dark:bg-slate-800/60 rounded-xl p-3.5 border border-slate-200/80 dark:border-slate-700/60 space-y-2.5 text-left">
+                  <div className="flex items-center justify-between text-[11px] font-medium text-violet-600 dark:text-violet-400">
+                    <span className="flex items-center gap-1.5">
+                      <Loader2 className="w-3.5 h-3.5 animate-spin text-violet-600 dark:text-violet-400" />
+                      Đang phân tích đề bài & tính toán từng bước...
+                    </span>
+                  </div>
+                  <div className="space-y-2 animate-pulse">
+                    <div className="h-2.5 bg-slate-200 dark:bg-slate-700 rounded-full w-4/5" />
+                    <div className="h-2.5 bg-slate-200 dark:bg-slate-700 rounded-full w-full" />
+                    <div className="h-2.5 bg-slate-200 dark:bg-slate-700 rounded-full w-3/5" />
+                  </div>
+                </div>
               </div>
             ) : currentAnswer ? (
               <div className="flex-1 overflow-y-auto max-h-[600px] pr-1 space-y-3">

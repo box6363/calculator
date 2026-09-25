@@ -2,11 +2,11 @@
 @custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *, .dark, .dark *));
 
 :root {
-  --app-bg: #f8fafc;
-  --app-header-bg: rgba(255, 255, 255, 0.96);
+  --app-bg: #ffffff;
+  --app-header-bg: #ffffff;
   --app-surface: #ffffff;
-  --app-subsurface: #f1f5f9;
-  --app-border: #e2e8f0;
+  --app-subsurface: #ffffff;
+  --app-border: #f1f5f9;
   --app-accent: #2563eb;
   --app-input-bg: #ffffff;
   --app-input-border: #cbd5e1;
@@ -21,6 +21,8 @@
     text-size-adjust: 100%;
     -webkit-tap-highlight-color: transparent;
     touch-action: manipulation;
+    max-width: 100vw;
+    overflow-x: hidden;
   }
 
   body {
@@ -28,8 +30,10 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
-    background-color: var(--app-bg, #f8fafc);
+    background-color: var(--app-bg, #ffffff);
     color: var(--app-text-primary, #0f172a);
+    max-width: 100vw;
+    overflow-x: hidden;
   }
 
   /* Universal High-Contrast Inputs for Financial and Math Calculators */
@@ -131,16 +135,66 @@
    ============================================================ */
 [data-theme="light"] {
   --app-bg: #ffffff;
-  --app-header-bg: rgba(255, 255, 255, 0.98);
+  --app-header-bg: #ffffff;
   --app-surface: #ffffff;
-  --app-subsurface: #f8fafc;
-  --app-border: #e2e8f0;
+  --app-subsurface: #ffffff;
+  --app-border: #f1f5f9;
   --app-accent: #2563eb;
   --app-input-bg: #ffffff;
   --app-input-border: #cbd5e1;
   --app-text-primary: #000000;
   --app-text-secondary: #1e293b;
   --app-text-muted: #64748b;
+}
+
+/* Thanh điều hướng chân trang trên Mobile trong Chế độ Sáng: Nền trắng sạch sẽ, không viền xám, không đổ bóng xám */
+[data-theme="light"] #mobile-bottom-tab-bar {
+  background-color: #ffffff !important;
+  border-top-color: #f1f5f9 !important;
+  box-shadow: 0 -1px 3px rgba(0, 0, 0, 0.03) !important;
+}
+
+/* Toàn bộ nền trang trong Chế độ Sáng luôn thuần trắng #FFFFFF */
+[data-theme="light"],
+[data-theme="light"] body,
+[data-theme="light"] #root,
+[data-theme="light"] #main-content {
+  background-color: #ffffff !important;
+}
+
+/* Thanh cuộn (scrollbars) toàn trang: Nền trắng tinh tế, thanh trượt mềm mại, không bao giờ có rãnh xám */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.25);
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(148, 163, 184, 0.45);
+}
+[data-theme="light"] ::-webkit-scrollbar-track {
+  background: #ffffff !important;
+}
+[data-theme="light"] ::-webkit-scrollbar-thumb {
+  background: rgba(203, 213, 225, 0.5) !important;
+}
+
+/* Trên thiết bị di động (<= 768px): Triệt tiêu thanh cuộn dọc xám để giao diện phẳng, mượt mà */
+@media (max-width: 768px) {
+  #main-content {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  #main-content::-webkit-scrollbar {
+    display: none;
+    width: 0;
+    height: 0;
+  }
 }
 
 /* Thẻ card công cụ chính trong Chế độ Sáng */

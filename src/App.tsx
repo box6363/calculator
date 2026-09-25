@@ -295,10 +295,10 @@ export default function App() {
 
   return (
     <div 
-      className="min-h-screen flex flex-col font-sans selection:bg-blue-600 selection:text-white transition-colors duration-200"
+      className="min-h-screen flex flex-col font-sans selection:bg-blue-600 selection:text-white transition-colors duration-200 w-full max-w-full overflow-x-hidden"
       style={{
-        backgroundColor: 'var(--app-bg, #141526)',
-        color: 'var(--app-text-primary, #ffffff)'
+        backgroundColor: 'var(--app-bg, #ffffff)',
+        color: 'var(--app-text-primary, #0f172a)'
       }}
     >
       
@@ -312,7 +312,7 @@ export default function App() {
       />
 
       {/* Center Layout: Desktop Collapsible Sidebar + Full-width Main Area */}
-      <div className="flex-1 flex overflow-hidden">
+      <div className="flex-1 flex overflow-hidden w-full max-w-full">
         
         {/* Desktop Sidebar */}
         <Sidebar
@@ -322,7 +322,7 @@ export default function App() {
         />
 
         {/* Main Content Area */}
-        <main id="main-content" className="flex-1 overflow-y-auto px-2 sm:px-6 lg:px-8 py-2 sm:py-6 pb-24 sm:pb-8">
+        <main id="main-content" className="flex-1 overflow-y-auto overflow-x-hidden px-2 sm:px-6 lg:px-8 py-2 sm:py-6 pb-24 sm:pb-8 w-full max-w-full">
           <ToolLayout
             tool={currentTool}
             onSelectTool={handleSelectTool}

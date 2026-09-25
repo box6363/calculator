@@ -104,10 +104,10 @@ export const BottomTabBar: React.FC<BottomTabBarProps> = ({
     <>
       <nav 
         id="mobile-bottom-tab-bar"
-        className="md:hidden fixed bottom-0 left-0 right-0 z-40 backdrop-blur-lg border-t pb-[env(safe-area-inset-bottom)] shadow-[0_-8px_20px_rgba(0,0,0,0.5)] transition-colors duration-200"
+        className="md:hidden fixed bottom-0 left-0 right-0 z-40 backdrop-blur-md border-t pb-[env(safe-area-inset-bottom)] dark:shadow-[0_-8px_20px_rgba(0,0,0,0.5)] shadow-[0_-1px_4px_rgba(0,0,0,0.03)] transition-colors duration-200"
         style={{
-          backgroundColor: 'var(--app-header-bg, rgba(20, 21, 38, 0.95))',
-          borderColor: 'var(--app-border, #272a47)'
+          backgroundColor: 'var(--app-header-bg, #ffffff)',
+          borderColor: 'var(--app-border, #ffffff)'
         }}
       >
         <div className="grid grid-cols-6 items-center h-16 px-1">
