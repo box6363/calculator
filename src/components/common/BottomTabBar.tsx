@@ -231,7 +231,7 @@ export const BottomTabBar: React.FC<BottomTabBarProps> = ({
 
             <div className="pt-2 text-center">
               <span className="text-xs text-slate-500 dark:text-slate-400 font-medium">
-                Toàn bộ 8 công cụ hoạt động offline & không có quảng cáo
+                Bản quyền thuộc về @MCTLab Inc
               </span>
             </div>
           </div>
