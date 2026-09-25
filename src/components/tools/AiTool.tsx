@@ -717,11 +717,11 @@ export const AiTool: React.FC = () => {
               <div>
                 <div className="flex items-center justify-between mb-2">
                   <label className="block text-sm font-semibold text-slate-900 dark:text-slate-200">
-                    Nội dung câu hỏi hoặc bài toán cần giải:
+                    Nhập nội dung câu hỏi:
                   </label>
                   <div className="flex items-center gap-1 text-[11px] text-slate-600 dark:text-slate-400 bg-slate-100 dark:bg-slate-800/80 px-2 py-0.5 rounded-md border border-slate-200 dark:border-slate-700">
                     <Clipboard className="w-3 h-3 text-violet-600 dark:text-violet-400" />
-                    <span>Hỗ trợ dán ảnh (Ctrl+V)</span>
+                    <span>Hỗ trợ (Ctrl+V)</span>
                   </div>
                 </div>
 
@@ -829,7 +829,7 @@ export const AiTool: React.FC = () => {
                     onPaste={handlePaste}
                     onDragOver={handleDragOver}
                     onDrop={handleDrop}
-                    placeholder="Nhập câu hỏi, phương trình toán học; hoặc bấm nút [+] bên dưới để thêm file ảnh, Excel, CSV, PDF, Word..."
+                    placeholder="Nhập câu hỏi, phương trình toán học; hoặc bấm nút [+] thêm File"
                     className="w-full bg-transparent border-0 border-none outline-none ring-0 shadow-none text-slate-900 dark:text-white placeholder-slate-400 text-sm focus:outline-none focus:ring-0 focus:border-none focus:shadow-none transition-all resize-none min-h-[42px] p-0 block leading-relaxed"
                     style={{
                       border: 'none',
@@ -921,7 +921,7 @@ export const AiTool: React.FC = () => {
                             mobileKeypadTab === 'numbers' ? 'bg-violet-600 text-white shadow-xs' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
                           }`}
                         >
-                          Số & Phép tính
+                          Bàn phím
                         </button>
                       </div>
 
