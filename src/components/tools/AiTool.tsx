@@ -22,7 +22,10 @@ import {
   Calculator,
   ChevronDown,
   ChevronUp,
-  Delete
+  Delete,
+  Plus,
+  Paperclip,
+  Send
 } from 'lucide-react';
 import Markdown from 'react-markdown';
 import remarkMath from 'remark-math';
@@ -582,42 +585,43 @@ export const AiTool: React.FC = () => {
   ];
 
   // Render file icon by category
-  const renderFileIcon = (category: FileCategory) => {
+  const renderFileIcon = (category: FileCategory, fileName: string = '') => {
+    const isCsv = fileName.toLowerCase().endsWith('.csv');
     switch (category) {
       case 'excel':
         return (
-          <div className="w-12 h-12 rounded-xl bg-emerald-950/60 border border-emerald-500/40 flex flex-col items-center justify-center text-emerald-400 shrink-0">
-            <FileSpreadsheet className="w-6 h-6" />
-            <span className="text-[9px] font-bold mt-0.5 uppercase tracking-wider">XLSX</span>
+          <div className="w-10 h-10 rounded-xl bg-emerald-950/60 border border-emerald-500/40 flex flex-col items-center justify-center text-emerald-400 shrink-0">
+            <FileSpreadsheet className="w-5 h-5" />
+            <span className="text-[8px] font-bold mt-0.5 uppercase tracking-wider">{isCsv ? 'CSV' : 'XLSX'}</span>
           </div>
         );
       case 'word':
         return (
-          <div className="w-12 h-12 rounded-xl bg-blue-950/60 border border-blue-500/40 flex flex-col items-center justify-center text-blue-400 shrink-0">
-            <FileText className="w-6 h-6" />
-            <span className="text-[9px] font-bold mt-0.5 uppercase tracking-wider">DOCX</span>
+          <div className="w-10 h-10 rounded-xl bg-blue-950/60 border border-blue-500/40 flex flex-col items-center justify-center text-blue-400 shrink-0">
+            <FileText className="w-5 h-5" />
+            <span className="text-[8px] font-bold mt-0.5 uppercase tracking-wider">DOCX</span>
           </div>
         );
       case 'pdf':
         return (
-          <div className="w-12 h-12 rounded-xl bg-rose-950/60 border border-rose-500/40 flex flex-col items-center justify-center text-rose-400 shrink-0">
-            <FileText className="w-6 h-6" />
-            <span className="text-[9px] font-bold mt-0.5 uppercase tracking-wider">PDF</span>
+          <div className="w-10 h-10 rounded-xl bg-rose-950/60 border border-rose-500/40 flex flex-col items-center justify-center text-rose-400 shrink-0">
+            <FileText className="w-5 h-5" />
+            <span className="text-[8px] font-bold mt-0.5 uppercase tracking-wider">PDF</span>
           </div>
         );
       case 'text':
         return (
-          <div className="w-12 h-12 rounded-xl bg-slate-800 border border-slate-600 flex flex-col items-center justify-center text-slate-300 shrink-0">
-            <FileCode className="w-6 h-6" />
-            <span className="text-[9px] font-bold mt-0.5 uppercase tracking-wider">TXT</span>
+          <div className="w-10 h-10 rounded-xl bg-slate-800 border border-slate-600 flex flex-col items-center justify-center text-slate-300 shrink-0">
+            <FileCode className="w-5 h-5" />
+            <span className="text-[8px] font-bold mt-0.5 uppercase tracking-wider">TXT</span>
           </div>
         );
       case 'image':
       default:
         return (
-          <div className="w-12 h-12 rounded-xl bg-violet-950/60 border border-violet-500/40 flex flex-col items-center justify-center text-violet-400 shrink-0">
-            <ImageIcon className="w-6 h-6" />
-            <span className="text-[9px] font-bold mt-0.5 uppercase tracking-wider">IMG</span>
+          <div className="w-10 h-10 rounded-xl bg-violet-950/60 border border-violet-500/40 flex flex-col items-center justify-center text-violet-400 shrink-0">
+            <ImageIcon className="w-5 h-5" />
+            <span className="text-[8px] font-bold mt-0.5 uppercase tracking-wider">IMG</span>
           </div>
         );
     }
@@ -731,20 +735,163 @@ export const AiTool: React.FC = () => {
                   </div>
                 </div>
 
-                <div className="relative">
+                {/* Unified Input Frame Container */}
+                <div className="relative rounded-2xl border border-slate-200 dark:border-slate-700/80 bg-slate-50 dark:bg-[var(--app-bg,#141526)] p-3 sm:p-3.5 focus-within:ring-2 focus-within:ring-violet-500 focus-within:border-transparent focus-within:bg-white dark:focus-within:bg-[#121626] transition-all shadow-xs">
+                  {/* File input (hidden) */}
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept=".png,.jpg,.jpeg,.webp,.gif,.pdf,.xlsx,.xls,.docx,.doc,.csv,.txt,image/*,application/pdf,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/msword,text/plain,text/csv"
+                    onChange={handleFileChange}
+                    className="hidden"
+                    disabled={loading || remainingQuota <= 0}
+                  />
+
+                  {/* Parsing file loading indicator */}
+                  {parsingFile && (
+                    <div className="flex items-center gap-2 p-2.5 mb-2 rounded-xl bg-violet-50 dark:bg-violet-950/40 border border-violet-200 dark:border-violet-500/30 text-xs text-violet-700 dark:text-violet-300">
+                      <Loader2 className="w-4 h-4 animate-spin text-violet-600 dark:text-violet-400 shrink-0" />
+                      <span>Đang đọc và phân tích cấu trúc tệp dữ liệu...</span>
+                    </div>
+                  )}
+
+                  {/* Attached File Card inside the frame */}
+                  {attachedFile && (
+                    <div className="flex items-center justify-between gap-3 p-2 sm:p-2.5 mb-2 rounded-xl bg-white dark:bg-slate-800/90 border border-violet-200 dark:border-violet-500/40 shadow-xs animate-in fade-in duration-150">
+                      <div className="flex items-center gap-2.5 min-w-0">
+                        {attachedFile.previewUrl ? (
+                          <img 
+                            src={attachedFile.previewUrl} 
+                            alt="Đính kèm" 
+                            className="w-10 h-10 object-cover rounded-lg border border-slate-200 dark:border-slate-700 shrink-0" 
+                          />
+                        ) : (
+                          renderFileIcon(attachedFile.category, attachedFile.name)
+                        )}
+                        <div className="min-w-0">
+                          <p className="text-xs sm:text-sm font-semibold text-slate-900 dark:text-white truncate">
+                            {attachedFile.name}
+                          </p>
+                          <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
+                            {(attachedFile.size / 1024).toFixed(0)} KB {attachedFile.details ? `• ${attachedFile.details}` : ''}
+                          </p>
+                        </div>
+                      </div>
+                      
+                      <div className="flex items-center gap-1.5 shrink-0">
+                        {attachedFile.extractedText && (
+                          <button
+                            type="button"
+                            onClick={() => setShowExtractedPreview(!showExtractedPreview)}
+                            className="flex items-center gap-1 text-[11px] px-2 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 transition-colors cursor-pointer"
+                            title="Xem trước dữ liệu đã trích xuất"
+                          >
+                            {showExtractedPreview ? <EyeOff className="w-3 h-3 text-violet-500" /> : <Eye className="w-3 h-3 text-violet-500" />}
+                            <span className="hidden sm:inline">{showExtractedPreview ? 'Đóng' : 'Xem nội dung'}</span>
+                          </button>
+                        )}
+                        <button
+                          type="button"
+                          onClick={handleRemoveFile}
+                          disabled={loading}
+                          className="p-1 rounded-lg hover:bg-rose-100 dark:hover:bg-rose-900/50 text-slate-400 hover:text-rose-600 dark:hover:text-rose-300 transition-colors cursor-pointer"
+                          title="Gỡ tệp này"
+                        >
+                          <X className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Extracted text preview drawer inside frame */}
+                  {showExtractedPreview && attachedFile?.extractedText && (
+                    <div className="bg-white dark:bg-[#090D1A] border border-slate-200 dark:border-slate-700/80 rounded-xl p-2.5 text-xs text-slate-800 dark:text-slate-300 max-h-40 overflow-y-auto font-mono whitespace-pre-wrap">
+                      <div className="flex items-center justify-between pb-1 mb-1 border-b border-slate-200 dark:border-slate-800 text-[10px] text-slate-500 dark:text-slate-400">
+                        <span>Nội dung trích xuất gửi cho AI:</span>
+                        <span>{attachedFile.extractedText.length.toLocaleString()} ký tự</span>
+                      </div>
+                      {attachedFile.extractedText.slice(0, 5000)}
+                      {attachedFile.extractedText.length > 5000 && (
+                        <p className="text-violet-600 dark:text-violet-400 mt-1 font-sans italic text-[11px]">... và {attachedFile.extractedText.length - 5000} ký tự tiếp theo</p>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Textarea - borderless, seamless, snug to the bottom (+) button */}
                   <textarea
                     ref={textareaRef}
                     id="ai-tool-prompt-input"
-                    rows={4}
+                    rows={2}
                     value={prompt}
-                    onChange={(e) => setPrompt(e.target.value)}
+                    onChange={(e) => {
+                      setPrompt(e.target.value);
+                      e.target.style.height = 'auto';
+                      e.target.style.height = `${Math.max(42, Math.min(260, e.target.scrollHeight))}px`;
+                    }}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                        if (!loading && !parsingFile && remainingQuota > 0 && (prompt.trim() || attachedFile)) {
+                          handleSubmit();
+                        }
+                      }
+                    }}
                     onPaste={handlePaste}
                     onDragOver={handleDragOver}
                     onDrop={handleDrop}
-                    placeholder="Nhập câu hỏi, phương trình toán học; hoặc Dán ảnh chụp màn hình bài tập (Ctrl+V); hoặc kéo thả file Ảnh, PDF, Excel, Word vào đây..."
-                    className="w-full px-4 py-3 bg-slate-50 dark:bg-[var(--app-bg,#141526)] border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white placeholder-slate-400 text-sm focus:outline-hidden focus:ring-2 focus:ring-violet-500 focus:border-transparent focus:bg-white transition-all resize-y"
+                    placeholder="Nhập câu hỏi, phương trình toán học; hoặc bấm nút [+] bên dưới để thêm file ảnh, Excel, CSV, PDF, Word..."
+                    className="w-full bg-transparent border-0 border-none outline-none ring-0 shadow-none text-slate-900 dark:text-white placeholder-slate-400 text-sm focus:outline-none focus:ring-0 focus:border-none focus:shadow-none transition-all resize-none min-h-[42px] p-0 block leading-relaxed"
+                    style={{
+                      border: 'none',
+                      outline: 'none',
+                      boxShadow: 'none',
+                      backgroundColor: 'transparent',
+                    }}
                     disabled={loading || remainingQuota <= 0}
                   />
+
+                  {/* Bottom Toolbar inside the input frame: (+) button, Tối đa 1MB, and Send button */}
+                  <div className="flex items-center justify-between gap-2 pt-0.5 mt-1">
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        id="ai-tool-add-file-btn"
+                        onClick={() => {
+                          if (!loading && remainingQuota > 0) {
+                            fileInputRef.current?.click();
+                          }
+                        }}
+                        disabled={loading || remainingQuota <= 0}
+                        className="w-6 h-6 rounded-full bg-[#8b5cf6] hover:bg-[#7c3aed] text-white flex items-center justify-center font-bold text-xs shadow-xs active:scale-90 transition-all cursor-pointer shrink-0 disabled:opacity-50 disabled:cursor-not-allowed"
+                        title="Thêm file: Ảnh, Excel, CSV, PDF, Word (Tối đa 1MB)"
+                      >
+                        <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
+                      </button>
+
+                      <span className="text-xs text-slate-700 dark:text-slate-300 font-medium select-none">
+                        Tối đa <span className="text-amber-500 dark:text-amber-400 font-semibold">1MB</span>
+                      </span>
+                    </div>
+
+                    {/* Send button matching screenshot */}
+                    <button
+                      type="submit"
+                      id="ai-tool-inline-send-btn"
+                      disabled={loading || parsingFile || remainingQuota <= 0 || (!prompt.trim() && !attachedFile)}
+                      className={`w-7 h-7 rounded-md flex items-center justify-center transition-all cursor-pointer shadow-xs active:scale-90 ${
+                        loading || parsingFile || remainingQuota <= 0 || (!prompt.trim() && !attachedFile)
+                          ? 'bg-slate-200 dark:bg-slate-800 text-slate-400 dark:text-slate-600 cursor-not-allowed opacity-40'
+                          : 'bg-white hover:bg-slate-50 text-[#0284c7] hover:text-[#0369a1] shadow-xs hover:shadow-sm'
+                      }`}
+                      title="Gửi câu hỏi (Enter)"
+                    >
+                      {loading ? (
+                        <Loader2 className="w-4 h-4 animate-spin text-[#0284c7]" />
+                      ) : (
+                        <Send className="w-4 h-4 fill-[#0284c7] text-[#0284c7]" />
+                      )}
+                    </button>
+                  </div>
                 </div>
 
                 {/* Scientific & Mathematical Virtual Input Keypad */}
@@ -1011,134 +1158,7 @@ export const AiTool: React.FC = () => {
                 </div>
               </div>
 
-              {/* File Attachment Dropzone & Paste Zone */}
-              <div>
-                <div className="flex items-center justify-between mb-2">
-                  <label className="block text-sm font-semibold text-slate-900 dark:text-slate-200">
-                    Tệp đính kèm (Ảnh, PDF, Excel, Word):
-                  </label>
-                  <span className="text-[11px] text-slate-500 dark:text-slate-400">Tối đa {MAX_FILE_SIZE_MB}MB</span>
-                </div>
-
-                {parsingFile ? (
-                  <div className="border-2 border-dashed border-violet-500/50 rounded-xl p-5 text-center bg-slate-50 dark:bg-[var(--app-bg,#141526)] flex flex-col items-center justify-center gap-2">
-                    <Loader2 className="w-6 h-6 animate-spin text-violet-600 dark:text-violet-400" />
-                    <p className="text-xs font-medium text-slate-700 dark:text-slate-200">Đang đọc và phân tích cấu trúc tệp dữ liệu...</p>
-                  </div>
-                ) : !attachedFile ? (
-                  <div
-                    onDragOver={handleDragOver}
-                    onDragLeave={handleDragLeave}
-                    onDrop={handleDrop}
-                    onClick={() => {
-                      if (!loading && remainingQuota > 0) {
-                        fileInputRef.current?.click();
-                      }
-                    }}
-                    className={`border-2 border-dashed rounded-xl p-4 text-center cursor-pointer transition-all ${
-                      isDragOver
-                        ? 'border-violet-400 bg-violet-50 dark:bg-violet-950/40'
-                        : 'border-slate-300 dark:border-slate-700 hover:border-violet-500/50 bg-slate-50 hover:bg-slate-100 dark:bg-[var(--app-bg,#141526)]/60 dark:hover:bg-[var(--app-bg,#141526)]'
-                    } ${remainingQuota <= 0 ? 'opacity-50 cursor-not-allowed' : ''}`}
-                  >
-                    <input
-                      ref={fileInputRef}
-                      type="file"
-                      accept=".png,.jpg,.jpeg,.webp,.gif,.pdf,.xlsx,.xls,.docx,.doc,.csv,.txt,image/*,application/pdf,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/msword,text/plain,text/csv"
-                      onChange={handleFileChange}
-                      className="hidden"
-                      disabled={loading || remainingQuota <= 0}
-                    />
-                    <div className="flex flex-col items-center justify-center gap-1.5">
-                      <div className="p-2.5 rounded-full bg-violet-100 dark:bg-violet-600/15 text-violet-600 dark:text-violet-400">
-                        <Upload className="w-5 h-5" />
-                      </div>
-                      <p className="text-xs sm:text-sm text-slate-700 dark:text-slate-200 font-medium">
-                        Kéo thả file vào đây, <span className="text-violet-600 dark:text-violet-400 underline">chọn từ thiết bị</span>, hoặc <span className="text-emerald-600 dark:text-emerald-400 font-semibold">dán ảnh (Ctrl+V)</span>
-                      </p>
-                      
-                      {/* Supported file pills */}
-                      <div className="flex flex-wrap items-center justify-center gap-1.5 mt-1">
-                        <span className="px-2 py-0.5 rounded bg-violet-50 dark:bg-violet-950/60 border border-violet-200 dark:border-violet-500/30 text-[10px] text-violet-700 dark:text-violet-300 font-medium">
-                          Ảnh PNG/JPG/WebP
-                        </span>
-                        <span className="px-2 py-0.5 rounded bg-rose-50 dark:bg-rose-950/60 border border-rose-200 dark:border-rose-500/30 text-[10px] text-rose-700 dark:text-rose-300 font-medium">
-                          PDF
-                        </span>
-                        <span className="px-2 py-0.5 rounded bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-500/30 text-[10px] text-emerald-700 dark:text-emerald-300 font-medium">
-                          Excel (.xlsx, .xls)
-                        </span>
-                        <span className="px-2 py-0.5 rounded bg-blue-50 dark:bg-blue-950/60 border border-blue-200 dark:border-blue-500/30 text-[10px] text-blue-700 dark:text-blue-300 font-medium">
-                          Word (.docx, .doc)
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="space-y-2">
-                    <div className="bg-slate-50 dark:bg-[var(--app-bg,#141526)] border border-violet-200 dark:border-violet-500/40 rounded-xl p-3.5 flex items-center justify-between gap-3 shadow-2xs">
-                      <div className="flex items-center gap-3 min-w-0">
-                        {attachedFile.previewUrl ? (
-                          <img 
-                            src={attachedFile.previewUrl} 
-                            alt="Đính kèm" 
-                            className="w-12 h-12 object-cover rounded-lg border border-slate-200 dark:border-slate-700 shrink-0" 
-                          />
-                        ) : (
-                          renderFileIcon(attachedFile.category)
-                        )}
-                        <div className="min-w-0">
-                          <p className="text-xs sm:text-sm font-semibold text-slate-900 dark:text-white truncate">
-                            {attachedFile.name}
-                          </p>
-                          <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
-                            {(attachedFile.size / 1024).toFixed(0)} KB {attachedFile.details ? `• ${attachedFile.details}` : ''}
-                          </p>
-                        </div>
-                      </div>
-                      
-                      <div className="flex items-center gap-2 shrink-0">
-                        {attachedFile.extractedText && (
-                          <button
-                            type="button"
-                            onClick={() => setShowExtractedPreview(!showExtractedPreview)}
-                            className="flex items-center gap-1 text-xs px-2.5 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white border border-slate-200 dark:border-slate-700 transition-colors"
-                            title="Xem trước dữ liệu đã trích xuất"
-                          >
-                            {showExtractedPreview ? <EyeOff className="w-3.5 h-3.5 text-violet-600 dark:text-violet-400" /> : <Eye className="w-3.5 h-3.5 text-violet-600 dark:text-violet-400" />}
-                            <span className="hidden sm:inline">{showExtractedPreview ? 'Đóng' : 'Xem nội dung'}</span>
-                          </button>
-                        )}
-                        <button
-                          type="button"
-                          onClick={handleRemoveFile}
-                          disabled={loading}
-                          className="p-1.5 rounded-lg bg-slate-100 hover:bg-rose-50 dark:bg-slate-800 dark:hover:bg-rose-900/50 text-slate-500 hover:text-rose-600 dark:text-slate-400 dark:hover:text-rose-300 transition-colors"
-                          title="Gỡ tệp này"
-                        >
-                          <X className="w-4 h-4" />
-                        </button>
-                      </div>
-                    </div>
-
-                    {/* Extracted text preview drawer */}
-                    {showExtractedPreview && attachedFile.extractedText && (
-                      <div className="bg-slate-100 dark:bg-[#090D1A] border border-slate-200 dark:border-slate-700/80 rounded-xl p-3 text-xs text-slate-800 dark:text-slate-300 max-h-48 overflow-y-auto font-mono whitespace-pre-wrap">
-                        <div className="flex items-center justify-between pb-1.5 mb-1.5 border-b border-slate-200 dark:border-slate-800 text-[11px] text-slate-500 dark:text-slate-400">
-                          <span>Nội dung trích xuất gửi cho AI:</span>
-                          <span>{attachedFile.extractedText.length.toLocaleString()} ký tự</span>
-                        </div>
-                        {attachedFile.extractedText.slice(0, 5000)}
-                        {attachedFile.extractedText.length > 5000 && (
-                          <p className="text-violet-600 dark:text-violet-400 mt-2 font-sans italic">... và {attachedFile.extractedText.length - 5000} ký tự tiếp theo</p>
-                        )}
-                      </div>
-                    )}
-                  </div>
-                )}
-              </div>
-
-              {/* Sample Prompt Quick Chips (Placed below File Attachment) */}
+              {/* Sample Prompt Quick Chips */}
               <div>
                 <span className="text-xs text-slate-500 dark:text-slate-400 block mb-2 font-medium">Gợi ý câu hỏi mẫu:</span>
                 <div className="flex flex-wrap gap-1.5">
@@ -1166,51 +1186,13 @@ export const AiTool: React.FC = () => {
                     type="button"
                     onClick={() => handleSubmit()}
                     disabled={loading || remainingQuota <= 0}
-                    className="self-end sm:self-center px-3 py-1.5 rounded-lg bg-rose-100 hover:bg-rose-200 dark:bg-rose-600/30 dark:hover:bg-rose-600/50 text-rose-700 dark:text-rose-200 border border-rose-300 dark:border-rose-500/40 text-xs font-semibold flex items-center gap-1.5 transition-colors shrink-0"
+                    className="self-end sm:self-center px-3 py-1.5 rounded-lg bg-rose-100 hover:bg-rose-200 dark:bg-rose-600/30 dark:hover:bg-rose-600/50 text-rose-700 dark:text-rose-200 border border-rose-300 dark:border-rose-500/40 text-xs font-semibold flex items-center gap-1.5 transition-colors shrink-0 cursor-pointer"
                   >
                     <RotateCcw className="w-3.5 h-3.5" />
                     <span>Thử lại ngay</span>
                   </button>
                 </div>
               )}
-
-              {/* Action Buttons */}
-              <div className="flex items-center gap-3 pt-2">
-                <button
-                  type="submit"
-                  id="ai-tool-submit-btn"
-                  disabled={loading || parsingFile || remainingQuota <= 0 || (!prompt.trim() && !attachedFile)}
-                  className={`flex-1 py-3 px-5 rounded-xl font-semibold text-sm flex items-center justify-center gap-2 shadow-xs dark:shadow-lg transition-all ${
-                    loading || parsingFile || remainingQuota <= 0 || (!prompt.trim() && !attachedFile)
-                      ? 'bg-slate-200 dark:bg-slate-700 text-slate-400 cursor-not-allowed opacity-60'
-                      : 'bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white shadow-violet-600/20'
-                  }`}
-                >
-                  {loading ? (
-                    <>
-                      <Loader2 className="w-4 h-4 animate-spin text-white" />
-                      <span>AI đang giải bài toán & phân tích tài liệu...</span>
-                    </>
-                  ) : (
-                    <>
-                      <Sparkles className="w-4 h-4 text-violet-200" />
-                      <span>Gửi câu hỏi cho AI ({remainingQuota} lượt còn lại)</span>
-                    </>
-                  )}
-                </button>
-
-                {(prompt || attachedFile || currentAnswer) && (
-                  <button
-                    type="button"
-                    onClick={handleClearCurrent}
-                    disabled={loading || parsingFile}
-                    className="p-3 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white border border-slate-200 dark:border-slate-700 transition-colors shrink-0"
-                    title="Làm mới câu hỏi"
-                  >
-                    <RotateCcw className="w-4 h-4" />
-                  </button>
-                )}
-              </div>
             </form>
           </div>
 

@@ -210,7 +210,7 @@ export const TRANSLATIONS: Record<LanguageCode, TranslationDictionary> = {
     termsModalClose: 'Understood & Close',
     toolNames: {
       basic: 'Basic Calculator',
-      ai: 'AI Problem Solver',
+      ai: 'AI Tools',
       bmi: 'BMI Body Mass Index',
       loan: 'Loan & EMI Calculator',
       salary: 'Salary (Gross - Net)',

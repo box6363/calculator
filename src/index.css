@@ -1224,6 +1224,34 @@
   box-shadow: 0 0 0 2px rgba(0, 229, 255, 0.35) !important;
 }
 
+/* Triệt tiêu hoàn toàn viền khung bên trong cho ô nhập prompt AI Tool */
+#ai-tool-prompt-input,
+textarea#ai-tool-prompt-input,
+[data-theme="dark"] textarea#ai-tool-prompt-input,
+[data-theme="light"] textarea#ai-tool-prompt-input,
+.dark textarea#ai-tool-prompt-input {
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+  background-color: transparent !important;
+}
+
+#ai-tool-prompt-input:hover,
+#ai-tool-prompt-input:focus,
+textarea#ai-tool-prompt-input:hover,
+textarea#ai-tool-prompt-input:focus,
+[data-theme="dark"] textarea#ai-tool-prompt-input:hover,
+[data-theme="dark"] textarea#ai-tool-prompt-input:focus,
+[data-theme="light"] textarea#ai-tool-prompt-input:hover,
+[data-theme="light"] textarea#ai-tool-prompt-input:focus,
+.dark textarea#ai-tool-prompt-input:hover,
+.dark textarea#ai-tool-prompt-input:focus {
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+  background-color: transparent !important;
+}
+
 /* Dropdown option trong select */
 [data-theme="dark"] select option {
   background-color: #252525 !important;
