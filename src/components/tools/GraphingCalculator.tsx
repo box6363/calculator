@@ -4,16 +4,19 @@ import {
   RotateCcw,
   Sparkles,
   Table as TableIcon,
-  Sliders
+  Sliders,
+  FileDown
 } from 'lucide-react';
 import { InteractiveGraphPlotter, KeyPoint } from './geometry/InteractiveGraphPlotter';
 import { evaluateExpression, formatExactMath } from '../../utils/mathParser';
+import { GraphingPdfModal } from './GraphingPdfModal';
 
 type GraphMode = 'quadratic' | 'cubic' | 'trigonometric' | 'custom';
 type TrigType = 'sin' | 'cos' | 'tan';
 
 export const GraphingCalculator: React.FC = () => {
   const [mode, setMode] = useState<GraphMode>('quadratic');
+  const [isPdfModalOpen, setIsPdfModalOpen] = useState<boolean>(false);
 
   // Quadratic parameters: ax^2 + bx + c
   const [quadA, setQuadA] = useState<number>(1);
@@ -431,29 +434,41 @@ export const GraphingCalculator: React.FC = () => {
             </p>
           </div>
         </div>
-        <button
-          id="graph-reset-btn"
-          onClick={() => {
-            setMode('quadratic');
-            setQuadA(1);
-            setQuadB(-2);
-            setQuadC(-3);
-            setCubeA(1);
-            setCubeB(0);
-            setCubeC(-3);
-            setCubeD(0);
-            setTrigFunc('sin');
-            setTrigAmp(1);
-            setTrigOmega(1);
-            setTrigPhi(0);
-            setTrigK(0);
-            setCustomExpr('x^3 - 3*x');
-          }}
-          className="flex items-center gap-1.5 px-3 py-1.5 text-xs text-slate-300 hover:text-white bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-lg transition-colors cursor-pointer"
-        >
-          <RotateCcw className="w-3.5 h-3.5" />
-          <span>Đặt lại</span>
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            id="graph-export-pdf-btn"
+            onClick={() => setIsPdfModalOpen(true)}
+            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-white bg-blue-600 hover:bg-blue-500 border border-blue-500 rounded-lg transition-colors cursor-pointer shadow-sm shadow-blue-500/20 active:scale-95"
+            title="Tải hồ sơ báo cáo đồ thị hàm số chuẩn PDF A4"
+          >
+            <FileDown className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">Tải PDF / In A4</span>
+            <span className="sm:hidden">Tải PDF</span>
+          </button>
+          <button
+            id="graph-reset-btn"
+            onClick={() => {
+              setMode('quadratic');
+              setQuadA(1);
+              setQuadB(-2);
+              setQuadC(-3);
+              setCubeA(1);
+              setCubeB(0);
+              setCubeC(-3);
+              setCubeD(0);
+              setTrigFunc('sin');
+              setTrigAmp(1);
+              setTrigOmega(1);
+              setTrigPhi(0);
+              setTrigK(0);
+              setCustomExpr('x^3 - 3*x');
+            }}
+            className="flex items-center gap-1.5 px-3 py-1.5 text-xs text-slate-300 hover:text-white bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-lg transition-colors cursor-pointer"
+          >
+            <RotateCcw className="w-3.5 h-3.5" />
+            <span>Đặt lại</span>
+          </button>
+        </div>
       </div>
 
       {/* Mode navigation tabs */}
@@ -985,8 +1000,18 @@ export const GraphingCalculator: React.FC = () => {
             <div className="bg-slate-900/95 p-5 rounded-2xl border border-slate-800 space-y-3 shadow-xl">
               <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800 pb-3">
                 <div className="flex items-center gap-2">
-                  <TableIcon className="w-4 h-4 text-blue-400" />
-                  <h4 className="text-sm font-bold text-white">Bảng Tọa Độ Điểm (x, y)</h4>
+                  <div className="flex items-center gap-2">
+                    <TableIcon className="w-4 h-4 text-blue-400" />
+                    <h4 className="text-sm font-bold text-white">Bảng Tọa Độ Điểm (x, y)</h4>
+                  </div>
+                  <button
+                    onClick={() => setIsPdfModalOpen(true)}
+                    className="flex items-center gap-1 px-2 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700 rounded-lg text-[11px] font-medium transition-colors cursor-pointer"
+                    title="Xuất bảng giá trị và đồ thị ra file PDF A4"
+                  >
+                    <FileDown className="w-3.5 h-3.5 text-blue-400" />
+                    <span>Xuất PDF</span>
+                  </button>
                 </div>
 
                 <div className="flex items-center gap-2 text-xs">
@@ -1079,6 +1104,21 @@ export const GraphingCalculator: React.FC = () => {
           )}
         </div>
       </div>
+
+      {/* Graphing PDF & Print Modal */}
+      <GraphingPdfModal
+        isOpen={isPdfModalOpen}
+        onClose={() => setIsPdfModalOpen(false)}
+        mode={mode}
+        expression={currentExpression}
+        expression2={mode === 'custom' && showSecondExpr ? customExpr2 : ''}
+        showSecondExpr={mode === 'custom' && showSecondExpr}
+        paramD={paramD}
+        hasParameterD={hasParameterD}
+        mathAnalysis={mathAnalysis}
+        keyPoints={keyPoints}
+        tableData={tableData}
+      />
     </div>
   );
 };

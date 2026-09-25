@@ -1621,4 +1621,45 @@ export const TOOLS_CONFIG: Record<string, ToolMeta> = {
     ],
     relatedToolIds: ['password', 'random', 'unit']
   },
+  utilitybill: {
+    id: 'utilitybill',
+    category: 'utility',
+    name: 'Tính tiền điện, gas, nước, internet & chi tiêu tháng',
+    shortName: 'Điện, Nước & Chi tiêu',
+    tierNumber: 1,
+    iconName: 'Zap',
+    badge: 'Quốc tế',
+    seoTitle: 'Tính Tiền Điện, Nước, Gas, Internet & Chi Phí Sinh Hoạt 1 Tháng Chuẩn Quốc Tế',
+    seoH1: 'Máy Tính Tiền Điện, Gas, Nước, Internet & Chi Tiêu Sinh Hoạt Chuẩn Quốc Tế',
+    tagline: 'Tính tiền điện bậc thang, nước, gas, viễn thông và dự toán chi tiêu 1 tháng trọn gói cho gia đình',
+    description: 'Công cụ tính toán chi tiết hóa đơn sinh hoạt: tiền điện (biểu giá 6 bậc EVN hoặc chuẩn quốc tế), tiền nước sạch & phí thoát nước môi trường, tiền gas (bình 12kg/45kg hoặc gas đường ống), cước internet viễn thông và dự toán toàn diện chi tiêu 1 tháng gia đình theo chuẩn quốc tế.',
+    formulaDescription: 'Tổng hóa đơn = Điện (bậc thang hoặc đơn giá) + Nước sạch (định mức + phí thoát nước) + Gas sinh hoạt + Cước Internet/Truyền hình + Các chi phí sinh hoạt thiết yếu khác trong tháng.',
+    formulaEquation: 'Total = Electricity + Water + Gas + Internet + LivingExpenses',
+    usageSteps: [
+      'Chọn quốc gia hoặc chuẩn tính toán (Việt Nam EVN, Mỹ, Châu Âu, Nhật Bản hoặc Tùy chỉnh).',
+      'Nhập số lượng sử dụng điện (kWh hoặc tính nhanh theo thiết bị gia đình).',
+      'Nhập lượng nước tiêu thụ (m³ hoặc Gallons) và số nhân khẩu trong nhà.',
+      'Chọn hình thức dùng gas (bình gas đổi hoặc đường ống) và gói cước Internet viễn thông.',
+      'Bổ sung các chi phí sinh hoạt khác (tiền nhà, phí quản lý chung cư, ăn uống...) để nhận bảng dự toán chi tiêu 1 tháng hoàn chỉnh.'
+    ],
+    faqs: [
+      {
+        question: 'Biểu giá điện bậc thang EVN Việt Nam được tính như thế nào?',
+        answer: 'Hệ thống áp dụng biểu giá điện sinh hoạt 6 bậc chính thức của EVN: Bậc 1 (0-50 kWh: 1.893đ), Bậc 2 (51-100 kWh: 1.956đ), Bậc 3 (101-200 kWh: 2.271đ), Bậc 4 (201-300 kWh: 2.860đ), Bậc 5 (301-400 kWh: 3.197đ), Bậc 6 (>400 kWh: 3.302đ) cộng thêm thuế VAT 8%.'
+      },
+      {
+        question: 'Tôi có thể ước tính tiền điện khi không biết số kWh tiêu thụ không?',
+        answer: 'Có! Công cụ tích hợp sẵn tính năng "Ước tính theo thiết bị điện gia đình", cho phép bạn chọn số lượng và thời gian bật điều hòa, tủ lạnh, máy giặt, bình nóng lạnh, quạt, tivi... để tự động tính ra tổng số kWh tiêu thụ hàng tháng.'
+      },
+      {
+        question: 'Công cụ có hỗ trợ chia tiền điện nước cho phòng trọ / bạn cùng phòng không?',
+        answer: 'Có, tính năng "Chia tiền phòng / Roommate Split" cho phép nhập số thành viên và tự động chia đều hoặc chia theo đầu người, đồng thời cung cấp nút sao chép thông báo tiện lợi để gửi tin nhắn.'
+      },
+      {
+        question: 'Có thể xuất file PDF hóa đơn hoặc in báo cáo chi tiêu tháng không?',
+        answer: 'Công cụ hỗ trợ xem trước và in ấn, xuất báo cáo PDF chuẩn chuyên nghiệp với đầy đủ bảng bóc tách chi tiết từng khoản chi phí.'
+      }
+    ],
+    relatedToolIds: ['salary', 'tax', 'basic', 'ai']
+  },
 };

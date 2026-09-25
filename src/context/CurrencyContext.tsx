@@ -38,6 +38,16 @@ export const SUPPORTED_CURRENCIES: CurrencyItem[] = [
     symbolPosition: 'prefix',
   },
   {
+    code: 'VND',
+    symbol: '₫',
+    nameEn: 'Vietnamese Dong',
+    nameVi: 'Việt Nam Đồng (VND)',
+    flag: '🇻🇳',
+    rateToUSD: 25450,
+    decimals: 0,
+    symbolPosition: 'suffix',
+  },
+  {
     code: 'EUR',
     symbol: '€',
     nameEn: 'Euro',
@@ -66,16 +76,6 @@ export const SUPPORTED_CURRENCIES: CurrencyItem[] = [
     rateToUSD: 155.4,
     decimals: 0,
     symbolPosition: 'prefix',
-  },
-  {
-    code: 'VND',
-    symbol: '₫',
-    nameEn: 'Vietnamese Dong',
-    nameVi: 'Việt Nam Đồng (VND)',
-    flag: '🇻🇳',
-    rateToUSD: 25450,
-    decimals: 0,
-    symbolPosition: 'suffix',
   },
   {
     code: 'CAD',

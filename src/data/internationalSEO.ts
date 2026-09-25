@@ -63,6 +63,12 @@ export const INTERNATIONAL_SEO_MATRIX: Record<LanguageCode, Partial<Record<ToolI
       description: 'Mô phỏng sức mạnh lãi kép đầu tư tích lũy dài hạn và tính chỉ số trao đổi chất BMR / TDEE giúp quản lý cân nặng và calo dinh dưỡng thể thao.',
       keywords: ['tính lãi kép đầu tư', 'mô phỏng lãi kép', 'tính calo tdee', 'tính calo giảm cân', 'lãi kép tích lũy', 'calo bmr'],
       lsiTerms: ['sức mạnh lãi kép', 'kế hoạch tài chính tự do', 'tdee hàng ngày', 'thâm hụt calo']
+    },
+    utilitybill: {
+      title: 'Tính Tiền Điện, Nước, Gas, Internet & Chi Phí Sinh Hoạt 1 Tháng Chuẩn Quốc Tế',
+      description: 'Công cụ tính tiền điện bậc thang EVN, tiền nước sạch & thoát nước, tiền gas, cước internet viễn thông và dự toán chi tiêu 1 tháng trọn gói chuẩn quốc tế.',
+      keywords: ['tính tiền điện evn', 'tính tiền điện bậc thang', 'tính tiền nước sinh hoạt', 'chi phí sinh hoạt 1 tháng', 'tính tiền gas', 'cước internet cáp quang', 'chia tiền phòng'],
+      lsiTerms: ['biểu giá điện 6 bậc', 'định mức nước sạch', 'hóa đơn tiền điện thoại', 'chi phí sinh hoạt gia đình']
     }
   },
 
@@ -120,6 +126,12 @@ export const INTERNATIONAL_SEO_MATRIX: Record<LanguageCode, Partial<Record<ToolI
       description: 'Simulate the exponential growth of your investments over time with regular contributions, and estimate your daily caloric expenditure (TDEE).',
       keywords: ['compound interest calculator', 'investment growth calculator', 'tdee calculator', 'daily calorie intake calculator', 'wealth compound growth'],
       lsiTerms: ['compound annual growth rate', 'interest compounding', 'bmr calorie target', 'fitness metabolism']
+    },
+    utilitybill: {
+      title: 'Utility Bills & Monthly Living Cost Calculator – Electricity, Water, Gas & Internet',
+      description: 'Comprehensive international utility bills calculator: electricity (tiered/flat kWh), clean water & sewage, gas, fiber broadband, and total monthly living expenses.',
+      keywords: ['utility bill calculator', 'electricity bill calculator', 'water bill calculator', 'monthly living expenses', 'gas bill calculator', 'roommate bill split'],
+      lsiTerms: ['tiered electricity rates', 'household utility costs', 'daily cost of living', 'energy consumption estimator']
     }
   },
 

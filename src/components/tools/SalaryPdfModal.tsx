@@ -113,6 +113,11 @@ export const SalaryPdfModal: React.FC<SalaryPdfModalProps> = ({
             el.style.filter = 'grayscale(100%)';
             el.style.backgroundColor = '#ffffff';
             el.style.color = '#000000';
+            const pageEl = el.querySelector('.pdf-report-page') as HTMLElement;
+            if (pageEl) {
+              pageEl.style.border = 'none';
+              pageEl.style.boxShadow = 'none';
+            }
           }
         },
       });

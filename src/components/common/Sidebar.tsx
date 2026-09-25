@@ -2,6 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { 
   Calculator, 
   Sparkles,
+  Zap,
   Activity, 
   Banknote, 
   Wallet,
@@ -185,6 +186,7 @@ const getIcon = (id: ToolId) => {
     case 'tax': return <Building2 className="w-[18px] h-[18px]" />;
     case 'password': return <KeyRound className="w-[18px] h-[18px]" />;
     case 'ipsubnet': return <Network className="w-[18px] h-[18px]" />;
+    case 'utilitybill': return <Zap className="w-[18px] h-[18px] text-amber-400" />;
     case 'concrete': return <Boxes className="w-[18px] h-[18px]" />;
     default: return <Calculator className="w-[18px] h-[18px]" />;
   }
@@ -239,16 +241,16 @@ export const Sidebar: React.FC<SidebarProps> = ({
         className={`w-full group flex items-center justify-between px-3 py-2 rounded-xl text-left transition-all duration-200 cursor-pointer ${
           isActive 
             ? 'sidebar-tool-active bg-blue-600 text-white shadow-md shadow-blue-500/25 ring-1 ring-blue-400/40' 
-            : 'sidebar-tool-inactive text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/80'
+            : 'sidebar-tool-inactive text-slate-700 dark:text-slate-200 hover:text-blue-600 dark:hover:text-sky-300 hover:bg-slate-100 dark:hover:bg-slate-800'
         }`}
       >
         <div className="flex items-center gap-2.5 min-w-0 flex-1 pr-2">
           <span className={`p-1.5 rounded-lg shrink-0 transition-colors ${
-            isActive ? 'bg-white/20 text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 group-hover:text-blue-600 dark:group-hover:text-blue-400 group-hover:bg-slate-200 dark:group-hover:bg-slate-700'
+            isActive ? 'bg-white/20 text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 group-hover:text-blue-600 dark:group-hover:text-sky-300 group-hover:bg-slate-200 dark:group-hover:bg-slate-700'
           }`}>
             {getIcon(tool.id)}
           </span>
-          <span className="text-[14.5px] font-medium leading-snug break-words">
+          <span className="text-[14.5px] font-medium leading-snug break-words group-hover:text-blue-600 dark:group-hover:text-sky-300">
             {localizedName}
           </span>
         </div>
@@ -256,7 +258,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
         {isActive ? (
           <span className="w-2 h-2 rounded-full bg-[#10B981] ring-2 ring-white/20 shrink-0" />
         ) : (
-          <ChevronRight className="w-3.5 h-3.5 text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-200 opacity-0 group-hover:opacity-100 transition-opacity shrink-0" />
+          <ChevronRight className="w-3.5 h-3.5 text-slate-400 group-hover:text-blue-500 dark:group-hover:text-sky-300 opacity-0 group-hover:opacity-100 transition-opacity shrink-0" />
         )}
       </button>
     );
@@ -302,7 +304,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
             className={`px-2.5 py-1 rounded-full whitespace-nowrap transition-colors cursor-pointer font-medium ${
               selectedCategory === 'all'
                 ? 'bg-blue-600 text-white shadow-sm'
-                : 'bg-slate-100 dark:bg-slate-800/80 text-slate-700 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-700'
+                : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200 dark:hover:bg-slate-700'
             }`}
           >
             {isVi ? 'Tất cả' : 'All'} ({tools.length})
@@ -317,7 +319,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 className={`px-2.5 py-1 rounded-full whitespace-nowrap transition-colors cursor-pointer font-medium ${
                   isSel
                     ? 'bg-blue-600 text-white shadow-sm'
-                    : 'bg-slate-100 dark:bg-slate-800/80 text-slate-700 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-700'
+                    : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200 dark:hover:bg-slate-700'
                 }`}
               >
                 {isVi ? cat.nameVi.split(' ')[0] : cat.nameEn.split(' ')[0]} ({count})

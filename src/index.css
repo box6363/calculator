@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *, .dark, .dark *));
 
 :root {
   --app-bg: #f8fafc;
@@ -512,6 +513,62 @@
   color: #0f172a !important;
 }
 
+/* Sidebar danh mục công cụ trong Chế độ Tối (Dark Mode) - Khắc phục hoàn toàn lỗi hover xám trên xám */
+[data-theme="dark"] aside#desktop-sidebar,
+.dark aside#desktop-sidebar {
+  background-color: #0f1628 !important;
+  border-color: #1e293b !important;
+}
+
+[data-theme="dark"] aside#desktop-sidebar .sidebar-tool-inactive,
+.dark aside#desktop-sidebar .sidebar-tool-inactive {
+  background-color: transparent !important;
+  color: #cbd5e1 !important;
+}
+
+[data-theme="dark"] aside#desktop-sidebar .sidebar-tool-inactive:hover,
+.dark aside#desktop-sidebar .sidebar-tool-inactive:hover {
+  background-color: #1e293b !important;
+  color: #ffffff !important;
+}
+
+[data-theme="dark"] aside#desktop-sidebar .sidebar-tool-inactive:hover span,
+.dark aside#desktop-sidebar .sidebar-tool-inactive:hover span {
+  color: #ffffff !important;
+}
+
+[data-theme="dark"] aside#desktop-sidebar .sidebar-tool-inactive span.p-1\.5,
+.dark aside#desktop-sidebar .sidebar-tool-inactive span.p-1\.5 {
+  background-color: #1a2234 !important;
+  color: #94a3b8 !important;
+}
+
+[data-theme="dark"] aside#desktop-sidebar .sidebar-tool-inactive:hover span.p-1\.5,
+.dark aside#desktop-sidebar .sidebar-tool-inactive:hover span.p-1\.5 {
+  background-color: rgba(56, 189, 248, 0.2) !important;
+  color: #38bdf8 !important;
+}
+
+[data-theme="dark"] aside#desktop-sidebar .sidebar-tool-active,
+.dark aside#desktop-sidebar .sidebar-tool-active {
+  background-color: #2563eb !important;
+  color: #ffffff !important;
+  border-color: #3b82f6 !important;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.35) !important;
+}
+
+[data-theme="dark"] aside#desktop-sidebar .sidebar-tool-active *,
+.dark aside#desktop-sidebar .sidebar-tool-active * {
+  color: #ffffff !important;
+}
+
+[data-theme="dark"] aside#desktop-sidebar input,
+.dark aside#desktop-sidebar input {
+  background-color: #131b2e !important;
+  border-color: #334155 !important;
+  color: #ffffff !important;
+}
+
 /* Máy tính Cơ bản & Khoa học (BasicCalculator) trong Chế độ Sáng */
 [data-theme="light"] .calc-display-screen {
   background-color: #f8fafc !important;
@@ -1004,6 +1061,55 @@
   color: #000000 !important;
 }
 
+/* Print-friendly on-screen preview mode: Shows physical A4 boundaries with dashed border */
+@media screen {
+  .pdf-report-page {
+    border: 2px dashed #94a3b8 !important;
+    position: relative;
+    box-sizing: border-box;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3), 0 8px 10px -6px rgba(0, 0, 0, 0.3) !important;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .pdf-report-page:hover {
+    border-color: #475569 !important;
+  }
+
+  /* Optional visual cue indicator for physical A4 page boundary on screen */
+  .pdf-report-page::before {
+    content: "Khổ giấy chuẩn A4 (210 × 297mm)";
+    position: absolute;
+    top: -24px;
+    right: 0px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: #64748b;
+    pointer-events: none;
+    opacity: 0.85;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  }
+
+  /* When enclosed in preview wrapper or container, ensure padding/spacing for dashed bounds */
+  .pdf-preview-mode .pdf-report-page,
+  [data-print-preview="true"] .pdf-report-page {
+    border: 2px dashed #64748b !important;
+    outline: 8px solid rgba(148, 163, 184, 0.12);
+  }
+}
+
+/* Ensure dashed border and preview pseudo-elements are completely stripped when executing capture clone / isolated host */
+#pdf-isolated-render-host .pdf-report-page {
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+}
+#pdf-isolated-render-host .pdf-report-page::before {
+  display: none !important;
+  content: none !important;
+}
+
 .pdf-report-page *,
 [id*="pdf-printable-source"] *,
 #pdf-isolated-render-host *,
@@ -1195,17 +1301,21 @@
   background-color: rgba(39, 42, 71, 0.75) !important;
 }
 
-/* Banner xanh lá cây đậm sang trọng trong Chế độ Tối */
+/* Banner Chế độ Tối - màu xanh nhạt thanh lịch hiện đại, không bị xỉn nâu xanh */
 [data-theme="dark"] .tool-header-banner,
-[data-theme="dark"] div[class*="rounded-2xl"][class*="bg-gradient-to-r"] {
-  background: linear-gradient(135deg, rgba(6, 78, 59, 0.45) 0%, rgba(15, 23, 42, 0.9) 50%, rgba(6, 78, 59, 0.25) 100%) !important;
-  border-color: rgba(16, 185, 129, 0.35) !important;
+.dark .tool-header-banner,
+[data-theme="dark"] div[class*="rounded-2xl"][class*="bg-gradient-to-r"],
+.dark div[class*="rounded-2xl"][class*="bg-gradient-to-r"] {
+  background: linear-gradient(135deg, rgba(14, 116, 144, 0.28) 0%, rgba(15, 23, 42, 0.95) 50%, rgba(2, 132, 199, 0.18) 100%) !important;
+  border-color: rgba(56, 189, 248, 0.35) !important;
 }
 
 [data-theme="dark"] .tool-hero-banner,
-[data-theme="dark"] div[class*="rounded-2xl"][class*="bg-gradient-to-b"] {
-  background: linear-gradient(180deg, rgba(6, 78, 59, 0.35) 0%, rgba(15, 23, 42, 0.95) 100%) !important;
-  border-color: rgba(16, 185, 129, 0.4) !important;
+.dark .tool-hero-banner,
+[data-theme="dark"] div[class*="rounded-2xl"][class*="bg-gradient-to-b"],
+.dark div[class*="rounded-2xl"][class*="bg-gradient-to-b"] {
+  background: linear-gradient(180deg, rgba(14, 116, 144, 0.22) 0%, rgba(15, 23, 42, 0.95) 100%) !important;
+  border-color: rgba(56, 189, 248, 0.35) !important;
 }
 
 
@@ -1296,8 +1406,14 @@
     page-break-after: always !important;
     break-after: page !important;
     box-shadow: none !important;
+    border: none !important;
+    outline: none !important;
     background: #ffffff !important;
     color: #000000 !important;
     filter: grayscale(100%) !important;
+  }
+  .pdf-report-page::before {
+    display: none !important;
+    content: none !important;
   }
 }

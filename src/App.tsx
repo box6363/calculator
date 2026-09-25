@@ -74,6 +74,7 @@ import { TemperatureConverter } from './components/tools/TemperatureConverter';
 import { CurrencyConverter } from './components/tools/CurrencyConverter';
 import { IpSubnetCalculator } from './components/tools/IpSubnetCalculator';
 import { USLotteryCalculator } from './components/tools/lottery/USLotteryCalculator';
+import { UtilityBillCalculator } from './components/tools/UtilityBillCalculator';
 
 // Helper to parse tool ID from clean path or hash
 const parseToolFromUrl = (): ToolId => {
@@ -285,6 +286,8 @@ export default function App() {
         return <CurrencyConverter key={resetKey} />;
       case 'ipsubnet':
         return <IpSubnetCalculator key={resetKey} />;
+      case 'utilitybill':
+        return <UtilityBillCalculator key={resetKey} />;
       default:
         return <BasicCalculator key={resetKey} />;
     }

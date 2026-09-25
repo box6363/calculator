@@ -18,7 +18,11 @@ import {
   FileCode,
   Eye,
   EyeOff,
-  Clipboard
+  Clipboard,
+  Calculator,
+  ChevronDown,
+  ChevronUp,
+  Delete
 } from 'lucide-react';
 import Markdown from 'react-markdown';
 import remarkMath from 'remark-math';
@@ -51,7 +55,7 @@ interface QnAPair {
 const DAILY_LIMIT = 3;
 const STORAGE_KEY = 'ai_tool_daily_quota_v1';
 const HISTORY_KEY = 'ai_tool_qna_history_v1';
-const MAX_FILE_SIZE_MB = 15;
+const MAX_FILE_SIZE_MB = 1;
 
 function getTodayString(): string {
   const now = new Date();
@@ -81,9 +85,81 @@ export const AiTool: React.FC = () => {
   const [history, setHistory] = useState<QnAPair[]>([]);
   const [activeHistoryId, setActiveHistoryId] = useState<string | null>(null);
 
+  // Virtual math keypad state
+  const [showKeypad, setShowKeypad] = useState<boolean>(true);
+  const [mobileKeypadTab, setMobileKeypadTab] = useState<'fx' | 'numbers'>('fx');
+  const [showAdvancedSymbols, setShowAdvancedSymbols] = useState<boolean>(false);
+  const [aiCalcMemory, setAiCalcMemory] = useState<number>(0);
+
+  const handleAiCalcMemory = (action: 'MC' | 'MR' | 'M+' | 'M-') => {
+    if (action === 'MC') {
+      setAiCalcMemory(0);
+    } else if (action === 'MR') {
+      insertSymbol(aiCalcMemory.toString());
+    } else if (action === 'M+') {
+      const match = prompt.match(/(\d+(\.\d+)?)$/);
+      const val = match ? parseFloat(match[1]) : 1;
+      setAiCalcMemory((prev) => prev + val);
+    } else if (action === 'M-') {
+      const match = prompt.match(/(\d+(\.\d+)?)$/);
+      const val = match ? parseFloat(match[1]) : 1;
+      setAiCalcMemory((prev) => prev - val);
+    }
+  };
+
   const fileInputRef = useRef<HTMLInputElement>(null);
   const resultRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  const insertSymbol = (symbol: string) => {
+    const textarea = textareaRef.current;
+    if (!textarea) {
+      setPrompt((prev) => prev + symbol);
+      return;
+    }
+    const start = textarea.selectionStart ?? prompt.length;
+    const end = textarea.selectionEnd ?? prompt.length;
+    const nextText = prompt.substring(0, start) + symbol + prompt.substring(end);
+    setPrompt(nextText);
+
+    setTimeout(() => {
+      textarea.focus();
+      let newCursor = start + symbol.length;
+      if (symbol.includes('()')) {
+        newCursor = start + symbol.indexOf('()') + 1;
+      } else if (symbol.includes('{}')) {
+        newCursor = start + symbol.indexOf('{}') + 1;
+      } else if (symbol.includes('|x|')) {
+        newCursor = start + 2;
+      }
+      textarea.setSelectionRange(newCursor, newCursor);
+    }, 10);
+  };
+
+  const handleBackspace = () => {
+    const textarea = textareaRef.current;
+    if (!textarea) {
+      setPrompt((prev) => prev.slice(0, -1));
+      return;
+    }
+    const start = textarea.selectionStart ?? prompt.length;
+    const end = textarea.selectionEnd ?? prompt.length;
+    if (start !== end) {
+      const nextText = prompt.substring(0, start) + prompt.substring(end);
+      setPrompt(nextText);
+      setTimeout(() => {
+        textarea.focus();
+        textarea.setSelectionRange(start, start);
+      }, 10);
+    } else if (start > 0) {
+      const nextText = prompt.substring(0, start - 1) + prompt.substring(end);
+      setPrompt(nextText);
+      setTimeout(() => {
+        textarea.focus();
+        textarea.setSelectionRange(start - 1, start - 1);
+      }, 10);
+    }
+  };
 
   // Initialize quota from localStorage
   useEffect(() => {
@@ -575,7 +651,6 @@ export const AiTool: React.FC = () => {
                 </span>
               </div>
               <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 mt-1">
-                Dán ảnh từ bộ nhớ tạm (Ctrl+V), nhập câu hỏi hoặc kéo thả tệp Ảnh, PDF, Excel (xlsx) và Word (doc/docx).
               </p>
             </div>
           </div>
@@ -671,23 +746,268 @@ export const AiTool: React.FC = () => {
                     disabled={loading || remainingQuota <= 0}
                   />
                 </div>
-              </div>
 
-              {/* Sample Prompt Quick Chips */}
-              <div>
-                <span className="text-xs text-slate-500 dark:text-slate-400 block mb-2 font-medium">Gợi ý câu hỏi mẫu:</span>
-                <div className="flex flex-wrap gap-1.5">
-                  {samplePrompts.map((s, idx) => (
-                    <button
-                      key={idx}
-                      type="button"
-                      onClick={() => setPrompt(s)}
-                      disabled={loading || remainingQuota <= 0}
-                      className="text-xs px-2.5 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-violet-900/40 text-slate-700 dark:text-slate-300 hover:text-violet-700 dark:hover:text-violet-200 border border-slate-200 dark:border-slate-700 hover:border-violet-300 dark:hover:border-violet-500/40 transition-colors text-left"
-                    >
-                      {s}
-                    </button>
-                  ))}
+                {/* Scientific & Mathematical Virtual Input Keypad */}
+                <div className="mt-2.5 bg-white dark:bg-[#060813] border border-slate-200 dark:border-slate-800/90 rounded-2xl p-3 sm:p-4 space-y-3 shadow-md dark:shadow-2xl text-slate-800 dark:text-slate-100 transition-colors">
+                  {/* Top Bar: Title & Toggle */}
+                  <div className="flex items-center justify-between gap-2">
+                    <div className="flex items-center gap-2">
+                      <div className="p-1.5 rounded-lg bg-violet-100 dark:bg-violet-600/20 text-violet-600 dark:text-violet-400">
+                        <Calculator className="w-4 h-4" />
+                      </div>
+                      <div>
+                        <h4 className="text-xs sm:text-sm font-bold text-slate-900 dark:text-white">
+                          Bàn phím hàm khoa học & toán học
+                        </h4>
+                        <p className="text-[11px] text-slate-500 dark:text-slate-400 hidden sm:block">
+                          Đầy đủ sin, cos, tan, log, ln, căn, lũy thừa, số và phép tính
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      {/* Mobile tab switcher */}
+                      <div className="md:hidden flex items-center p-0.5 bg-slate-100 dark:bg-[#101728] rounded-xl border border-slate-200 dark:border-slate-800 text-[11px] font-bold">
+                        <button
+                          type="button"
+                          onClick={() => setMobileKeypadTab('fx')}
+                          className={`px-2 py-1 rounded-lg transition-colors cursor-pointer ${
+                            mobileKeypadTab === 'fx' ? 'bg-violet-600 text-white shadow-xs' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
+                          }`}
+                        >
+                          Hàm fx
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setMobileKeypadTab('numbers')}
+                          className={`px-2 py-1 rounded-lg transition-colors cursor-pointer ${
+                            mobileKeypadTab === 'numbers' ? 'bg-violet-600 text-white shadow-xs' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
+                          }`}
+                        >
+                          Số & Phép tính
+                        </button>
+                      </div>
+
+                      <button
+                        type="button"
+                        onClick={() => setShowKeypad(!showKeypad)}
+                        className="text-xs px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-[#101728] dark:hover:bg-[#18223c] text-slate-700 dark:text-white border border-slate-300/80 dark:border-slate-700/60 flex items-center gap-1.5 font-medium transition-colors cursor-pointer shadow-xs"
+                        title={showKeypad ? 'Thu gọn bàn phím' : 'Hiện bàn phím'}
+                      >
+                        {showKeypad ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+                        <span>{showKeypad ? 'Thu gọn' : 'Hiện phím'}</span>
+                      </button>
+                    </div>
+                  </div>
+
+                  {showKeypad && (
+                    <div className="space-y-3 pt-2 border-t border-slate-200 dark:border-slate-800/90">
+                      {/* Dual Panels Grid */}
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4 items-start">
+                        {/* Panel 1: HÀM KHOA HỌC */}
+                        <div className={`space-y-2 ${mobileKeypadTab === 'fx' ? 'block' : 'hidden md:block'}`}>
+                          <div className="flex items-center justify-between px-1 h-7">
+                            <span className="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-200">
+                              Hàm khoa học
+                            </span>
+                          </div>
+
+                          {/* 5x5 Scientific Functions Grid inside rounded card box */}
+                          <div className="p-2 sm:p-2.5 bg-slate-50 dark:bg-[#080b18] rounded-2xl border border-slate-200 dark:border-slate-800/90 shadow-xs dark:shadow-inner">
+                            <div className="grid grid-cols-5 gap-1.5 sm:gap-2">
+                              {/* Row 1 */}
+                              <button type="button" onClick={() => insertSymbol('sin()')} className="h-10 sm:h-11 flex items-center justify-center rounded-2xl bg-white hover:bg-slate-100 active:bg-slate-200 text-slate-800 border border-slate-200/90 shadow-2xs dark:bg-[#101728] dark:hover:bg-[#18223c] dark:active:bg-[#0c1220] dark:text-white dark:border-slate-700/50 dark:shadow-xs font-semibold text-xs sm:text-sm active:scale-95 transition-all cursor-pointer">sin</button>
+                              <button type="button" onClick={() => insertSymbol('cos()')} className="h-10 sm:h-11 flex items-center justify-center rounded-2xl bg-white hover:bg-slate-100 active:bg-slate-200 text-slate-800 border border-slate-200/90 shadow-2xs dark:bg-[#101728] dark:hover:bg-[#18223c] dark:active:bg-[#0c1220] dark:text-white dark:border-slate-700/50 dark:shadow-xs font-semibold text-xs sm:text-sm active:scale-95 transition-all cursor-pointer">cos</button>
+                              <button type="button" onClick={() => insertSymbol('tan()')} className="h-10 sm:h-11 flex items-center justify-center rounded-2xl bg-white hover:bg-slate-100 active:bg-slate-200 text-slate-800 border border-slate-200/90 shadow-2xs dark:bg-[#101728] dark:hover:bg-[#18223c] dark:active:bg-[#0c1220] dark:text-white dark:border-slate-700/50 dark:shadow-xs font-semibold text-xs sm:text-sm active:scale-95 transition-all cursor-pointer">tan</button>
+                              <button type="button" onClick={() => insertSymbol('π')} className="h-10 sm:h-11 flex items-center justify-center rounded-2xl bg-white hover:bg-slate-100 active:bg-slate-200 text-slate-800 border border-slate-200/90 shadow-2xs dark:bg-[#101728] dark:hover:bg-[#18223c] dark:active:bg-[#0c1220] dark:text-white dark:border-slate-700/50 dark:shadow-xs font-semibold text-xs sm:text-sm active:scale-95 transition-all cursor-pointer font-serif">π</button>
+                              <button type="button" onClick={() => insertSymbol('e')} className="h-10 sm:h-11 flex items-center justify-center rounded-2xl bg-white hover:bg-slate-100 active:bg-slate-200 text-slate-800 border border-slate-200/90 shadow-2xs dark:bg-[#101728] dark:hover:bg-[#18223c] dark:active:bg-[#0c1220] dark:text-white dark:border-slate-700/50 dark:shadow-xs font-semibold text-xs sm:text-sm active:scale-95 transition-all cursor-pointer font-serif italic">e</button>
+
+                              {/* Row 2 */}
+                              <button type="button" onClick={() => insertSymbol('arcsin()')} className="h-10 sm:h-11 flex items-center justify-center rounded-2xl bg-white hover:bg-slate-100 active:bg-slate-200 text-slate-800 border border-slate-200/90 shadow-2xs dark:bg-[#101728] dark:hover:bg-[#18223c] dark:active:bg-[#0c1220] dark:text-white dark:border-slate-700/50 dark:shadow-xs font-semibold text-xs sm:text-sm active:scale-95 transition-all cursor-pointer">sin⁻¹</button>
+                              <button type="button" onClick={() => insertSymbol('arccos()')} className="h-10 sm:h-11 flex items-center justify-center rounded-2xl bg-white hover:bg-slate-100 active:bg-slate-200 text-slate-800 border border-slate-200/90 shadow-2xs dark:bg-[#101728] dark:hover:bg-[#18223c] dark:active:bg-[#0c1220] dark:text-white dark:border-slate-700/50 dark:shadow-xs font-semibold text-xs sm:text-sm active:scale-95 transition-all cursor-pointer">cos⁻¹</button>
+                              <button type="button" onClick={() => insertSymbol('arctan()')} className="h-10 sm:h-11 flex items-center justify-center rounded-2xl bg-white hover:bg-slate-100 active:bg-slate-200 text-slate-800 border border-slate-200/90 shadow-2xs dark:bg-[#101728] dark:hover:bg-[#18223c] dark:active:bg-[#0c1220] dark:text-white dark:border-slate-700/50 dark:shadow-xs font-semibold text-xs sm:text-sm active:scale-95 transition-all cursor-pointer">tan⁻¹</button>
+                              <button type="button" onClick={() => insertSymbol('ln()')} className="h-10 sm:h-11 flex items-center justify-center rounded-2xl bg-white hover:bg-slate-100 active:bg-slate-200 text-slate-800 border border-slate-200/90 shadow-2xs dark:bg-[#101728] dark:hover:bg-[#18223c] dark:active:bg-[#0c1220] dark:text-white dark:border-slate-700/50 dark:shadow-xs font-semibold text-xs sm:text-sm active:scale-95 transition-all cursor-pointer">ln</button>
+                              <button type="button" onClick={() => insertSymbol('log()')} className="h-10 sm:h-11 flex items-center justify-center rounded-2xl bg-white hover:bg-slate-100 active:bg-slate-200 text-slate-800 border border-slate-200/90 shadow-2xs dark:bg-[#101728] dark:hover:bg-[#18223c] dark:active:bg-[#0c1220] dark:text-white dark:border-slate-700/50 dark:shadow-xs font-semibold text-xs sm:text-sm active:scale-95 transition-all cursor-pointer">log</button>
+
+                              {/* Row 3 */}
+                              <button type="button" onClick={() => insertSymbol('^')} className="h-10 sm:h-11 flex items-center justify-center rounded-2xl bg-white hover:bg-slate-100 active:bg-slate-200 text-slate-800 border border-slate-200/90 shadow-2xs dark:bg-[#101728] dark:hover:bg-[#18223c] dark:active:bg-[#0c1220] dark:text-white dark:border-slate-700/50 dark:shadow-xs font-semibold text-xs sm:text-sm active:scale-95 transition-all cursor-pointer">xʸ</button>
+                              <button type="button" onClick={() => insertSymbol('^2')} className="h-10 sm:h-11 flex items-center justify-center rounded-2xl bg-white hover:bg-slate-100 active:bg-slate-200 text-slate-800 border border-slate-200/90 shadow-2xs dark:bg-[#101728] dark:hover:bg-[#18223c] dark:active:bg-[#0c1220] dark:text-white dark:border-slate-700/50 dark:shadow-xs font-semibold text-xs sm:text-sm active:scale-95 transition-all cursor-pointer">x²</button>
+                              <button type="button" onClick={() => insertSymbol('^3')} className="h-10 sm:h-11 flex items-center justify-center rounded-2xl bg-white hover:bg-slate-100 active:bg-slate-200 text-slate-800 border border-slate-200/90 shadow-2xs dark:bg-[#101728] dark:hover:bg-[#18223c] dark:active:bg-[#0c1220] dark:text-white dark:border-slate-700/50 dark:shadow-xs font-semibold text-xs sm:text-sm active:scale-95 transition-all cursor-pointer">x³</button>
+                              <button type="button" onClick={() => insertSymbol('e^')} className="h-10 sm:h-11 flex items-center justify-center rounded-2xl bg-white hover:bg-slate-100 active:bg-slate-200 text-slate-800 border border-slate-200/90 shadow-2xs dark:bg-[#101728] dark:hover:bg-[#18223c] dark:active:bg-[#0c1220] dark:text-white dark:border-slate-700/50 dark:shadow-xs font-semibold text-xs sm:text-sm active:scale-95 transition-all cursor-pointer">eˣ</button>
+                              <button type="button" onClick={() => insertSymbol('10^')} className="h-10 sm:h-11 flex items-center justify-center rounded-2xl bg-white hover:bg-slate-100 active:bg-slate-200 text-slate-800 border border-slate-200/90 shadow-2xs dark:bg-[#101728] dark:hover:bg-[#18223c] dark:active:bg-[#0c1220] dark:text-white dark:border-slate-700/50 dark:shadow-xs font-semibold text-xs sm:text-sm active:scale-95 transition-all cursor-pointer">10ˣ</button>
+
+                              {/* Row 4 */}
+                              <button type="button" onClick={() => insertSymbol('√()')} className="h-10 sm:h-11 flex items-center justify-center rounded-2xl bg-white hover:bg-slate-100 active:bg-slate-200 text-slate-800 border border-slate-200/90 shadow-2xs dark:bg-[#101728] dark:hover:bg-[#18223c] dark:active:bg-[#0c1220] dark:text-white dark:border-slate-700/50 dark:shadow-xs font-semibold text-xs sm:text-sm active:scale-95 transition-all cursor-pointer">√x</button>
+                              <button type="button" onClick={() => insertSymbol('³√()')} className="h-10 sm:h-11 flex items-center justify-center rounded-2xl bg-white hover:bg-slate-100 active:bg-slate-200 text-slate-800 border border-slate-200/90 shadow-2xs dark:bg-[#101728] dark:hover:bg-[#18223c] dark:active:bg-[#0c1220] dark:text-white dark:border-slate-700/50 dark:shadow-xs font-semibold text-xs sm:text-sm active:scale-95 transition-all cursor-pointer">³√x</button>
+                              <button type="button" onClick={() => insertSymbol('root(y, x)')} className="h-10 sm:h-11 flex items-center justify-center rounded-2xl bg-white hover:bg-slate-100 active:bg-slate-200 text-slate-800 border border-slate-200/90 shadow-2xs dark:bg-[#101728] dark:hover:bg-[#18223c] dark:active:bg-[#0c1220] dark:text-white dark:border-slate-700/50 dark:shadow-xs font-semibold text-xs sm:text-sm active:scale-95 transition-all cursor-pointer">ʸ√x</button>
+                              <button type="button" onClick={() => insertSymbol('1/()')} className="h-10 sm:h-11 flex items-center justify-center rounded-2xl bg-white hover:bg-slate-100 active:bg-slate-200 text-slate-800 border border-slate-200/90 shadow-2xs dark:bg-[#101728] dark:hover:bg-[#18223c] dark:active:bg-[#0c1220] dark:text-white dark:border-slate-700/50 dark:shadow-xs font-semibold text-xs sm:text-sm active:scale-95 transition-all cursor-pointer">1/x</button>
+                              <button type="button" onClick={() => insertSymbol('!')} className="h-10 sm:h-11 flex items-center justify-center rounded-2xl bg-white hover:bg-slate-100 active:bg-slate-200 text-slate-800 border border-slate-200/90 shadow-2xs dark:bg-[#101728] dark:hover:bg-[#18223c] dark:active:bg-[#0c1220] dark:text-white dark:border-slate-700/50 dark:shadow-xs font-semibold text-xs sm:text-sm active:scale-95 transition-all cursor-pointer">n!</button>
+
+                              {/* Row 5 */}
+                              <button type="button" onClick={() => insertSymbol('(')} className="h-10 sm:h-11 flex items-center justify-center rounded-2xl bg-white hover:bg-slate-100 active:bg-slate-200 text-slate-800 border border-slate-200/90 shadow-2xs dark:bg-[#101728] dark:hover:bg-[#18223c] dark:active:bg-[#0c1220] dark:text-white dark:border-slate-700/50 dark:shadow-xs font-semibold text-xs sm:text-sm active:scale-95 transition-all cursor-pointer">(</button>
+                              <button type="button" onClick={() => insertSymbol(')')} className="h-10 sm:h-11 flex items-center justify-center rounded-2xl bg-white hover:bg-slate-100 active:bg-slate-200 text-slate-800 border border-slate-200/90 shadow-2xs dark:bg-[#101728] dark:hover:bg-[#18223c] dark:active:bg-[#0c1220] dark:text-white dark:border-slate-700/50 dark:shadow-xs font-semibold text-xs sm:text-sm active:scale-95 transition-all cursor-pointer">)</button>
+                              <button type="button" onClick={() => insertSymbol('Ans')} className="h-10 sm:h-11 flex items-center justify-center rounded-2xl bg-white hover:bg-slate-100 active:bg-slate-200 text-slate-800 border border-slate-200/90 shadow-2xs dark:bg-[#101728] dark:hover:bg-[#18223c] dark:active:bg-[#0c1220] dark:text-white dark:border-slate-700/50 dark:shadow-xs font-semibold text-xs sm:text-sm active:scale-95 transition-all cursor-pointer" title="Kết quả trước">Ans</button>
+                              <button type="button" onClick={() => insertSymbol('E')} className="h-10 sm:h-11 flex items-center justify-center rounded-2xl bg-white hover:bg-slate-100 active:bg-slate-200 text-slate-800 border border-slate-200/90 shadow-2xs dark:bg-[#101728] dark:hover:bg-[#18223c] dark:active:bg-[#0c1220] dark:text-white dark:border-slate-700/50 dark:shadow-xs font-semibold text-xs sm:text-sm active:scale-95 transition-all cursor-pointer" title="Số mũ E">EXP</button>
+                              <button type="button" onClick={() => insertSymbol(Math.floor(Math.random() * 100).toString())} className="h-10 sm:h-11 flex items-center justify-center rounded-2xl bg-white hover:bg-slate-100 active:bg-slate-200 text-slate-800 border border-slate-200/90 shadow-2xs dark:bg-[#101728] dark:hover:bg-[#18223c] dark:active:bg-[#0c1220] dark:text-white dark:border-slate-700/50 dark:shadow-xs font-semibold text-xs sm:text-sm active:scale-95 transition-all cursor-pointer" title="Số ngẫu nhiên">RND</button>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Panel 2: SỐ & PHÉP TÍNH */}
+                        <div className={`space-y-2 ${mobileKeypadTab === 'numbers' ? 'block' : 'hidden md:block'}`}>
+                          {/* Header + Variable buttons x, y, z (matches Panel 1's h-7 header) */}
+                          <div className="flex items-center justify-between px-1 h-7">
+                            <span className="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-200">
+                              Số & Phép tính
+                            </span>
+                            <div className="flex items-center gap-1.5">
+                              <button
+                                type="button"
+                                onClick={() => insertSymbol('x')}
+                                className="px-2.5 py-0.5 rounded-lg border border-cyan-300 dark:border-cyan-700/70 bg-cyan-50 hover:bg-cyan-100 dark:bg-[#062432] dark:hover:bg-[#0a3347] text-cyan-700 dark:text-cyan-300 font-mono font-bold text-xs transition-colors cursor-pointer"
+                              >
+                                x
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => insertSymbol('y')}
+                                className="px-2.5 py-0.5 rounded-lg border border-cyan-300 dark:border-cyan-700/70 bg-cyan-50 hover:bg-cyan-100 dark:bg-[#062432] dark:hover:bg-[#0a3347] text-cyan-700 dark:text-cyan-300 font-mono font-bold text-xs transition-colors cursor-pointer"
+                              >
+                                y
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => insertSymbol('z')}
+                                className="px-2.5 py-0.5 rounded-lg border border-cyan-300 dark:border-cyan-700/70 bg-cyan-50 hover:bg-cyan-100 dark:bg-[#062432] dark:hover:bg-[#0a3347] text-cyan-700 dark:text-cyan-300 font-mono font-bold text-xs transition-colors cursor-pointer"
+                              >
+                                z
+                              </button>
+                            </div>
+                          </div>
+
+                          {/* 5x5 Numeric & Operators Grid - Exactly matching 5 rows of Panel 1 */}
+                          <div className="p-2 sm:p-2.5 bg-slate-50 dark:bg-[#080b18] rounded-2xl border border-slate-200 dark:border-slate-800/90 shadow-xs dark:shadow-inner">
+                            <div className="grid grid-cols-5 gap-1.5 sm:gap-2">
+                              {/* Row 1 (Aligns with sin, cos, tan, π, e) */}
+                              <button type="button" onClick={() => handleAiCalcMemory('MC')} className="h-10 sm:h-11 flex items-center justify-center rounded-2xl bg-slate-100 hover:bg-slate-200 active:bg-slate-300 text-slate-700 border border-slate-200 shadow-2xs dark:bg-[#101728] dark:hover:bg-[#18223c] dark:active:bg-[#0c1220] dark:text-slate-300 dark:border-slate-700/50 dark:shadow-xs font-bold text-xs sm:text-sm active:scale-95 transition-all cursor-pointer" title="Xóa bộ nhớ">MC</button>
+                              <button type="button" onClick={() => handleAiCalcMemory('MR')} className={`h-10 sm:h-11 flex items-center justify-center rounded-2xl bg-slate-100 hover:bg-slate-200 active:bg-slate-300 ${aiCalcMemory !== 0 ? 'text-violet-600 dark:text-violet-400 border-violet-400 dark:border-violet-500/50' : 'text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700/50'} shadow-2xs dark:bg-[#101728] dark:hover:bg-[#18223c] dark:active:bg-[#0c1220] dark:shadow-xs font-bold text-xs sm:text-sm active:scale-95 transition-all cursor-pointer`} title={`Gọi bộ nhớ (M=${aiCalcMemory})`}>MR</button>
+                              <button type="button" onClick={() => handleAiCalcMemory('M+')} className="h-10 sm:h-11 flex items-center justify-center rounded-2xl bg-slate-100 hover:bg-slate-200 active:bg-slate-300 text-slate-700 border border-slate-200 shadow-2xs dark:bg-[#101728] dark:hover:bg-[#18223c] dark:active:bg-[#0c1220] dark:text-slate-300 dark:border-slate-700/50 dark:shadow-xs font-bold text-xs sm:text-sm active:scale-95 transition-all cursor-pointer" title="Cộng vào bộ nhớ">M+</button>
+                              <button type="button" onClick={() => handleAiCalcMemory('M-')} className="h-10 sm:h-11 flex items-center justify-center rounded-2xl bg-slate-100 hover:bg-slate-200 active:bg-slate-300 text-slate-700 border border-slate-200 shadow-2xs dark:bg-[#101728] dark:hover:bg-[#18223c] dark:active:bg-[#0c1220] dark:text-slate-300 dark:border-slate-700/50 dark:shadow-xs font-bold text-xs sm:text-sm active:scale-95 transition-all cursor-pointer" title="Trừ khỏi bộ nhớ">M-</button>
+                              <button type="button" onClick={() => setPrompt('')} className="h-10 sm:h-11 flex items-center justify-center rounded-2xl bg-amber-100 hover:bg-amber-200 active:bg-amber-300 text-amber-800 border border-amber-300 shadow-2xs dark:bg-[#331c08] dark:hover:bg-[#46260a] dark:active:bg-[#281504] dark:text-amber-400 dark:border-amber-600/70 dark:shadow-xs font-bold text-xs sm:text-sm active:scale-95 transition-all cursor-pointer" title="Xóa toàn bộ">AC</button>
+
+                              {/* Row 2 (Aligns with sin⁻¹, cos⁻¹, tan⁻¹, ln, log) */}
+                              <button type="button" onClick={() => insertSymbol('7')} className="h-10 sm:h-11 flex items-center justify-center rounded-2xl bg-white hover:bg-slate-100 active:bg-slate-200 text-slate-900 border border-slate-200/90 shadow-2xs dark:bg-[#101728] dark:hover:bg-[#18223c] dark:active:bg-[#0c1220] dark:text-white dark:border-slate-700/50 dark:shadow-xs font-bold text-base sm:text-lg active:scale-95 transition-all cursor-pointer">7</button>
+                              <button type="button" onClick={() => insertSymbol('8')} className="h-10 sm:h-11 flex items-center justify-center rounded-2xl bg-white hover:bg-slate-100 active:bg-slate-200 text-slate-900 border border-slate-200/90 shadow-2xs dark:bg-[#101728] dark:hover:bg-[#18223c] dark:active:bg-[#0c1220] dark:text-white dark:border-slate-700/50 dark:shadow-xs font-bold text-base sm:text-lg active:scale-95 transition-all cursor-pointer">8</button>
+                              <button type="button" onClick={() => insertSymbol('9')} className="h-10 sm:h-11 flex items-center justify-center rounded-2xl bg-white hover:bg-slate-100 active:bg-slate-200 text-slate-900 border border-slate-200/90 shadow-2xs dark:bg-[#101728] dark:hover:bg-[#18223c] dark:active:bg-[#0c1220] dark:text-white dark:border-slate-700/50 dark:shadow-xs font-bold text-base sm:text-lg active:scale-95 transition-all cursor-pointer">9</button>
+                              <button type="button" onClick={() => insertSymbol(' / ')} className="h-10 sm:h-11 flex items-center justify-center rounded-2xl bg-purple-100 hover:bg-purple-200 active:bg-purple-300 text-purple-700 border border-purple-200 shadow-2xs dark:bg-[#1d1538] dark:hover:bg-[#2a1d52] dark:active:bg-[#16102c] dark:text-purple-300 dark:border-purple-800/60 dark:shadow-xs font-bold text-base sm:text-lg active:scale-95 transition-all cursor-pointer">÷</button>
+                              <button type="button" onClick={handleBackspace} className="h-10 sm:h-11 flex items-center justify-center rounded-2xl bg-rose-100 hover:bg-rose-200 active:bg-rose-300 text-rose-700 border border-rose-300 shadow-2xs dark:bg-[#360e19] dark:hover:bg-[#481222] dark:active:bg-[#2a0912] dark:text-rose-400 dark:border-rose-700/70 dark:shadow-xs font-bold text-xs sm:text-sm active:scale-95 transition-all cursor-pointer" title="Xóa lùi (Backspace)">
+                                <Delete className="w-5 h-5" />
+                              </button>
+
+                              {/* Row 3 (Aligns with xʸ, x², x³, eˣ, 10ˣ) */}
+                              <button type="button" onClick={() => insertSymbol('4')} className="h-10 sm:h-11 flex items-center justify-center rounded-2xl bg-white hover:bg-slate-100 active:bg-slate-200 text-slate-900 border border-slate-200/90 shadow-2xs dark:bg-[#101728] dark:hover:bg-[#18223c] dark:active:bg-[#0c1220] dark:text-white dark:border-slate-700/50 dark:shadow-xs font-bold text-base sm:text-lg active:scale-95 transition-all cursor-pointer">4</button>
+                              <button type="button" onClick={() => insertSymbol('5')} className="h-10 sm:h-11 flex items-center justify-center rounded-2xl bg-white hover:bg-slate-100 active:bg-slate-200 text-slate-900 border border-slate-200/90 shadow-2xs dark:bg-[#101728] dark:hover:bg-[#18223c] dark:active:bg-[#0c1220] dark:text-white dark:border-slate-700/50 dark:shadow-xs font-bold text-base sm:text-lg active:scale-95 transition-all cursor-pointer">5</button>
+                              <button type="button" onClick={() => insertSymbol('6')} className="h-10 sm:h-11 flex items-center justify-center rounded-2xl bg-white hover:bg-slate-100 active:bg-slate-200 text-slate-900 border border-slate-200/90 shadow-2xs dark:bg-[#101728] dark:hover:bg-[#18223c] dark:active:bg-[#0c1220] dark:text-white dark:border-slate-700/50 dark:shadow-xs font-bold text-base sm:text-lg active:scale-95 transition-all cursor-pointer">6</button>
+                              <button type="button" onClick={() => insertSymbol(' * ')} className="h-10 sm:h-11 flex items-center justify-center rounded-2xl bg-purple-100 hover:bg-purple-200 active:bg-purple-300 text-purple-700 border border-purple-200 shadow-2xs dark:bg-[#1d1538] dark:hover:bg-[#2a1d52] dark:active:bg-[#16102c] dark:text-purple-300 dark:border-purple-800/60 dark:shadow-xs font-bold text-base sm:text-lg active:scale-95 transition-all cursor-pointer">×</button>
+                              <button type="button" onClick={() => insertSymbol('%')} className="h-10 sm:h-11 flex items-center justify-center rounded-2xl bg-purple-100 hover:bg-purple-200 active:bg-purple-300 text-purple-700 border border-purple-200 shadow-2xs dark:bg-[#1d1538] dark:hover:bg-[#2a1d52] dark:active:bg-[#16102c] dark:text-purple-300 dark:border-purple-800/60 dark:shadow-xs font-bold text-base sm:text-lg active:scale-95 transition-all cursor-pointer" title="Phần trăm">%</button>
+
+                              {/* Row 4 (Aligns with √x, ³√x, ʸ√x, 1/x, n!) */}
+                              <button type="button" onClick={() => insertSymbol('1')} className="h-10 sm:h-11 flex items-center justify-center rounded-2xl bg-white hover:bg-slate-100 active:bg-slate-200 text-slate-900 border border-slate-200/90 shadow-2xs dark:bg-[#101728] dark:hover:bg-[#18223c] dark:active:bg-[#0c1220] dark:text-white dark:border-slate-700/50 dark:shadow-xs font-bold text-base sm:text-lg active:scale-95 transition-all cursor-pointer">1</button>
+                              <button type="button" onClick={() => insertSymbol('2')} className="h-10 sm:h-11 flex items-center justify-center rounded-2xl bg-white hover:bg-slate-100 active:bg-slate-200 text-slate-900 border border-slate-200/90 shadow-2xs dark:bg-[#101728] dark:hover:bg-[#18223c] dark:active:bg-[#0c1220] dark:text-white dark:border-slate-700/50 dark:shadow-xs font-bold text-base sm:text-lg active:scale-95 transition-all cursor-pointer">2</button>
+                              <button type="button" onClick={() => insertSymbol('3')} className="h-10 sm:h-11 flex items-center justify-center rounded-2xl bg-white hover:bg-slate-100 active:bg-slate-200 text-slate-900 border border-slate-200/90 shadow-2xs dark:bg-[#101728] dark:hover:bg-[#18223c] dark:active:bg-[#0c1220] dark:text-white dark:border-slate-700/50 dark:shadow-xs font-bold text-base sm:text-lg active:scale-95 transition-all cursor-pointer">3</button>
+                              <button type="button" onClick={() => insertSymbol(' - ')} className="h-10 sm:h-11 flex items-center justify-center rounded-2xl bg-purple-100 hover:bg-purple-200 active:bg-purple-300 text-purple-700 border border-purple-200 shadow-2xs dark:bg-[#1d1538] dark:hover:bg-[#2a1d52] dark:active:bg-[#16102c] dark:text-purple-300 dark:border-purple-800/60 dark:shadow-xs font-bold text-base sm:text-lg active:scale-95 transition-all cursor-pointer">-</button>
+                              <button type="button" onClick={() => insertSymbol(' + ')} className="h-10 sm:h-11 flex items-center justify-center rounded-2xl bg-purple-100 hover:bg-purple-200 active:bg-purple-300 text-purple-700 border border-purple-200 shadow-2xs dark:bg-[#1d1538] dark:hover:bg-[#2a1d52] dark:active:bg-[#16102c] dark:text-purple-300 dark:border-purple-800/60 dark:shadow-xs font-bold text-base sm:text-lg active:scale-95 transition-all cursor-pointer">+</button>
+
+                              {/* Row 5 (Exactly aligned on the same horizontal row with: ( ) Ans EXP RND) */}
+                              <button type="button" onClick={() => insertSymbol('0')} className="h-10 sm:h-11 flex items-center justify-center rounded-2xl bg-white hover:bg-slate-100 active:bg-slate-200 text-slate-900 border border-slate-200/90 shadow-2xs dark:bg-[#101728] dark:hover:bg-[#18223c] dark:active:bg-[#0c1220] dark:text-white dark:border-slate-700/50 dark:shadow-xs font-bold text-base sm:text-lg active:scale-95 transition-all cursor-pointer">0</button>
+                              <button type="button" onClick={() => insertSymbol('.')} className="h-10 sm:h-11 flex items-center justify-center rounded-2xl bg-white hover:bg-slate-100 active:bg-slate-200 text-slate-900 border border-slate-200/90 shadow-2xs dark:bg-[#101728] dark:hover:bg-[#18223c] dark:active:bg-[#0c1220] dark:text-white dark:border-slate-700/50 dark:shadow-xs font-bold text-base sm:text-lg active:scale-95 transition-all cursor-pointer">.</button>
+                              <button type="button" onClick={() => insertSymbol(' = ')} className="h-10 sm:h-11 flex items-center justify-center rounded-2xl bg-emerald-100 hover:bg-emerald-200 active:bg-emerald-300 text-emerald-800 border border-emerald-300 shadow-2xs dark:bg-[#062e1e] dark:hover:bg-[#093e29] dark:active:bg-[#042014] dark:text-emerald-400 dark:border-emerald-600/70 dark:shadow-xs font-bold text-base sm:text-lg active:scale-95 transition-all cursor-pointer">=</button>
+                              <button type="button" onClick={() => insertSymbol('±')} className="h-10 sm:h-11 flex items-center justify-center rounded-2xl bg-white hover:bg-slate-100 active:bg-slate-200 text-slate-700 border border-slate-200/90 shadow-2xs dark:bg-[#101728] dark:hover:bg-[#18223c] dark:active:bg-[#0c1220] dark:text-slate-300 dark:border-slate-700/50 dark:shadow-xs font-bold text-xs sm:text-sm active:scale-95 transition-all cursor-pointer">±</button>
+                              <button type="button" onClick={() => insertSymbol(' ')} className="h-10 sm:h-11 flex items-center justify-center rounded-2xl bg-white hover:bg-slate-100 active:bg-slate-200 text-slate-700 border border-slate-200/90 shadow-2xs dark:bg-[#101728] dark:hover:bg-[#18223c] dark:active:bg-[#0c1220] dark:text-slate-300 dark:border-slate-700/50 dark:shadow-xs font-medium text-xs sm:text-sm active:scale-95 transition-all cursor-pointer" title="Dấu cách">Space</button>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Advanced Calculus & Symbols Expandable Drawer */}
+                      <div className="pt-1.5 border-t border-slate-200 dark:border-slate-800/90">
+                        <div className="flex items-center justify-between mb-1.5">
+                          <button
+                            type="button"
+                            onClick={() => setShowAdvancedSymbols(!showAdvancedSymbols)}
+                            className="text-xs text-sky-600 dark:text-sky-400 hover:text-sky-700 dark:hover:text-sky-300 font-semibold flex items-center gap-1.5 transition-colors cursor-pointer"
+                          >
+                            <span className="inline-flex items-center justify-center w-4 h-4 rounded bg-sky-100 dark:bg-sky-500/20 text-sky-600 dark:text-sky-400 text-[10px]">
+                              {showAdvancedSymbols ? '▼' : '▶'}
+                            </span>
+                            <span>{showAdvancedSymbols ? 'Ẩn ký hiệu nâng cao (Giải tích, Hy Lạp)' : 'Mở rộng ký hiệu nâng cao (Giải tích ∫, d/dx, lim, Hy Lạp α, β, Δ...)'}</span>
+                          </button>
+                        </div>
+
+                        {showAdvancedSymbols && (
+                          <div className="p-2.5 sm:p-3 bg-slate-50 dark:bg-[#080b18] rounded-2xl border border-slate-200 dark:border-slate-800/90 space-y-2.5">
+                            <div className="flex flex-wrap gap-1 font-mono text-xs">
+                              <span className="text-[11px] text-slate-500 dark:text-slate-400 self-center font-sans mr-1">Giải tích:</span>
+                              {[
+                                { label: '∫', val: '∫ ' },
+                                { label: '∫_a^b', val: '∫_{a}^{b} ' },
+                                { label: 'dx', val: ' dx' },
+                                { label: 'dy', val: ' dy' },
+                                { label: 'd/dx', val: 'd/dx ' },
+                                { label: 'lim', val: 'lim_{x→} ' },
+                                { label: 'x→0', val: 'x→0' },
+                                { label: 'x→∞', val: 'x→∞' },
+                                { label: '∑', val: '∑ ' },
+                                { label: '∞', val: '∞' },
+                                { label: 'y\'', val: "y'" },
+                                { label: 'f\'(x)', val: "f'(x)" },
+                              ].map((item, idx) => (
+                                <button
+                                  key={idx}
+                                  type="button"
+                                  onClick={() => insertSymbol(item.val)}
+                                  className="px-2.5 py-1 bg-white hover:bg-slate-100 text-slate-800 border border-slate-200/90 dark:bg-[#101728] dark:hover:bg-[#18223c] dark:text-slate-200 dark:border-slate-700/50 rounded-xl font-semibold shadow-2xs transition-all active:scale-95 cursor-pointer"
+                                >
+                                  {item.label}
+                                </button>
+                              ))}
+                            </div>
+
+                            <div className="flex flex-wrap gap-1 font-mono text-xs pt-1.5 border-t border-slate-200 dark:border-slate-800">
+                              <span className="text-[11px] text-slate-500 dark:text-slate-400 self-center font-sans mr-1">Hy Lạp & Logic:</span>
+                              {[
+                                { label: 'α', val: 'α' },
+                                { label: 'β', val: 'β' },
+                                { label: 'γ', val: 'γ' },
+                                { label: 'θ', val: 'θ' },
+                                { label: 'Δ', val: 'Δ' },
+                                { label: 'Ω', val: 'Ω' },
+                                { label: '⇒', val: ' ⇒ ' },
+                                { label: '⇔', val: ' ⇔ ' },
+                                { label: '∈', val: ' ∈ ' },
+                                { label: '∉', val: ' ∉ ' },
+                                { label: '≤', val: ' ≤ ' },
+                                { label: '≥', val: ' ≥ ' },
+                                { label: '≠', val: ' ≠ ' },
+                                { label: '≈', val: ' ≈ ' },
+                                { label: '⊥', val: ' ⊥ ' },
+                                { label: '∥', val: ' ∥ ' },
+                              ].map((item, idx) => (
+                                <button
+                                  key={idx}
+                                  type="button"
+                                  onClick={() => insertSymbol(item.val)}
+                                  className="px-2.5 py-1 bg-white hover:bg-slate-100 text-slate-800 border border-slate-200/90 dark:bg-[#101728] dark:hover:bg-[#18223c] dark:text-slate-200 dark:border-slate-700/50 rounded-xl font-semibold shadow-2xs transition-all active:scale-95 cursor-pointer"
+                                >
+                                  {item.label}
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -816,6 +1136,24 @@ export const AiTool: React.FC = () => {
                     )}
                   </div>
                 )}
+              </div>
+
+              {/* Sample Prompt Quick Chips (Placed below File Attachment) */}
+              <div>
+                <span className="text-xs text-slate-500 dark:text-slate-400 block mb-2 font-medium">Gợi ý câu hỏi mẫu:</span>
+                <div className="flex flex-wrap gap-1.5">
+                  {samplePrompts.map((s, idx) => (
+                    <button
+                      key={idx}
+                      type="button"
+                      onClick={() => setPrompt(s)}
+                      disabled={loading || remainingQuota <= 0}
+                      className="text-xs px-2.5 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-violet-900/40 text-slate-700 dark:text-slate-300 hover:text-violet-700 dark:hover:text-violet-200 border border-slate-200 dark:border-slate-700 hover:border-violet-300 dark:hover:border-violet-500/40 transition-colors text-left"
+                    >
+                      {s}
+                    </button>
+                  ))}
+                </div>
               </div>
 
               {error && (

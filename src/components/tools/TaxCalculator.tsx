@@ -643,6 +643,8 @@ export const TaxCalculator: React.FC = () => {
             el.style.filter = 'grayscale(100%)';
             el.style.backgroundColor = '#ffffff';
             el.style.color = '#000000';
+            el.style.border = 'none';
+            el.style.boxShadow = 'none';
           }
         },
       });

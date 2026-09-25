@@ -107,7 +107,8 @@ export const TRANSLATIONS: Record<LanguageCode, TranslationDictionary> = {
       weight: 'Chuyển đổi cân nặng / Khối lượng',
       temperature: 'Chuyển đổi nhiệt độ (°C, °F, K)',
       currency: 'Quy đổi tỷ giá ngoại tệ',
-      ipsubnet: 'Phân chia mạng con (IP Subnet)'
+      ipsubnet: 'Phân chia mạng con (IP Subnet)',
+      utilitybill: 'Tính tiền điện, gas, nước, internet & chi tiêu tháng'
     },
     toolShortNames: {
       basic: 'Cơ bản',
@@ -170,7 +171,8 @@ export const TRANSLATIONS: Record<LanguageCode, TranslationDictionary> = {
       weight: 'Cân nặng',
       temperature: 'Nhiệt độ',
       currency: 'Ngoại tệ',
-      ipsubnet: 'IP Subnet'
+      ipsubnet: 'IP Subnet',
+      utilitybill: 'Điện & Nước'
     },
     toolDescriptions: {
       basic: 'Bộ giải toán số học IEEE 754, hàm mũ, căn bậc n & lượng giác chuẩn xác.',
@@ -267,7 +269,8 @@ export const TRANSLATIONS: Record<LanguageCode, TranslationDictionary> = {
       weight: 'Weight & Mass Converter',
       temperature: 'Temperature Converter',
       currency: 'Currency Exchange Converter',
-      ipsubnet: 'IP Subnet Calculator'
+      ipsubnet: 'IP Subnet Calculator',
+      utilitybill: 'Utility Bills & Monthly Living Expense Calculator'
     },
     toolShortNames: {
       basic: 'Basic',
@@ -330,7 +333,8 @@ export const TRANSLATIONS: Record<LanguageCode, TranslationDictionary> = {
       weight: 'Weight',
       temperature: 'Temperature',
       currency: 'Currency',
-      ipsubnet: 'IP Subnet'
+      ipsubnet: 'IP Subnet',
+      utilitybill: 'Utilities'
     },
     toolDescriptions: {
       basic: 'IEEE 754 arithmetic solver, power functions, n-th roots & trigonometry.',

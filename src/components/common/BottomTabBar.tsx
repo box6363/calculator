@@ -25,7 +25,8 @@ import {
   GraduationCap,
   Boxes,
   Dice5,
-  KeyRound
+  KeyRound,
+  Zap
 } from 'lucide-react';
 import { ToolId } from '../../types';
 import { TOOLS_CONFIG } from '../../data/toolsData';
@@ -63,6 +64,7 @@ const getToolIcon = (id: ToolId) => {
     case 'concrete': return <Boxes className="w-5 h-5" />;
     case 'random': return <Dice5 className="w-5 h-5" />;
     case 'password': return <KeyRound className="w-5 h-5" />;
+    case 'utilitybill': return <Zap className="w-5 h-5 text-amber-400" />;
     default: return <Calculator className="w-5 h-5" />;
   }
 };

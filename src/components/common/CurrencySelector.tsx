@@ -67,7 +67,7 @@ export const CurrencySelector: React.FC<CurrencySelectorProps> = ({
                   type="button"
                   onClick={() => handleSelect(curr.code)}
                   className={`currency-option-btn w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-xs transition-colors cursor-pointer text-left ${
-                    isSelected ? 'bg-blue-600 text-white font-semibold shadow-xs' : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'
+                    isSelected ? 'bg-blue-600 text-white font-semibold shadow-xs' : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white'
                   }`}
                 >
                   <div className="flex items-center gap-2">

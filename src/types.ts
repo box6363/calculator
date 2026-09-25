@@ -65,6 +65,7 @@ export type ToolId =
   | 'concrete'
   | 'tip'
   | 'discount'
+  | 'utilitybill'
   | 'ai';
 
 export interface ToolMeta {
