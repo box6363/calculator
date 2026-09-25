@@ -642,41 +642,32 @@ export const AiTool: React.FC = () => {
 
       {/* Top Banner & Quota Indicator */}
       <div className="bg-gradient-to-r from-violet-50 via-white to-indigo-50 dark:from-violet-900/30 dark:via-slate-800 dark:to-indigo-900/30 border border-violet-200 dark:border-violet-500/30 rounded-2xl p-4 sm:p-5 shadow-xs dark:shadow-lg relative overflow-hidden">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div className="flex items-start gap-3.5">
-            <div className="p-2.5 rounded-xl bg-violet-600/10 dark:bg-violet-600/20 text-violet-600 dark:text-violet-400 border border-violet-200 dark:border-violet-500/30 shrink-0">
-              <Sparkles className="w-6 h-6" />
-            </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <h2 className="text-lg sm:text-xl font-bold text-slate-900 dark:text-white">AI Tool – Trợ Lý Giải Toán & Tài Liệu</h2>
-                <span className="px-2 py-0.5 rounded-full text-xs font-semibold bg-violet-100 dark:bg-violet-500/20 text-violet-700 dark:text-violet-300 border border-violet-200 dark:border-violet-500/30">
-                  Gemini 3.8
-                </span>
-              </div>
-              <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 mt-1">
-              </p>
-            </div>
+        <div className="flex items-start gap-3.5">
+          <div className="w-12 h-12 rounded-2xl bg-violet-100 dark:bg-violet-600/20 text-violet-600 dark:text-violet-400 border border-violet-200 dark:border-violet-500/30 flex items-center justify-center shrink-0">
+            <Sparkles className="w-6 h-6" />
           </div>
 
-          {/* Quota Badge & Progress */}
-          <div className="bg-white dark:bg-slate-900/80 border border-slate-200 dark:border-slate-700/80 rounded-xl p-3 flex flex-col items-center sm:items-end min-w-[200px] shrink-0 shadow-2xs">
-            <div className="flex items-center gap-1.5 text-xs text-slate-600 dark:text-slate-300 mb-1.5">
-              <Clock className="w-3.5 h-3.5 text-violet-600 dark:text-violet-400" />
+          <div>
+            <h2 className="text-lg sm:text-xl font-bold text-slate-900 dark:text-white leading-tight">
+              AI Tool – Trợ Lý Giải Toán
+            </h2>
+
+            <div className="flex items-center gap-1.5 text-xs text-slate-600 dark:text-slate-300 mt-1">
+              <Clock className="w-3.5 h-3.5 text-violet-600 dark:text-violet-400 shrink-0" />
               <span>Hạn mức miễn phí:</span>
               <strong className={`font-bold ${remainingQuota > 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'}`}>
                 {remainingQuota}/{DAILY_LIMIT} lượt hôm nay
               </strong>
             </div>
-            
-            {/* Visual Quota Pills */}
-            <div className="flex items-center gap-1.5 w-full justify-center sm:justify-end">
+
+            {/* Visual Quota Pills directly under quota text */}
+            <div className="flex items-center gap-1.5 mt-2 w-48 sm:w-56">
               {[0, 1, 2].map((idx) => {
                 const isUsed = idx < usedCount;
                 return (
                   <div 
                     key={idx}
-                    className={`h-2 flex-1 sm:w-10 rounded-full transition-all ${
+                    className={`h-2 flex-1 rounded-full transition-all ${
                       isUsed 
                         ? 'bg-slate-200 dark:bg-slate-700' 
                         : 'bg-emerald-500 shadow-xs shadow-emerald-500/30'
@@ -686,7 +677,6 @@ export const AiTool: React.FC = () => {
                 );
               })}
             </div>
-            <span className="text-[10px] text-slate-500 dark:text-slate-400 mt-1">Làm mới lúc 00:00 hàng ngày</span>
           </div>
         </div>
 
@@ -904,10 +894,10 @@ export const AiTool: React.FC = () => {
                       </div>
                       <div>
                         <h4 className="text-xs sm:text-sm font-bold text-slate-900 dark:text-white">
-                          Bàn phím hàm khoa học & toán học
+                          Bàn phím
                         </h4>
                         <p className="text-[11px] text-slate-500 dark:text-slate-400 hidden sm:block">
-                          Đầy đủ sin, cos, tan, log, ln, căn, lũy thừa, số và phép tính
+                          Đầy đủ số và phép tính
                         </p>
                       </div>
                     </div>
