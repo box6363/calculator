@@ -56,6 +56,7 @@ import {
 import { ToolId, ToolCategory } from '../../types';
 import { TOOLS_CONFIG } from '../../data/toolsData';
 import { AppLogo } from './AppLogo';
+import { ToolIcon } from './ToolIcon';
 import { getToolColorTheme } from '../../data/toolColors';
 import { useLanguage } from '../../context/LanguageContext';
 import { getSectionUi } from '../../data/internationalSections';
@@ -126,74 +127,6 @@ const CATEGORIES: CategoryDefinition[] = [
   }
 ];
 
-const getIcon = (id: ToolId) => {
-  switch (id) {
-    case 'basic': return <AppLogo className="w-[19px] h-[19px]" />;
-    case 'ai': return <Sparkles className="w-[18px] h-[18px]" />;
-    case 'bmi': return <Activity className="w-[18px] h-[18px]" />;
-    case 'loan': return <Banknote className="w-[18px] h-[18px]" />;
-    case 'salary': return <Wallet className="w-[18px] h-[18px]" />;
-    case 'age': return <Calendar className="w-[18px] h-[18px]" />;
-    case 'percentage': return <Percent className="w-[18px] h-[18px]" />;
-    case 'unit': return <ArrowLeftRight className="w-[18px] h-[18px]" />;
-    case 'trigonometry': return <Triangle className="w-[18px] h-[18px]" />;
-    case 'compound': return <TrendingUp className="w-[18px] h-[18px]" />;
-    case 'mortgage': return <Home className="w-[18px] h-[18px]" />;
-    case 'autoloan': return <Car className="w-[18px] h-[18px]" />;
-    case 'interest': return <Percent className="w-[18px] h-[18px]" />;
-    case 'payment': return <DollarSign className="w-[18px] h-[18px]" />;
-    case 'retirement': return <PiggyBank className="w-[18px] h-[18px]" />;
-    case 'amortization': return <LineChart className="w-[18px] h-[18px]" />;
-    case 'investment': return <TrendingUp className="w-[18px] h-[18px]" />;
-    case 'inflation': return <TrendingUp className="w-[18px] h-[18px]" />;
-    case 'finance': return <BarChart3 className="w-[18px] h-[18px]" />;
-    case 'lottery': return <Ticket className="w-[18px] h-[18px]" />;
-    case 'calorie': return <Flame className="w-[18px] h-[18px]" />;
-    case 'bodyfat': return <Activity className="w-[18px] h-[18px]" />;
-    case 'bmr': return <Flame className="w-[18px] h-[18px]" />;
-    case 'idealweight': return <Scale className="w-[18px] h-[18px]" />;
-    case 'healthyweight': return <Heart className="w-[18px] h-[18px]" />;
-    case 'pregnancy': return <Baby className="w-[18px] h-[18px]" />;
-    case 'pace': return <Footprints className="w-[18px] h-[18px]" />;
-    case 'armybodyfat': return <ShieldCheck className="w-[18px] h-[18px]" />;
-    case 'ovulation': return <Heart className="w-[18px] h-[18px]" />;
-    case 'fraction': return <Divide className="w-[18px] h-[18px]" />;
-    case 'triangle': return <Triangle className="w-[18px] h-[18px]" />;
-    case 'standarddeviation': return <BarChart3 className="w-[18px] h-[18px]" />;
-    case 'random': return <Dice5 className="w-[18px] h-[18px]" />;
-    case 'average': return <Calculator className="w-[18px] h-[18px]" />;
-    case 'meanmedianmode': return <BarChart3 className="w-[18px] h-[18px]" />;
-    case 'root': return <Radical className="w-[18px] h-[18px]" />;
-    case 'exponent': return <Superscript className="w-[18px] h-[18px]" />;
-    case 'log': return <Binary className="w-[18px] h-[18px]" />;
-    case 'quadratic': return <Variable className="w-[18px] h-[18px]" />;
-    case 'slope': return <TrendingUp className="w-[18px] h-[18px]" />;
-    case 'area': return <Square className="w-[18px] h-[18px]" />;
-    case 'volume': return <Box className="w-[18px] h-[18px]" />;
-    case 'perimeter': return <CircleDot className="w-[18px] h-[18px]" />;
-    case 'circle': return <Circle className="w-[18px] h-[18px]" />;
-    case 'righttriangle': return <Triangle className="w-[18px] h-[18px]" />;
-    case 'statistics': return <BarChart3 className="w-[18px] h-[18px]" />;
-    case 'probability': return <Dices className="w-[18px] h-[18px]" />;
-    case 'graphing': return <LineChart className="w-[18px] h-[18px]" />;
-    case 'gpa': return <GraduationCap className="w-[18px] h-[18px]" />;
-    case 'length': return <Ruler className="w-[18px] h-[18px]" />;
-    case 'weight': return <Weight className="w-[18px] h-[18px]" />;
-    case 'temperature': return <Thermometer className="w-[18px] h-[18px]" />;
-    case 'currency': return <Coins className="w-[18px] h-[18px]" />;
-    case 'time': return <Clock className="w-[18px] h-[18px]" />;
-    case 'date': return <CalendarDays className="w-[18px] h-[18px]" />;
-    case 'tip': return <Receipt className="w-[18px] h-[18px]" />;
-    case 'discount': return <Tag className="w-[18px] h-[18px]" />;
-    case 'tax': return <Building2 className="w-[18px] h-[18px]" />;
-    case 'password': return <KeyRound className="w-[18px] h-[18px]" />;
-    case 'ipsubnet': return <Network className="w-[18px] h-[18px]" />;
-    case 'utilitybill': return <Zap className="w-[18px] h-[18px]" />;
-    case 'concrete': return <Boxes className="w-[18px] h-[18px]" />;
-    default: return <Calculator className="w-[18px] h-[18px]" />;
-  }
-};
-
 export const Sidebar: React.FC<SidebarProps> = ({
   currentToolId,
   onSelectTool,
@@ -254,7 +187,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
               ? 'bg-white/20 text-white shadow-xs' 
               : colorTheme.badgeClass
           }`}>
-            {getIcon(tool.id)}
+            <ToolIcon id={tool.id} className="w-[18px] h-[18px]" />
           </span>
           <span className="text-[14px] font-medium leading-snug break-words group-hover:text-blue-600 dark:group-hover:text-sky-300">
             {localizedName}

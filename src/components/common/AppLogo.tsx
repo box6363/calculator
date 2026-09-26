@@ -139,7 +139,7 @@ export const AppLogo: React.FC<AppLogoProps> = ({
         <rect x="22.5" y="63" width="7" height="22" rx="3.5" fill="#FFFFFF" />
       </g>
 
-      {/* --- BOTTOM-RIGHT: BLUE TILE (÷) --- */}
+      {/* --- BOTTOM-RIGHT: BLUE TILE (letter e) --- */}
       <g filter="url(#tileShadow)">
         <path
           d="M 59,52 L 89,52 A 7,7 0 0,1 96,59 L 96,76 A 20,20 0 0,1 76,96 L 59,96 A 7,7 0 0,1 52,89 L 52,59 A 7,7 0 0,1 59,52 Z"
@@ -150,11 +150,16 @@ export const AppLogo: React.FC<AppLogoProps> = ({
           fill="url(#blueLight)"
         />
       </g>
-      {/* Divide (÷) Symbol */}
+      {/* Letter 'e' Math Constant Symbol */}
       <g filter="url(#symbol3d)">
-        <circle cx="74" cy="64.5" r="3.6" fill="#FFFFFF" />
-        <rect x="63" y="70.5" width="22" height="7" rx="3.5" fill="#FFFFFF" />
-        <circle cx="74" cy="83.5" r="3.6" fill="#FFFFFF" />
+        <path
+          d="M 83.5,80 C 80.5,84 76.5,85 72.5,85 C 66,85 62,80 62,74 C 62,67.5 66.5,63 73,63 C 79.5,63 84,67.5 84,73.5 L 62.5,73.5"
+          fill="none"
+          stroke="#FFFFFF"
+          strokeWidth="6.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
       </g>
     </svg>
   );
