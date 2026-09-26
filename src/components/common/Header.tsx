@@ -11,6 +11,7 @@ import { ToolId } from '../../types';
 import { TOOLS_CONFIG } from '../../data/toolsData';
 import { LanguageSelector } from './LanguageSelector';
 import { CurrencySelector } from './CurrencySelector';
+import { AppLogo } from './AppLogo';
 import { useLanguage } from '../../context/LanguageContext';
 import { useTheme } from '../../context/ThemeContext';
 
@@ -75,10 +76,10 @@ export const Header: React.FC<HeaderProps> = ({
           {/* Logo branding */}
           <div 
             onClick={() => onSelectTool('basic')}
-            className="flex items-center gap-2 sm:gap-2.5 cursor-pointer group"
+            className="flex items-center gap-2.5 sm:gap-3 cursor-pointer group"
           >
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-600 flex items-center justify-center text-white shadow-lg shadow-blue-500/20 group-hover:scale-105 transition-transform">
-              <Calculator className="w-5 h-5" />
+            <div className="w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center group-hover:scale-105 group-hover:rotate-1 transition-all duration-300">
+              <AppLogo className="w-full h-full drop-shadow-md" />
             </div>
             <div>
               <div className="flex items-center gap-1.5 sm:gap-2">

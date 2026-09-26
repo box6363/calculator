@@ -55,6 +55,8 @@ import {
 } from 'lucide-react';
 import { ToolId, ToolCategory } from '../../types';
 import { TOOLS_CONFIG } from '../../data/toolsData';
+import { AppLogo } from './AppLogo';
+import { getToolColorTheme } from '../../data/toolColors';
 import { useLanguage } from '../../context/LanguageContext';
 import { getSectionUi } from '../../data/internationalSections';
 
@@ -126,8 +128,8 @@ const CATEGORIES: CategoryDefinition[] = [
 
 const getIcon = (id: ToolId) => {
   switch (id) {
-    case 'basic': return <Calculator className="w-[18px] h-[18px]" />;
-    case 'ai': return <Sparkles className="w-[18px] h-[18px] text-violet-400" />;
+    case 'basic': return <AppLogo className="w-[19px] h-[19px]" />;
+    case 'ai': return <Sparkles className="w-[18px] h-[18px]" />;
     case 'bmi': return <Activity className="w-[18px] h-[18px]" />;
     case 'loan': return <Banknote className="w-[18px] h-[18px]" />;
     case 'salary': return <Wallet className="w-[18px] h-[18px]" />;
@@ -145,12 +147,12 @@ const getIcon = (id: ToolId) => {
     case 'investment': return <TrendingUp className="w-[18px] h-[18px]" />;
     case 'inflation': return <TrendingUp className="w-[18px] h-[18px]" />;
     case 'finance': return <BarChart3 className="w-[18px] h-[18px]" />;
-    case 'lottery': return <Ticket className="w-[18px] h-[18px] text-amber-400" />;
+    case 'lottery': return <Ticket className="w-[18px] h-[18px]" />;
     case 'calorie': return <Flame className="w-[18px] h-[18px]" />;
     case 'bodyfat': return <Activity className="w-[18px] h-[18px]" />;
     case 'bmr': return <Flame className="w-[18px] h-[18px]" />;
     case 'idealweight': return <Scale className="w-[18px] h-[18px]" />;
-    case 'healthyweight': return <Heart className="w-[18px] h-[18px] text-teal-400" />;
+    case 'healthyweight': return <Heart className="w-[18px] h-[18px]" />;
     case 'pregnancy': return <Baby className="w-[18px] h-[18px]" />;
     case 'pace': return <Footprints className="w-[18px] h-[18px]" />;
     case 'armybodyfat': return <ShieldCheck className="w-[18px] h-[18px]" />;
@@ -186,7 +188,7 @@ const getIcon = (id: ToolId) => {
     case 'tax': return <Building2 className="w-[18px] h-[18px]" />;
     case 'password': return <KeyRound className="w-[18px] h-[18px]" />;
     case 'ipsubnet': return <Network className="w-[18px] h-[18px]" />;
-    case 'utilitybill': return <Zap className="w-[18px] h-[18px] text-amber-400" />;
+    case 'utilitybill': return <Zap className="w-[18px] h-[18px]" />;
     case 'concrete': return <Boxes className="w-[18px] h-[18px]" />;
     default: return <Calculator className="w-[18px] h-[18px]" />;
   }
@@ -232,25 +234,29 @@ export const Sidebar: React.FC<SidebarProps> = ({
   const renderToolButton = (tool: typeof tools[0]) => {
     const isActive = currentToolId === tool.id;
     const localizedName = t.toolNames[tool.id] || tool.name;
+    const colorTheme = getToolColorTheme(tool.id);
+
     return (
       <button
         key={tool.id}
         id={`sidebar-nav-${tool.id}`}
         onClick={() => onSelectTool(tool.id)}
         title={localizedName}
-        className={`w-full group flex items-center justify-between px-3 py-2 rounded-xl text-left transition-all duration-200 cursor-pointer ${
+        className={`w-full group flex items-center justify-between px-2.5 py-1.5 rounded-xl text-left transition-all duration-200 cursor-pointer ${
           isActive 
             ? 'sidebar-tool-active bg-blue-600 text-white shadow-md shadow-blue-500/25 ring-1 ring-blue-400/40' 
-            : 'sidebar-tool-inactive text-slate-700 dark:text-slate-200 hover:text-blue-600 dark:hover:text-sky-300 hover:bg-slate-100 dark:hover:bg-slate-800'
+            : 'sidebar-tool-inactive text-slate-700 dark:text-slate-200 hover:text-blue-600 dark:hover:text-sky-300 hover:bg-slate-100/90 dark:hover:bg-slate-800/60'
         }`}
       >
         <div className="flex items-center gap-2.5 min-w-0 flex-1 pr-2">
-          <span className={`p-1.5 rounded-lg shrink-0 transition-colors ${
-            isActive ? 'bg-white/20 text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 group-hover:text-blue-600 dark:group-hover:text-sky-300 group-hover:bg-slate-200 dark:group-hover:bg-slate-700'
+          <span className={`w-8 h-8 flex items-center justify-center rounded-xl shrink-0 transition-transform duration-200 group-hover:scale-105 ${
+            isActive 
+              ? 'bg-white/20 text-white shadow-xs' 
+              : colorTheme.badgeClass
           }`}>
             {getIcon(tool.id)}
           </span>
-          <span className="text-[14.5px] font-medium leading-snug break-words group-hover:text-blue-600 dark:group-hover:text-sky-300">
+          <span className="text-[14px] font-medium leading-snug break-words group-hover:text-blue-600 dark:group-hover:text-sky-300">
             {localizedName}
           </span>
         </div>

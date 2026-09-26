@@ -30,6 +30,8 @@ import {
 } from 'lucide-react';
 import { ToolId } from '../../types';
 import { TOOLS_CONFIG } from '../../data/toolsData';
+import { AppLogo } from './AppLogo';
+import { getToolColorTheme } from '../../data/toolColors';
 import { useLanguage } from '../../context/LanguageContext';
 import { getSectionUi } from '../../data/internationalSections';
 
@@ -40,7 +42,7 @@ interface BottomTabBarProps {
 
 const getToolIcon = (id: ToolId) => {
   switch (id) {
-    case 'basic': return <Calculator className="w-5 h-5" />;
+    case 'basic': return <AppLogo className="w-5 h-5" />;
     case 'ai': return <Sparkles className="w-5 h-5 text-violet-400" />;
     case 'bmi': return <Activity className="w-5 h-5" />;
     case 'loan': return <Banknote className="w-5 h-5" />;
@@ -81,7 +83,7 @@ export const BottomTabBar: React.FC<BottomTabBarProps> = ({
 
   // 5 primary tier 1 tools for mobile bottom bar
   const primaryTools: { id: ToolId; label: string; icon: React.ReactNode }[] = [
-    { id: 'basic', label: t.toolShortNames.basic || 'Cơ bản', icon: <Calculator className="w-5 h-5" /> },
+    { id: 'basic', label: t.toolShortNames.basic || 'Cơ bản', icon: <AppLogo className="w-5 h-5" /> },
     { id: 'ai', label: t.toolShortNames.ai || 'AI Tool', icon: <Sparkles className="w-5 h-5 text-violet-400" /> },
     { id: 'bmi', label: t.toolShortNames.bmi || 'BMI', icon: <Activity className="w-5 h-5" /> },
     { id: 'loan', label: t.toolShortNames.loan || 'Lãi vay', icon: <Banknote className="w-5 h-5" /> },
@@ -113,6 +115,7 @@ export const BottomTabBar: React.FC<BottomTabBarProps> = ({
         <div className="grid grid-cols-6 items-center h-16 px-1">
           {primaryTools.map((tool) => {
             const isActive = currentToolId === tool.id;
+            const theme = getToolColorTheme(tool.id);
             return (
               <button
                 key={tool.id}
@@ -127,12 +130,14 @@ export const BottomTabBar: React.FC<BottomTabBarProps> = ({
                     : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
                 }`}
               >
-                <div className={`p-1 rounded-lg transition-colors ${
-                  isActive ? 'bg-blue-500/15 text-[#3B82F6]' : ''
+                <div className={`p-1.5 rounded-xl transition-all ${
+                  isActive 
+                    ? 'bg-blue-500/15 text-[#3B82F6]' 
+                    : `${theme.badgeClass}`
                 }`}>
                   {tool.icon}
                 </div>
-                <span className="text-[10px] mt-0.5 whitespace-nowrap tracking-tight">
+                <span className="text-[10px] mt-0.5 whitespace-nowrap tracking-tight font-medium">
                   {tool.label}
                 </span>
                 {isActive && (
@@ -198,6 +203,7 @@ export const BottomTabBar: React.FC<BottomTabBarProps> = ({
             <div className="space-y-2.5 max-h-[65vh] overflow-y-auto pr-1">
               {secondaryTools.map((tool) => {
                 const isActive = currentToolId === tool.id;
+                const theme = getToolColorTheme(tool.id);
                 return (
                   <button
                     key={tool.id}
@@ -206,15 +212,15 @@ export const BottomTabBar: React.FC<BottomTabBarProps> = ({
                       onSelectTool(tool.id);
                       setIsMoreMenuOpen(false);
                     }}
-                    className={`w-full flex items-center justify-between p-3.5 rounded-2xl border transition-all ${
+                    className={`w-full flex items-center justify-between p-3 rounded-2xl border transition-all ${
                       isActive 
-                        ? 'bg-blue-600/20 border-blue-500 text-slate-900 dark:text-white shadow-lg' 
+                        ? 'bg-blue-600/15 border-blue-500 text-slate-900 dark:text-white shadow-md' 
                         : 'bg-slate-50 dark:bg-slate-900/60 border-slate-200 dark:border-slate-800 text-slate-800 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800'
                     }`}
                   >
                     <div className="flex items-center gap-3">
-                      <div className={`p-2.5 rounded-xl ${
-                        isActive ? 'bg-[#3B82F6] text-white' : 'bg-slate-200 dark:bg-slate-800 text-blue-600 dark:text-blue-400'
+                      <div className={`w-9 h-9 flex items-center justify-center rounded-xl shadow-xs transition-transform ${
+                        isActive ? 'bg-[#3B82F6] text-white' : theme.badgeClass
                       }`}>
                         {tool.icon}
                       </div>
