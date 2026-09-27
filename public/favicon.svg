@@ -9,30 +9,30 @@
 
     <!-- Green -->
     <linearGradient id="gGrad" x1="10" y1="4" x2="38" y2="48" gradientUnits="userSpaceOnUse">
-      <stop offset="0%" stopColor="#4ADE80" />
-      <stop offset="60%" stopColor="#22C55E" />
-      <stop offset="100%" stopColor="#15803D" />
+      <stop offset="0%" stop-color="#4ADE80" />
+      <stop offset="60%" stop-color="#22C55E" />
+      <stop offset="100%" stop-color="#15803D" />
     </linearGradient>
 
     <!-- Red -->
     <linearGradient id="rGrad" x1="58" y1="4" x2="88" y2="48" gradientUnits="userSpaceOnUse">
-      <stop offset="0%" stopColor="#F87171" />
-      <stop offset="60%" stopColor="#EF4444" />
-      <stop offset="100%" stopColor="#B91C1C" />
+      <stop offset="0%" stop-color="#F87171" />
+      <stop offset="60%" stop-color="#EF4444" />
+      <stop offset="100%" stop-color="#B91C1C" />
     </linearGradient>
 
     <!-- Yellow -->
     <linearGradient id="yGrad" x1="10" y1="52" x2="38" y2="96" gradientUnits="userSpaceOnUse">
-      <stop offset="0%" stopColor="#FBBF24" />
-      <stop offset="60%" stopColor="#F59E0B" />
-      <stop offset="100%" stopColor="#B45309" />
+      <stop offset="0%" stop-color="#FBBF24" />
+      <stop offset="60%" stop-color="#F59E0B" />
+      <stop offset="100%" stop-color="#B45309" />
     </linearGradient>
 
     <!-- Blue -->
     <linearGradient id="bGrad" x1="58" y1="52" x2="88" y2="96" gradientUnits="userSpaceOnUse">
-      <stop offset="0%" stopColor="#60A5FA" />
-      <stop offset="60%" stopColor="#3B82F6" />
-      <stop offset="100%" stopColor="#1D4ED8" />
+      <stop offset="0%" stop-color="#60A5FA" />
+      <stop offset="60%" stop-color="#3B82F6" />
+      <stop offset="100%" stop-color="#1D4ED8" />
     </linearGradient>
   </defs>
 
