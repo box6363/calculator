@@ -182,12 +182,12 @@ export const Sidebar: React.FC<SidebarProps> = ({
         }`}
       >
         <div className="flex items-center gap-2.5 min-w-0 flex-1 pr-2">
-          <span className={`w-8 h-8 flex items-center justify-center rounded-xl shrink-0 transition-transform duration-200 group-hover:scale-105 ${
+          <span className={`w-7 h-7 flex items-center justify-center shrink-0 transition-transform duration-200 group-hover:scale-110 ${
             isActive 
-              ? 'bg-white/20 text-white shadow-xs' 
-              : colorTheme.badgeClass
+              ? 'text-white' 
+              : colorTheme.iconColor
           }`}>
-            <ToolIcon id={tool.id} className="w-[18px] h-[18px]" />
+            <ToolIcon id={tool.id} className="w-[19px] h-[19px]" />
           </span>
           <span className="text-[14px] font-medium leading-snug break-words group-hover:text-blue-600 dark:group-hover:text-sky-300">
             {localizedName}

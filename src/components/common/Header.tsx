@@ -83,7 +83,13 @@ export const Header: React.FC<HeaderProps> = ({
             </div>
             <div>
               <div className="flex items-center gap-1.5 sm:gap-2">
-                <span className="font-extrabold text-base sm:text-lg tracking-tight text-slate-900 dark:text-white">Calculator Pro</span>
+                <span 
+                  className="font-extrabold text-base sm:text-lg tracking-tight text-slate-900 dark:text-white"
+                  aria-label="Web Calculator"
+                >
+                  <span>Web</span>
+                  <span className="ml-1.5 font-bold text-slate-900 dark:text-white">Calculator</span>
+                </span>
               </div>
               <p className="text-[11px] text-slate-500 dark:text-slate-400 hidden sm:block -mt-0.5">{t.siteSubtitle}</p>
             </div>

@@ -9,7 +9,7 @@ interface AppLogoProps {
 export const AppLogo: React.FC<AppLogoProps> = ({ 
   className = "w-9 h-9", 
   size,
-  useImage = false 
+  useImage = true 
 }) => {
   const style = size ? { width: `${size}px`, height: `${size}px` } : undefined;
 
@@ -18,9 +18,15 @@ export const AppLogo: React.FC<AppLogoProps> = ({
       <img
         src="/app-logo.png"
         alt="Calculator Logo"
-        className={`object-contain rounded-2xl drop-shadow-md select-none ${className}`}
-        style={style}
+        className={`object-contain select-none ${className}`}
+        style={{
+          WebkitBackfaceVisibility: 'hidden',
+          transform: 'translateZ(0)',
+          ...style
+        }}
         loading="eager"
+        decoding="async"
+        draggable={false}
       />
     );
   }
@@ -139,7 +145,7 @@ export const AppLogo: React.FC<AppLogoProps> = ({
         <rect x="22.5" y="63" width="7" height="22" rx="3.5" fill="#FFFFFF" />
       </g>
 
-      {/* --- BOTTOM-RIGHT: BLUE TILE (letter e) --- */}
+      {/* --- BOTTOM-RIGHT: BLUE TILE (Sigma ∑) --- */}
       <g filter="url(#tileShadow)">
         <path
           d="M 59,52 L 89,52 A 7,7 0 0,1 96,59 L 96,76 A 20,20 0 0,1 76,96 L 59,96 A 7,7 0 0,1 52,89 L 52,59 A 7,7 0 0,1 59,52 Z"
@@ -150,13 +156,13 @@ export const AppLogo: React.FC<AppLogoProps> = ({
           fill="url(#blueLight)"
         />
       </g>
-      {/* Letter 'e' Math Constant Symbol */}
+      {/* Sigma (∑) Summation Math Symbol */}
       <g filter="url(#symbol3d)">
         <path
-          d="M 83.5,80 C 80.5,84 76.5,85 72.5,85 C 66,85 62,80 62,74 C 62,67.5 66.5,63 73,63 C 79.5,63 84,67.5 84,73.5 L 62.5,73.5"
+          d="M 81,66 L 67.5,66 L 73.5,74 L 67.5,82 L 81,82"
           fill="none"
           stroke="#FFFFFF"
-          strokeWidth="6.5"
+          strokeWidth="5.5"
           strokeLinecap="round"
           strokeLinejoin="round"
         />

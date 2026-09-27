@@ -126,10 +126,10 @@ export const BottomTabBar: React.FC<BottomTabBarProps> = ({
                     : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
                 }`}
               >
-                <div className={`p-1.5 rounded-xl transition-all ${
+                <div className={`p-1.5 transition-all ${
                   isActive 
-                    ? 'bg-blue-500/15 text-[#3B82F6]' 
-                    : `${theme.badgeClass}`
+                    ? 'text-[#3B82F6]' 
+                    : theme.iconColor
                 }`}>
                   {tool.icon}
                 </div>
@@ -258,8 +258,8 @@ export const BottomTabBar: React.FC<BottomTabBarProps> = ({
                       }`}
                     >
                       <div className="flex items-center gap-3">
-                        <div className={`w-9 h-9 flex items-center justify-center rounded-xl shadow-xs transition-transform ${
-                          isActive ? 'bg-[#3B82F6] text-white' : theme.badgeClass
+                        <div className={`w-8 h-8 flex items-center justify-center shrink-0 transition-transform ${
+                          isActive ? 'text-blue-600 dark:text-blue-400' : theme.iconColor
                         }`}>
                           {tool.icon}
                         </div>
