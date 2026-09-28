@@ -121,7 +121,7 @@ export const ToolIcon: React.FC<ToolIconProps> = ({ id, className = "w-5 h-5" })
     case 'ipsubnet': return <Network className={className} />;
     case 'utilitybill': return <Zap className={className} />;
     case 'concrete': return <Boxes className={className} />;
-    case 'love': return <Heart className={className} />;
+    case 'love': return <Heart className={`${className} text-red-600 dark:text-red-500 fill-red-600/10`} />;
     default: return <Calculator className={className} />;
   }
 };

@@ -392,10 +392,10 @@ export const TOOL_COLOR_MAP: Record<ToolId, ToolColorTheme> = {
     hoverClass: 'group-hover:border-slate-400'
   },
   love: {
-    iconColor: 'text-rose-500 dark:text-rose-400',
-    badgeClass: 'bg-rose-50 text-rose-600 border border-rose-200/80 dark:bg-rose-950/50 dark:text-rose-400 dark:border-rose-800/50 shadow-xs',
+    iconColor: 'text-red-600 dark:text-red-500',
+    badgeClass: 'bg-red-50 text-red-600 border border-red-200/80 dark:bg-red-950/50 dark:text-red-400 dark:border-red-800/50 shadow-xs',
     activeClass: 'bg-white/20 text-white',
-    hoverClass: 'group-hover:border-rose-400'
+    hoverClass: 'group-hover:border-red-400'
   }
 };
 

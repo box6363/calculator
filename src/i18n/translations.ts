@@ -108,13 +108,15 @@ export const TRANSLATIONS: Record<LanguageCode, TranslationDictionary> = {
       temperature: 'Chuyển đổi nhiệt độ (°C, °F, K)',
       currency: 'Quy đổi tỷ giá ngoại tệ',
       ipsubnet: 'Phân chia mạng con (IP Subnet)',
-      utilitybill: 'Tính tiền điện, gas, nước, internet & chi tiêu tháng'
+      utilitybill: 'Tính tiền điện, gas, nước, internet & chi tiêu tháng',
+      love: 'Máy tính tình yêu'
     },
     toolShortNames: {
       basic: 'Cơ bản',
       ai: 'Trợ lý AI',
       bmi: 'BMI',
       loan: 'Lãi vay',
+      love: 'Tình yêu',
       salary: 'Tiền lương',
       age: 'Tính tuổi',
       percentage: 'Phần trăm',
@@ -270,13 +272,15 @@ export const TRANSLATIONS: Record<LanguageCode, TranslationDictionary> = {
       temperature: 'Temperature Converter',
       currency: 'Currency Exchange Converter',
       ipsubnet: 'IP Subnet Calculator',
-      utilitybill: 'Utility Bills & Monthly Living Expense Calculator'
+      utilitybill: 'Utility Bills & Monthly Living Expense Calculator',
+      love: 'Love Calculator'
     },
     toolShortNames: {
       basic: 'Basic',
       ai: 'AI Solver',
       bmi: 'BMI',
       loan: 'Loan EMI',
+      love: 'Love',
       salary: 'Salary',
       age: 'Age',
       percentage: 'Percentage',

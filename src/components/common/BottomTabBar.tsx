@@ -51,7 +51,7 @@ export const BottomTabBar: React.FC<BottomTabBarProps> = ({
   const [isMoreMenuOpen, setIsMoreMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
 
-  const primaryToolIds: ToolId[] = ['basic', 'ai', 'bmi', 'loan', 'percentage'];
+  const primaryToolIds: ToolId[] = ['basic', 'ai', 'bmi', 'loan', 'love'];
 
   // 5 primary tier 1 tools for mobile bottom bar
   const primaryTools: { id: ToolId; label: string; icon: React.ReactNode }[] = [
@@ -59,7 +59,7 @@ export const BottomTabBar: React.FC<BottomTabBarProps> = ({
     { id: 'ai', label: t.toolShortNames.ai || 'AI Tool', icon: <ToolIcon id="ai" className="w-5 h-5" /> },
     { id: 'bmi', label: t.toolShortNames.bmi || 'BMI', icon: <ToolIcon id="bmi" className="w-5 h-5" /> },
     { id: 'loan', label: t.toolShortNames.loan || 'Lãi vay', icon: <ToolIcon id="loan" className="w-5 h-5" /> },
-    { id: 'percentage', label: t.toolShortNames.percentage || 'Phần trăm', icon: <ToolIcon id="percentage" className="w-5 h-5" /> },
+    { id: 'love', label: t.toolShortNames.love || (language === 'vi' ? 'Tình yêu' : 'Love'), icon: <ToolIcon id="love" className="w-5 h-5" /> },
   ];
 
   // All remaining tools for "More" modal
@@ -112,6 +112,7 @@ export const BottomTabBar: React.FC<BottomTabBarProps> = ({
           {primaryTools.map((tool) => {
             const isActive = currentToolId === tool.id;
             const theme = getToolColorTheme(tool.id);
+            const isLove = tool.id === 'love';
             return (
               <button
                 key={tool.id}
@@ -122,22 +123,30 @@ export const BottomTabBar: React.FC<BottomTabBarProps> = ({
                 }}
                 className={`flex flex-col items-center justify-center h-full min-h-[48px] py-1 transition-all ${
                   isActive 
-                    ? 'text-[#3B82F6] font-bold scale-105' 
+                    ? (isLove ? 'text-red-600 dark:text-red-500 font-bold scale-105' : 'text-[#3B82F6] font-bold scale-105') 
                     : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
                 }`}
               >
                 <div className={`p-1.5 transition-all ${
-                  isActive 
-                    ? 'text-[#3B82F6]' 
-                    : theme.iconColor
+                  isLove 
+                    ? 'text-red-600 dark:text-red-500' 
+                    : (isActive ? 'text-[#3B82F6]' : theme.iconColor)
                 }`}>
-                  {tool.icon}
+                  {isLove ? (
+                    <Heart className={`w-5 h-5 text-red-600 dark:text-red-500 transition-all ${isActive ? 'fill-red-600 dark:fill-red-500 scale-110' : 'fill-red-500/20'}`} />
+                  ) : (
+                    tool.icon
+                  )}
                 </div>
-                <span className="text-[10px] mt-0.5 whitespace-nowrap tracking-tight font-medium">
+                <span className={`text-[10px] mt-0.5 whitespace-nowrap tracking-tight font-medium ${
+                  isLove && isActive ? 'text-red-600 dark:text-red-500 font-bold' : ''
+                }`}>
                   {tool.label}
                 </span>
                 {isActive && (
-                  <span className="w-1.5 h-1 bg-[#10B981] rounded-full mt-0.5" />
+                  <span className={`w-1.5 h-1 rounded-full mt-0.5 ${
+                    isLove ? 'bg-red-500' : 'bg-[#10B981]'
+                  }`} />
                 )}
               </button>
             );

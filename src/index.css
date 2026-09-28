@@ -75,6 +75,32 @@
     -webkit-text-fill-color: #94a3b8 !important;
   }
 
+  /* Force Love Calculator action button to always be pure solid white, crisp black text, deep red heart */
+  .love-calculate-pill-btn {
+    background-color: #ffffff !important;
+    background: #ffffff !important;
+    color: #000000 !important;
+    opacity: 1 !important;
+    filter: none !important;
+  }
+  .love-calculate-pill-btn span {
+    color: #000000 !important;
+    opacity: 1 !important;
+    font-weight: 800 !important;
+  }
+  .dark .love-calculate-pill-btn {
+    background-color: #ffffff !important;
+    background: #ffffff !important;
+    color: #000000 !important;
+    opacity: 1 !important;
+    filter: none !important;
+  }
+  .dark .love-calculate-pill-btn span {
+    color: #000000 !important;
+    opacity: 1 !important;
+    font-weight: 800 !important;
+  }
+
   .dark input[type="text"],
   .dark input[type="number"],
   .dark input[type="tel"],

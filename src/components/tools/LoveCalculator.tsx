@@ -457,7 +457,16 @@ export const LoveCalculator: React.FC = () => {
   // Perform Love Calculation
   const handleCalculate = (e?: React.FormEvent) => {
     if (e) e.preventDefault();
-    if (!yourName.trim() || !crushName.trim()) return;
+    if (!yourName.trim()) {
+      const el = document.getElementById(name1InputId);
+      el?.focus();
+      return;
+    }
+    if (!crushName.trim()) {
+      const el = document.getElementById(name2InputId);
+      el?.focus();
+      return;
+    }
 
     setIsCalculating(true);
     setCopied(false);
@@ -789,18 +798,30 @@ export const LoveCalculator: React.FC = () => {
             </div>
           )}
 
-          {/* Center Pill Button: "Calculate love" (Exact design from user image) */}
+          {/* Center Pill Button: "Calculate love" (White background, black text, deep red heart) */}
           <div className="flex justify-center pt-2 sm:pt-4">
             <button
               type="submit"
-              disabled={isCalculating || !yourName.trim() || !crushName.trim()}
-              className="group relative inline-flex items-center justify-center gap-2.5 px-8 sm:px-12 py-3.5 sm:py-4 rounded-full font-bold text-base sm:text-lg text-white shadow-xl shadow-red-500/30 hover:shadow-red-500/50 hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+              disabled={isCalculating}
+              className="love-calculate-pill-btn group relative inline-flex items-center justify-center gap-2.5 px-8 sm:px-12 py-3.5 sm:py-4 rounded-full font-black text-base sm:text-lg border-2 border-slate-300 hover:border-slate-400 shadow-md hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer"
               style={{
-                background: 'linear-gradient(135deg, #d30018 0%, #ea3800 50%, #f46200 100%)'
+                backgroundColor: '#ffffff',
+                background: '#ffffff',
+                color: '#000000',
+                opacity: 1,
+                boxShadow: '0 4px 14px 0 rgba(0, 0, 0, 0.08), 0 2px 4px 0 rgba(0, 0, 0, 0.04)'
               }}
             >
-              <Heart className={`w-5 h-5 fill-white text-white ${isCalculating ? 'animate-ping' : 'group-hover:scale-110 transition-transform'}`} />
-              <span>{isCalculating ? (isVi ? 'Đang tính toán...' : 'Calculating love...') : 'Calculate love'}</span>
+              <Heart 
+                className={`w-5 h-5 shrink-0 ${isCalculating ? 'animate-ping' : 'group-hover:scale-115 transition-transform'}`} 
+                style={{ fill: '#b91c1c', color: '#991b1b', opacity: 1 }}
+              />
+              <span 
+                className="font-black tracking-wide text-black" 
+                style={{ color: '#000000', opacity: 1, fontWeight: 900 }}
+              >
+                {isCalculating ? (isVi ? 'Đang tính toán...' : 'Calculating love...') : 'Calculate love'}
+              </span>
             </button>
           </div>
         </form>
