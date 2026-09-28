@@ -183,7 +183,7 @@ export const ToolLayout: React.FC<ToolLayoutProps> = ({
       {/* 3. Main Calculator Card - Themed Surface */}
       <section 
         id={`calculator-card-${tool.id}`}
-        className="tool-themed-card rounded-2xl sm:rounded-3xl shadow-2xl shadow-black/50 overflow-hidden border transition-colors duration-200"
+        className="tool-themed-card rounded-2xl sm:rounded-3xl shadow-xs dark:shadow-2xl dark:shadow-black/50 overflow-hidden border transition-colors duration-200"
         style={{
           backgroundColor: 'var(--app-surface, #1b1d33)',
           borderColor: 'var(--app-border, #272a47)',

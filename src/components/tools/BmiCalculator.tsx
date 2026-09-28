@@ -67,96 +67,105 @@ export const BmiCalculator: React.FC = () => {
       // Asian-Pacific IDI & WPRO criteria
       if (bmi < 18.5) {
         return {
+          categoryKey: 'underweight' as const,
           name: 'Thiếu cân (Gầy)',
-          color: 'text-amber-500',
-          bgColor: 'bg-amber-500/10',
-          borderColor: 'border-amber-500/30',
+          color: 'text-sky-600 dark:text-sky-400',
+          bgColor: 'bg-sky-500/10',
+          borderColor: 'border-sky-500/30',
           status: 'warning',
           desc: 'Chỉ số BMI dưới mức tiêu chuẩn. Bạn nên bổ sung dinh dưỡng hợp lý, tăng lượng protein và rèn luyện thể thao để phát triển cơ bắp.',
-          gaugePercent: Math.min(25, (bmi / 18.5) * 25),
+          gaugePercent: Math.max(4, Math.min(23, (bmi / 18.5) * 25)),
         };
       } else if (bmi <= 22.9) {
         return {
+          categoryKey: 'normal' as const,
           name: 'Bình thường (Lý tưởng)',
-          color: 'text-[#10B981]',
+          color: 'text-emerald-600 dark:text-emerald-400',
           bgColor: 'bg-emerald-500/10',
           borderColor: 'border-emerald-500/30',
           status: 'good',
           desc: 'Chúc mừng! Thể trạng của bạn đang ở mức rất lý tưởng đối với thể trạng người châu Á. Hãy duy trì chế độ ăn và vận động hiện tại.',
-          gaugePercent: 25 + ((bmi - 18.5) / (22.9 - 18.5)) * 25,
+          gaugePercent: 25 + Math.min(23, Math.max(2, ((bmi - 18.5) / (22.9 - 18.5)) * 25)),
         };
       } else if (bmi <= 24.9) {
         return {
+          categoryKey: 'overweight' as const,
           name: 'Thừa cân (Tiền béo phì)',
-          color: 'text-orange-500',
-          bgColor: 'bg-orange-500/10',
-          borderColor: 'border-orange-500/30',
+          color: 'text-amber-600 dark:text-amber-400',
+          bgColor: 'bg-amber-500/10',
+          borderColor: 'border-amber-500/30',
           status: 'warning',
           desc: 'Cân nặng đang vượt mức khuyến nghị. Nên chủ động giảm đồ ngọt, thức ăn nhanh và dành 30 phút thể dục mỗi ngày.',
-          gaugePercent: 50 + ((bmi - 23) / (24.9 - 23)) * 20,
+          gaugePercent: 50 + Math.min(23, Math.max(2, ((bmi - 23.0) / (24.9 - 23.0)) * 25)),
         };
       } else if (bmi <= 29.9) {
         return {
+          categoryKey: 'obese' as const,
           name: 'Béo phì độ 1',
-          color: 'text-rose-500',
+          color: 'text-rose-600 dark:text-rose-400',
           bgColor: 'bg-rose-500/10',
           borderColor: 'border-rose-500/30',
           status: 'danger',
           desc: 'Nguy cơ mắc các bệnh tim mạch, huyết áp và chuyển hóa cao. Bạn nên xây dựng kế hoạch giảm cân khoa học.',
-          gaugePercent: 70 + ((bmi - 25) / (29.9 - 25)) * 15,
+          gaugePercent: 75 + Math.min(14, Math.max(2, ((bmi - 25.0) / (29.9 - 25.0)) * 14)),
         };
       } else {
         return {
+          categoryKey: 'obese' as const,
           name: 'Béo phì độ 2 (Nguy hiểm)',
-          color: 'text-red-600',
-          bgColor: 'bg-red-500/10',
-          borderColor: 'border-red-500/30',
+          color: 'text-red-700 dark:text-red-400',
+          bgColor: 'bg-red-500/15',
+          borderColor: 'border-red-500/40',
           status: 'critical',
           desc: 'Mức độ béo phì nghiêm trọng. Bạn nên tham khảo ý kiến bác sĩ dinh dưỡng hoặc chuyên gia y tế để can thiệp kịp thời.',
-          gaugePercent: Math.min(100, 85 + ((bmi - 30) / 10) * 15),
+          gaugePercent: Math.min(96, 88 + Math.min(8, ((bmi - 30.0) / 10.0) * 8)),
         };
       }
     } else {
       // WHO International criteria
       if (bmi < 18.5) {
         return {
+          categoryKey: 'underweight' as const,
           name: 'Thiếu cân (Underweight)',
-          color: 'text-amber-500',
-          bgColor: 'bg-amber-500/10',
-          borderColor: 'border-amber-500/30',
+          color: 'text-sky-600 dark:text-sky-400',
+          bgColor: 'bg-sky-500/10',
+          borderColor: 'border-sky-500/30',
           status: 'warning',
           desc: 'Cân nặng thấp hơn mức trung bình quốc tế.',
-          gaugePercent: Math.min(25, (bmi / 18.5) * 25),
+          gaugePercent: Math.max(4, Math.min(23, (bmi / 18.5) * 25)),
         };
       } else if (bmi <= 24.9) {
         return {
+          categoryKey: 'normal' as const,
           name: 'Bình thường (Normal)',
-          color: 'text-[#10B981]',
+          color: 'text-emerald-600 dark:text-emerald-400',
           bgColor: 'bg-emerald-500/10',
           borderColor: 'border-emerald-500/30',
           status: 'good',
           desc: 'Cân nặng cân đối theo tiêu chuẩn WHO.',
-          gaugePercent: 25 + ((bmi - 18.5) / (24.9 - 18.5)) * 25,
+          gaugePercent: 25 + Math.min(23, Math.max(2, ((bmi - 18.5) / (24.9 - 18.5)) * 25)),
         };
       } else if (bmi <= 29.9) {
         return {
+          categoryKey: 'overweight' as const,
           name: 'Thừa cân (Overweight)',
-          color: 'text-orange-500',
-          bgColor: 'bg-orange-500/10',
-          borderColor: 'border-orange-500/30',
+          color: 'text-amber-600 dark:text-amber-400',
+          bgColor: 'bg-amber-500/10',
+          borderColor: 'border-amber-500/30',
           status: 'warning',
           desc: 'Cao hơn mức cân nặng khuyến nghị quốc tế.',
-          gaugePercent: 50 + ((bmi - 25) / (29.9 - 25)) * 25,
+          gaugePercent: 50 + Math.min(23, Math.max(2, ((bmi - 25.0) / (29.9 - 25.0)) * 25)),
         };
       } else {
         return {
+          categoryKey: 'obese' as const,
           name: 'Béo phì (Obese)',
-          color: 'text-rose-500',
+          color: 'text-rose-600 dark:text-rose-400',
           bgColor: 'bg-rose-500/10',
           borderColor: 'border-rose-500/30',
           status: 'danger',
           desc: 'Nguy cơ sức khỏe tăng cao.',
-          gaugePercent: Math.min(100, 75 + ((bmi - 30) / 10) * 25),
+          gaugePercent: Math.min(96, 75 + Math.min(21, ((bmi - 30.0) / 10.0) * 21)),
         };
       }
     }
@@ -439,24 +448,99 @@ export const BmiCalculator: React.FC = () => {
             </div>
 
             {/* Visual Gauge Bar */}
-            <div className="mt-4 space-y-1.5">
-              <div className="relative h-3.5 w-full rounded-full bg-gradient-to-r from-amber-400 via-emerald-400 via-orange-400 to-rose-600 overflow-hidden shadow-inner">
-                {/* Pointer indicator */}
-              </div>
-              <div className="relative h-3 w-full">
-                <div 
-                  className="absolute top-0 -translate-x-1/2 flex flex-col items-center transition-all duration-300"
-                  style={{ left: `${Math.min(96, Math.max(4, categoryInfo.gaugePercent))}%` }}
-                >
-                  <div className="w-2.5 h-2.5 bg-slate-900 rotate-45" />
+            <div className="mt-4 space-y-2">
+              <div className="relative pt-1 pb-1">
+                {/* 4 Distinct Segments Bar */}
+                <div className="relative h-4 w-full rounded-full overflow-hidden flex shadow-inner border border-slate-200 dark:border-slate-700 bg-slate-100">
+                  {/* 1. Thiếu cân: Sky Blue */}
+                  <div
+                    className="w-1/4 h-full bg-sky-400 border-r border-white/60 dark:border-white/30 relative"
+                    title="Thiếu cân (< 18.5)"
+                  />
+                  {/* 2. Lý tưởng: Emerald Green */}
+                  <div
+                    className="w-1/4 h-full bg-emerald-500 border-r border-white/60 dark:border-white/30 relative"
+                    title={standard === 'asian' ? 'Lý tưởng (18.5 - 22.9)' : 'Bình thường (18.5 - 24.9)'}
+                  />
+                  {/* 3. Thừa cân: Amber Orange */}
+                  <div
+                    className="w-1/4 h-full bg-amber-400 border-r border-white/60 dark:border-white/30 relative"
+                    title={standard === 'asian' ? 'Thừa cân (23.0 - 24.9)' : 'Thừa cân (25.0 - 29.9)'}
+                  />
+                  {/* 4. Béo phì: Rose Red */}
+                  <div
+                    className="w-1/4 h-full bg-rose-500 relative"
+                    title={standard === 'asian' ? 'Béo phì (≥ 25.0)' : 'Béo phì (≥ 30.0)'}
+                  />
+
+                  {/* Marker Needle on the Bar - Always pure white with glow in both light and dark mode */}
+                  <div
+                    className="bmi-needle absolute top-0 bottom-0 w-2 keep-light -translate-x-1/2 z-10 transition-all duration-300 ease-out rounded-full shadow-[0_0_8px_rgba(0,0,0,0.4)] dark:shadow-[0_0_10px_rgba(255,255,255,0.95)] border border-slate-300 dark:border-white"
+                    style={{ left: `${categoryInfo.gaugePercent}%`, backgroundColor: '#ffffff' }}
+                  />
+                </div>
+
+                {/* Arrow Pointer & Indicator Tag */}
+                <div className="relative h-10 w-full mt-1">
+                  <div 
+                    className="absolute top-0 -translate-x-1/2 flex flex-col items-center transition-all duration-300 ease-out z-20 pointer-events-none"
+                    style={{ left: `${categoryInfo.gaugePercent}%` }}
+                  >
+                    {/* Clear Upward Triangle Arrow Pointer */}
+                    <div className="w-0 h-0 border-x-[7px] border-x-transparent border-b-[8px] border-b-slate-900 dark:border-b-white drop-shadow-sm" />
+                    
+                    {/* Floating current BMI badge */}
+                    <div className="mt-0.5 px-2 py-0.5 rounded-full text-[11px] font-black tracking-tight bg-slate-900 dark:bg-white text-white dark:text-slate-900 shadow-md font-mono whitespace-nowrap flex items-center gap-1">
+                      <span>{bmi}</span>
+                      <span className="text-[9px] font-semibold opacity-75">BMI</span>
+                    </div>
+                  </div>
                 </div>
               </div>
-              
-              <div className="flex justify-between text-[10px] sm:text-[11px] font-semibold text-slate-500 px-0.5">
-                <span>Thiếu cân (&lt;18.5)</span>
-                <span className="text-emerald-600 font-bold">Lý tưởng (18.5 - 22.9)</span>
-                <span>Thừa cân (23-24.9)</span>
-                <span>Béo phì (&ge;25)</span>
+
+              {/* 4 Category Labels with Active Category Highlight */}
+              <div className="grid grid-cols-4 gap-1 text-center -mt-1">
+                <div className={`px-1 py-1 rounded-lg transition-all ${
+                  categoryInfo.categoryKey === 'underweight' 
+                    ? 'bg-sky-100 dark:bg-sky-950/60 text-sky-800 dark:text-sky-300 font-bold ring-1 ring-sky-400' 
+                    : 'text-slate-500 font-medium'
+                }`}>
+                  <span className="block text-[11px] sm:text-xs">Thiếu cân</span>
+                  <span className="block text-[10px] opacity-75 font-mono">&lt;18.5</span>
+                </div>
+
+                <div className={`px-1 py-1 rounded-lg transition-all ${
+                  categoryInfo.categoryKey === 'normal' 
+                    ? 'bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 font-bold ring-1 ring-emerald-500' 
+                    : 'text-slate-500 font-medium'
+                }`}>
+                  <span className="block text-[11px] sm:text-xs">Lý tưởng</span>
+                  <span className="block text-[10px] opacity-75 font-mono">
+                    {standard === 'asian' ? '18.5 - 22.9' : '18.5 - 24.9'}
+                  </span>
+                </div>
+
+                <div className={`px-1 py-1 rounded-lg transition-all ${
+                  categoryInfo.categoryKey === 'overweight' 
+                    ? 'bg-amber-100 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 font-bold ring-1 ring-amber-500' 
+                    : 'text-slate-500 font-medium'
+                }`}>
+                  <span className="block text-[11px] sm:text-xs">Thừa cân</span>
+                  <span className="block text-[10px] opacity-75 font-mono">
+                    {standard === 'asian' ? '23 - 24.9' : '25 - 29.9'}
+                  </span>
+                </div>
+
+                <div className={`px-1 py-1 rounded-lg transition-all ${
+                  categoryInfo.categoryKey === 'obese' 
+                    ? 'bg-rose-100 dark:bg-rose-950/60 text-rose-800 dark:text-rose-300 font-bold ring-1 ring-rose-500' 
+                    : 'text-slate-500 font-medium'
+                }`}>
+                  <span className="block text-[11px] sm:text-xs">Béo phì</span>
+                  <span className="block text-[10px] opacity-75 font-mono">
+                    {standard === 'asian' ? '≥25' : '≥30'}
+                  </span>
+                </div>
               </div>
             </div>
 
@@ -499,7 +583,9 @@ export const BmiCalculator: React.FC = () => {
           <div className="text-[11px] text-slate-500 flex items-center gap-1.5">
             <HeartPulse className="w-3.5 h-3.5 text-blue-500" />
             <span>
-              Theo chuẩn IDI & WPRO dành riêng cho tạng người châu Á (Việt Nam).
+              {standard === 'asian'
+                ? 'Theo chuẩn IDI & WPRO dành riêng cho tạng người châu Á (Việt Nam).'
+                : 'Theo chuẩn WHO dành cho cộng đồng quốc tế.'}
             </span>
           </div>
 

@@ -468,8 +468,10 @@ export const GeminiDrawer: React.FC<GeminiDrawerProps> = ({
       <aside
         id="gemini-right-drawer"
         aria-label="Khối phân tích Gemini AI và Quảng cáo"
-        className={`fixed top-0 right-0 bottom-0 z-50 w-full sm:w-[500px] md:w-[540px] lg:w-[580px] bg-white border-l border-slate-200 shadow-2xl text-slate-800 flex flex-col transition-transform duration-300 ease-out transform ${
-          isOpen ? 'translate-x-0' : 'translate-x-full'
+        className={`fixed top-0 right-0 bottom-0 z-50 w-full sm:w-[500px] md:w-[540px] lg:w-[580px] bg-white border-l border-slate-200 text-slate-800 flex flex-col transition-all duration-300 ease-out transform ${
+          isOpen 
+            ? 'translate-x-0 shadow-2xl visible pointer-events-auto opacity-100' 
+            : 'translate-x-full shadow-none invisible pointer-events-none opacity-0'
         }`}
       >
         {/* 1. Header (Icon hoa mai vàng + Tên công cụ + "✨ Do Gemini tạo" + Nút Share & Close) */}

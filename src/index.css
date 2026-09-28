@@ -154,12 +154,23 @@
   box-shadow: 0 -1px 3px rgba(0, 0, 0, 0.03) !important;
 }
 
-/* Toàn bộ nền trang trong Chế độ Sáng luôn thuần trắng #FFFFFF */
+/* Toàn bộ nền trang trong Chế độ Sáng luôn thuần trắng #FFFFFF và không đổ bóng mờ viền phải */
 [data-theme="light"],
 [data-theme="light"] body,
 [data-theme="light"] #root,
 [data-theme="light"] #main-content {
   background-color: #ffffff !important;
+  box-shadow: none !important;
+}
+
+/* Triệt tiêu hoàn toàn bóng đổ ngoài màn hình của ngăn kéo drawer khi đóng */
+#gemini-right-drawer.translate-x-full,
+aside[class*="translate-x-full"],
+div[class*="translate-x-full"] {
+  box-shadow: none !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+  opacity: 0 !important;
 }
 
 /* Thanh cuộn (scrollbars) toàn trang: Nền trắng tinh tế, thanh trượt mềm mại, không bao giờ có rãnh xám */
