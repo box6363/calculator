@@ -102,11 +102,10 @@ export const Header: React.FC<HeaderProps> = ({
             id="quick-search-trigger"
             onClick={() => setIsSearchOpen(true)}
             aria-label="Tìm kiếm công cụ"
-            className="flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3.5 py-1.5 sm:py-2 text-xs sm:text-sm text-slate-600 dark:text-slate-400 bg-slate-100 dark:bg-slate-800/60 hover:bg-slate-200 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-slate-200 border border-slate-300 dark:border-slate-700/60 rounded-xl transition-all shadow-inner focus:outline-none focus:ring-2 focus:ring-blue-500/50 cursor-pointer"
+            className="hidden md:flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3.5 py-1.5 sm:py-2 text-xs sm:text-sm text-slate-600 dark:text-slate-400 bg-slate-100 dark:bg-slate-800/60 hover:bg-slate-200 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-slate-200 border border-slate-300 dark:border-slate-700/60 rounded-xl transition-all shadow-inner focus:outline-none focus:ring-2 focus:ring-blue-500/50 cursor-pointer"
           >
             <Search className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-slate-500 dark:text-slate-400" />
-            <span className="hidden md:inline">{t.searchPlaceholder}</span>
-            <span className="inline md:hidden text-xs">Tìm</span>
+            <span>{t.searchPlaceholder}</span>
             <kbd className="hidden lg:inline-flex items-center gap-0.5 px-1.5 py-0.5 text-[10px] font-mono bg-slate-200 dark:bg-slate-900/80 text-slate-600 dark:text-slate-400 rounded border border-slate-300 dark:border-slate-700">
               <Command className="w-3 h-3" /> K
             </kbd>
