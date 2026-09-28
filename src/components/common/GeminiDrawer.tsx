@@ -376,6 +376,17 @@ Công cụ tự động vẽ biểu đồ vector SVG chuẩn tỷ lệ các cạ
 **Nguyên lý hoạt động:** Entropy tính bằng số bit ngẫu nhiên dựa trên tập ký tự và độ dài mật khẩu. Mật khẩu trên 80 bit entropy cần hàng triệu năm siêu máy tính mới có thể bẻ khóa.
 
 **Mẹo tối ưu:** Nên sử dụng mật khẩu dài từ 16 ký tự trở lên kết hợp cả 4 nhóm ký tự và không bao giờ dùng chung một mật khẩu cho nhiều tài khoản trực tuyến quan trọng.`
+  },
+  love: {
+    id: 'love',
+    name: 'Tình yêu',
+    category: 'TÌNH DUYÊN & ĐỜI SỐNG',
+    title: 'Phân Tích Độ Hòa Hợp Tình Yêu & Thuật Toán Ghép Cặp Tên',
+    content: `Đo lường độ tương thích tình cảm và chỉ số lãng mạn giữa hai người:
+
+**Nguyên lý hoạt động:** Phân tích cấu trúc tần suất ký tự, sự cộng hưởng năng lượng theo số học tình duyên đối xứng và bộ giải thuật bói FLAMES kinh điển.
+
+**Lời khuyên:** Điểm số là chất xúc tác thú vị để mở đầu câu chuyện; sự lắng nghe, tôn trọng và đồng cảm chân thành mới là chìa khóa xây dựng tình yêu bền vững.`
   }
 };
 

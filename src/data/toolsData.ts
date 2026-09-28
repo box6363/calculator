@@ -1662,4 +1662,40 @@ export const TOOLS_CONFIG: Record<string, ToolMeta> = {
     ],
     relatedToolIds: ['salary', 'tax', 'basic', 'ai']
   },
+  love: {
+    id: 'love',
+    category: 'utility',
+    name: 'Máy tính tình yêu (Love Calculator)',
+    shortName: 'Tình yêu',
+    tierNumber: 1,
+    iconName: 'Heart',
+    badge: 'Hot',
+    seoTitle: 'Love Calculator – Máy Tính Tình Yêu & Đo Độ Hòa Hợp Chuẩn Xác',
+    seoH1: 'Love Calculator – Máy Tính Tình Yêu, Đo Độ Hợp Đôi & Khám Phá FLAMES',
+    tagline: 'Kiểm tra tỷ lệ hòa hợp tình yêu, đo độ ăn ý và khám phá định mệnh giữa hai người',
+    description: 'Máy tính tình yêu trực tuyến (Love Calculator) giúp bạn kiểm tra độ tương thích, đo lường chỉ số lãng mạn, mức độ thấu hiểu, khả năng giao tiếp và tiềm năng tương lai giữa bạn và crush qua họ tên, thuật toán số học tình yêu và bói FLAMES cổ điển.',
+    formulaDescription: 'Tính toán dựa trên tần suất ký tự tương đồng, thuật toán ghép cặp số học (Numerological Name Harmony) và giải thuật bói FLAMES truyền thống.',
+    formulaEquation: 'LoveMatch% = HarmonicMatch(Name₁, Name₂) × 100',
+    usageSteps: [
+      'Nhập họ và tên đầy đủ của bạn vào ô "Your name".',
+      'Nhập họ và tên đầy đủ của người ấy (Crush) vào ô "Your crush".',
+      'Nhấn nút "Calculate love" (Tính độ hợp đôi).',
+      'Xem kết quả phân tích chi tiết: Tỷ lệ hòa hợp (%), chỉ số lãng mạn, độ thấu hiểu và lời khuyên tình yêu chân thành.'
+    ],
+    faqs: [
+      {
+        question: 'Máy tính tình yêu (Love Calculator) hoạt động như thế nào?',
+        answer: 'Công cụ sử dụng thuật toán số học tình duyên đối xứng kết hợp tần suất ký tự và mức độ tương thích âm dương giữa hai họ tên để đưa ra tỷ lệ phần trăm hòa hợp ổn định và chính xác.'
+      },
+      {
+        question: 'Thứ tự nhập tên có làm thay đổi kết quả không?',
+        answer: 'Không. Thuật toán có tính chất đối xứng hoàn hảo, dù bạn nhập tên bạn trước hay tên crush trước thì kết quả độ hợp đôi vẫn đồng nhất 100%.'
+      },
+      {
+        question: 'Chế độ bói FLAMES trong máy tính là gì?',
+        answer: 'FLAMES là trò chơi bói tình yêu kinh điển dựa trên 6 cung bậc mối quan hệ: Friendship (Tình bạn), Love (Tình yêu), Affection (Quý mến), Marriage (Hôn nhân), Enemy (Oan gia), Sibling (Anh em tri kỷ).'
+      }
+    ],
+    relatedToolIds: ['age', 'date', 'random', 'percentage']
+  }
 };

@@ -66,6 +66,7 @@ export type ToolId =
   | 'tip'
   | 'discount'
   | 'utilitybill'
+  | 'love'
   | 'ai';
 
 export interface ToolMeta {

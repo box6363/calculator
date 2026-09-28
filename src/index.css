@@ -48,6 +48,33 @@
     caret-color: var(--app-accent, #2563eb);
   }
 
+  /* Force Love Calculator input pills to stay pristine white in all themes */
+  .love-white-pill-input {
+    background-color: #ffffff !important;
+    background: #ffffff !important;
+    color: #0f172a !important;
+    -webkit-text-fill-color: #0f172a !important;
+    caret-color: #e11d48 !important;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.08), 0 2px 4px -2px rgba(0, 0, 0, 0.04) !important;
+    -webkit-box-shadow: 0 0 0px 1000px #ffffff inset !important;
+  }
+  .love-white-pill-input::placeholder {
+    color: #94a3b8 !important;
+    -webkit-text-fill-color: #94a3b8 !important;
+  }
+  .dark .love-white-pill-input {
+    background-color: #ffffff !important;
+    background: #ffffff !important;
+    color: #0f172a !important;
+    -webkit-text-fill-color: #0f172a !important;
+    caret-color: #e11d48 !important;
+    -webkit-box-shadow: 0 0 0px 1000px #ffffff inset !important;
+  }
+  .dark .love-white-pill-input::placeholder {
+    color: #94a3b8 !important;
+    -webkit-text-fill-color: #94a3b8 !important;
+  }
+
   .dark input[type="text"],
   .dark input[type="number"],
   .dark input[type="tel"],

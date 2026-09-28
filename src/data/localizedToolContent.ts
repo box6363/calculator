@@ -299,6 +299,33 @@ export const ENGLISH_TOOL_CONTENT: Record<string, LocalizedToolContent> = {
         answer: 'The marginal tax rate is the tax rate applied to your highest dollar of income. The effective tax rate is the total tax paid divided by your total income.'
       }
     ]
+  },
+  love: {
+    name: 'Love Calculator',
+    tagline: 'Calculate love compatibility, romantic harmony, and test your bond with your crush',
+    description: 'Free online Love Calculator to test love compatibility, relationship chemistry, mutual understanding, and FLAMES fortune telling based on names.',
+    formulaDescription: 'Calculated using character frequency harmonics, numerological name compatibility, and the classic FLAMES relationship algorithm.',
+    formulaEquation: 'LoveMatch\\% = \\text{HarmonicMatch}(Name_1, Name_2) \\times 100',
+    usageSteps: [
+      'Enter your full name in the "Your name" field.',
+      'Enter your crush\'s full name in the "Your crush" field.',
+      'Click the "Calculate love" button to run the compatibility engine.',
+      'Review the love match percentage, relationship harmony breakdown, and romantic advice.'
+    ],
+    faqs: [
+      {
+        question: 'How does this Love Calculator work?',
+        answer: 'The calculator analyzes the vibrational harmony and letter frequencies between two names using a deterministic symmetrical algorithm, providing consistent and fun compatibility scores.'
+      },
+      {
+        question: 'Does the order of names change the result?',
+        answer: 'No. The algorithm is completely symmetrical; entering Name A + Name B yields the exact same love percentage as Name B + Name A.'
+      },
+      {
+        question: 'What is the FLAMES game mode?',
+        answer: 'FLAMES stands for Friendship, Love, Affection, Marriage, Enemy, and Sibling — a beloved classic relationship game played across generations.'
+      }
+    ]
   }
 };
 

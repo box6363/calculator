@@ -4,7 +4,8 @@ import {
   Copy,
   Droplet,
   Scale,
-  HeartPulse
+  HeartPulse,
+  ChevronDown
 } from 'lucide-react';
 
 type UnitSystem = 'metric' | 'imperial';
@@ -199,45 +200,97 @@ export const BmiCalculator: React.FC = () => {
     <div className="p-4 sm:p-6 lg:p-8 space-y-6">
       
       {/* Unit & Standard Switchers */}
-      <div className="flex flex-wrap items-center justify-between gap-3 pb-4 border-b border-slate-100">
-        <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-xl">
-          <button
-            onClick={() => setUnitSystem('metric')}
-            className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-all ${
-              unitSystem === 'metric' ? 'bg-blue-600 text-white shadow-xs' : 'text-slate-600 hover:text-slate-900'
-            }`}
-          >
-            Hệ Mét (cm, kg)
-          </button>
-          <button
-            onClick={() => setUnitSystem('imperial')}
-            className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-all ${
-              unitSystem === 'imperial' ? 'bg-blue-600 text-white shadow-xs' : 'text-slate-600 hover:text-slate-900'
-            }`}
-          >
-            Hệ Anh-Mỹ (ft/in, lbs)
-          </button>
-        </div>
-
-        <div className="flex items-center gap-2">
-          <span className="text-xs text-slate-500 font-medium hidden sm:inline">Chuẩn đánh giá:</span>
-          <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-xl">
+      <div className="pb-4 border-b border-slate-100 dark:border-slate-800">
+        {/* Mobile View: Chuẩn Châu Á & WHO ở bên ngoài, Hệ Mét / Anh-Mỹ ở nút mũi tên quay xuống làm tùy chọn */}
+        <div className="flex sm:hidden items-center justify-between gap-2 w-full">
+          {/* Chuẩn đánh giá ở bên ngoài */}
+          <div className="flex items-center gap-1 bg-slate-100 dark:bg-slate-800/80 p-1 rounded-xl border border-slate-200/60 dark:border-slate-700/60">
             <button
               onClick={() => setStandard('asian')}
               className={`px-2.5 py-1.5 text-xs font-semibold rounded-lg transition-all ${
-                standard === 'asian' ? 'bg-blue-600 text-white shadow-xs' : 'text-slate-600'
+                standard === 'asian' 
+                  ? 'bg-blue-600 text-white shadow-xs' 
+                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
               }`}
             >
-              Châu Á (Khuyên dùng)
+              Châu Á
             </button>
             <button
               onClick={() => setStandard('who')}
               className={`px-2.5 py-1.5 text-xs font-semibold rounded-lg transition-all ${
-                standard === 'who' ? 'bg-blue-600 text-white shadow-xs' : 'text-slate-600'
+                standard === 'who' 
+                  ? 'bg-blue-600 text-white shadow-xs' 
+                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
               }`}
             >
-              WHO Quốc tế
+              WHO
             </button>
+          </div>
+
+          {/* Hệ đơn vị: Nút mũi tên quay xuống làm tùy chọn */}
+          <div className="relative inline-flex items-center">
+            <select
+              value={unitSystem}
+              onChange={(e) => setUnitSystem(e.target.value as UnitSystem)}
+              aria-label="Chọn hệ đơn vị đo lường"
+              className="appearance-none bg-slate-100 dark:bg-slate-800/90 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 text-xs font-semibold pl-3 pr-7 py-2 rounded-xl border border-slate-200 dark:border-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer shadow-xs transition-colors"
+            >
+              <option value="metric">Hệ Mét (cm, kg)</option>
+              <option value="imperial">Hệ Anh-Mỹ (ft, lbs)</option>
+            </select>
+            <ChevronDown className="w-3.5 h-3.5 text-slate-500 dark:text-slate-400 absolute right-2 pointer-events-none" />
+          </div>
+        </div>
+
+        {/* Desktop / Tablet View */}
+        <div className="hidden sm:flex sm:items-center sm:justify-between gap-3 w-full">
+          <div className="flex items-center gap-1 bg-slate-100 dark:bg-slate-800/80 p-1 rounded-xl border border-slate-200/60 dark:border-slate-700/60">
+            <button
+              onClick={() => setUnitSystem('metric')}
+              className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-all ${
+                unitSystem === 'metric' 
+                  ? 'bg-blue-600 text-white shadow-xs' 
+                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
+              }`}
+            >
+              Hệ Mét (cm, kg)
+            </button>
+            <button
+              onClick={() => setUnitSystem('imperial')}
+              className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-all ${
+                unitSystem === 'imperial' 
+                  ? 'bg-blue-600 text-white shadow-xs' 
+                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
+              }`}
+            >
+              Hệ Anh-Mỹ (ft/in, lbs)
+            </button>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <span className="text-xs text-slate-500 dark:text-slate-400 font-medium">Chuẩn đánh giá:</span>
+            <div className="flex items-center gap-1 bg-slate-100 dark:bg-slate-800/80 p-1 rounded-xl border border-slate-200/60 dark:border-slate-700/60">
+              <button
+                onClick={() => setStandard('asian')}
+                className={`px-2.5 py-1.5 text-xs font-semibold rounded-lg transition-all ${
+                  standard === 'asian' 
+                    ? 'bg-blue-600 text-white shadow-xs' 
+                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
+                }`}
+              >
+                Châu Á (Khuyên dùng)
+              </button>
+              <button
+                onClick={() => setStandard('who')}
+                className={`px-2.5 py-1.5 text-xs font-semibold rounded-lg transition-all ${
+                  standard === 'who' 
+                    ? 'bg-blue-600 text-white shadow-xs' 
+                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
+                }`}
+              >
+                WHO Quốc tế
+              </button>
+            </div>
           </div>
         </div>
       </div>

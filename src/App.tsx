@@ -75,6 +75,7 @@ import { CurrencyConverter } from './components/tools/CurrencyConverter';
 import { IpSubnetCalculator } from './components/tools/IpSubnetCalculator';
 import { USLotteryCalculator } from './components/tools/lottery/USLotteryCalculator';
 import { UtilityBillCalculator } from './components/tools/UtilityBillCalculator';
+import { LoveCalculator } from './components/tools/LoveCalculator';
 
 // Helper to parse tool ID from clean path or hash
 const parseToolFromUrl = (): ToolId => {
@@ -208,6 +209,8 @@ export default function App() {
         return <GpaCalculator key={resetKey} />;
       case 'concrete':
         return <ConcreteCalculator key={resetKey} />;
+      case 'love':
+        return <LoveCalculator key={resetKey} />;
       case 'random':
         return <RandomNumberCalculator key={resetKey} />;
       case 'password':

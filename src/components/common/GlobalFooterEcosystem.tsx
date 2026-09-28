@@ -443,6 +443,15 @@ export const GlobalFooterEcosystem: React.FC<GlobalFooterEcosystemProps> = ({
               </li>
               <li>
                 <button 
+                  onClick={() => handleToolClick('love')}
+                  className="group flex items-start gap-1.5 text-left hover:text-white transition-colors cursor-pointer w-full"
+                >
+                  <span className="text-slate-500 group-hover:text-rose-400 group-hover:translate-x-0.5 transition-all shrink-0 mt-0.5 font-mono text-xs">›</span>
+                  <span>Máy tính tình yêu (Love Calculator)</span>
+                </button>
+              </li>
+              <li>
+                <button 
                   onClick={() => handleToolClick('unit')}
                   className="group flex items-start gap-1.5 text-left hover:text-white transition-colors cursor-pointer w-full"
                 >
