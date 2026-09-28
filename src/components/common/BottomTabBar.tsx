@@ -7,7 +7,7 @@ import {
   Calendar, 
   Percent, 
   Wallet,
-  MoreHorizontal,
+  Menu,
   ArrowLeftRight,
   Triangle,
   TrendingUp,
@@ -147,6 +147,7 @@ export const BottomTabBar: React.FC<BottomTabBarProps> = ({
           <button
             id="bottom-tab-more"
             onClick={() => setIsMoreMenuOpen(true)}
+            aria-label="More"
             className={`flex flex-col items-center justify-center h-full min-h-[48px] py-1 transition-all ${
               isCurrentInSecondary 
                 ? 'text-[#3B82F6] font-bold' 
@@ -156,10 +157,10 @@ export const BottomTabBar: React.FC<BottomTabBarProps> = ({
             <div className={`p-1 rounded-lg ${
               isCurrentInSecondary ? 'bg-blue-500/15 text-[#3B82F6]' : ''
             }`}>
-              <MoreHorizontal className="w-5 h-5" />
+              <Menu className="w-5 h-5" />
             </div>
-            <span className="text-[10px] mt-0.5 whitespace-nowrap tracking-tight">
-              {secUi.bottomMoreTitle.split(' ')[0]} ({secondaryTools.length})
+            <span className="text-[10px] mt-0.5 whitespace-nowrap tracking-tight font-medium">
+              More
             </span>
             {isCurrentInSecondary && (
               <span className="w-1.5 h-1 bg-[#10B981] rounded-full mt-0.5" />
