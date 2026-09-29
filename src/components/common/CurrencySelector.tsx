@@ -183,7 +183,7 @@ export const CurrencySelector: React.FC<CurrencySelectorProps> = ({
         type="button"
         onClick={() => setIsOpen(!isOpen)}
         aria-label="Select Currency"
-        className="flex items-center gap-1.5 px-2 sm:px-2.5 py-1.5 sm:py-2 text-xs font-semibold text-slate-700 dark:text-slate-200 hover:text-slate-900 dark:hover:text-white bg-slate-100 dark:bg-slate-800/60 hover:bg-slate-200 dark:hover:bg-slate-800 border border-slate-300 dark:border-slate-700/60 rounded-xl transition-all cursor-pointer shadow-xs focus:outline-none focus:ring-2 focus:ring-blue-500/50"
+        className="flex items-center gap-1.5 px-2 sm:px-2.5 py-1.5 sm:py-2 text-xs font-semibold text-slate-700 dark:text-slate-200 hover:text-slate-900 dark:hover:text-white bg-slate-100 dark:bg-slate-800/60 hover:bg-slate-200 dark:hover:bg-slate-800 border border-slate-300 dark:border-slate-700/60 rounded-xl transition-all cursor-pointer shadow-xs focus:outline-none focus:ring-2 focus:ring-blue-500/50 scale-95 origin-center"
       >
         <span className="text-sm leading-none">{currencyInfo.flag}</span>
         <span className="font-bold font-mono text-emerald-600 dark:text-emerald-400">{currencyInfo.symbol}</span>

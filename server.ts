@@ -404,7 +404,10 @@ Bước 3: Kết luận rõ ràng đáp số.
       const finalHtml = renderServerHtml(templateHtml, lowerLang, toolId as any, domain);
       
       res.setHeader("Content-Type", "text/html; charset=utf-8");
-      res.setHeader("Cache-Control", "public, max-age=3600, s-maxage=86400");
+      // HTML must never be cached by CDNs or browsers so asset hashes are always up-to-date
+      res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
+      res.setHeader("Pragma", "no-cache");
+      res.setHeader("Expires", "0");
       return res.status(200).send(finalHtml);
     } catch (err) {
       console.error("SSR Prerender Error:", err);
@@ -427,7 +430,24 @@ Bước 3: Kết luận rõ ràng đáp số.
     app.use(vite.middlewares);
   } else {
     const distPath = path.join(process.cwd(), "dist");
+
+    // Serve immutable hashed assets
+    app.use("/assets", express.static(path.join(distPath, "assets"), {
+      maxAge: "1y",
+      immutable: true,
+      fallthrough: false
+    }));
+
+    // Serve other public static files from dist
     app.use(express.static(distPath, { index: false }));
+
+    // Never return index.html for missing static assets or files with extensions
+    app.use((req, res, next) => {
+      if (req.path.startsWith('/assets/') || (req.path.includes('.') && !req.path.endsWith('.html'))) {
+        return res.status(404).type('text/plain').send('File not found');
+      }
+      next();
+    });
 
     // Handle SSR for localized tool routes in production
     app.get(["/:lang([a-z]{2})/:toolId([a-z]+)", "/:lang([a-z]{2})", "/:lang([a-z]{2})/"], (req, res, next) => {
@@ -435,6 +455,10 @@ Bước 3: Kết luận rõ ràng đáp số.
     });
 
     app.get("*", (req, res, next) => {
+      if (req.path.includes('.') && !req.path.endsWith('.html')) {
+        return res.status(404).type('text/plain').send('File not found');
+      }
+
       const segments = req.path.split('/').filter(Boolean);
       const possibleLang = segments[0]?.toLowerCase();
       const possibleTool = segments[1]?.toLowerCase();
@@ -446,6 +470,7 @@ Bước 3: Kết luận rõ ràng đáp số.
         } as any, res, next);
       }
 
+      res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
       res.sendFile(path.join(distPath, "index.html"));
     });
   }

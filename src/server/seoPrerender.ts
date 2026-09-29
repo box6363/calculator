@@ -120,8 +120,8 @@ export function renderServerHtml(
   const sectionUi = INTERNATIONAL_SECTION_UI[activeLang] || INTERNATIONAL_SECTION_UI.en;
 
   const pageTitle = isToolPage 
-    ? `${toolSEO.title} | Web Calculator`
-    : `${toolSEO.title || 'Web Calculator – Free Online Smart Calculation Tools'} | AC Studio`;
+    ? (toolSEO.title.includes('Web Calculator') ? toolSEO.title : `${toolSEO.title} | Web Calculator`)
+    : (toolSEO.title.includes('Web Calculator') ? toolSEO.title : `${toolSEO.title || 'Web Calculator – Free Online Smart Calculation Tools'} | AC Studio`);
     
   const pageDescription = toolSEO.description || localizedContent.description;
 

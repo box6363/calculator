@@ -82,20 +82,6 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     // Update HTML tag attributes for SEO & Accessibility
     document.documentElement.lang = language;
     document.documentElement.dir = isRTL ? 'rtl' : 'ltr';
-
-    // Update document title and Open Graph meta
-    const t = TRANSLATIONS[language];
-    document.title = `${t.siteTitle} – ${t.siteSubtitle}`;
-
-    const metaDesc = document.querySelector('meta[name="description"]');
-    if (metaDesc) {
-      metaDesc.setAttribute('content', `${t.siteSubtitle}. 100% Client-side, chuẩn SEO Core Web Vitals.`);
-    }
-
-    const ogTitle = document.querySelector('meta[property="og:title"]');
-    if (ogTitle) {
-      ogTitle.setAttribute('content', `${t.siteTitle} – ${t.siteSubtitle}`);
-    }
   }, [language, isRTL]);
 
   const value: LanguageContextType = {

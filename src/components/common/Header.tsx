@@ -124,7 +124,7 @@ export const Header: React.FC<HeaderProps> = ({
             type="button"
             title={themeId === 'light' ? (isVi ? 'Chuyển sang Chế độ Tối' : 'Switch to Dark Mode') : (isVi ? 'Chuyển sang Chế độ Sáng (Nền trắng chữ đen)' : 'Switch to Light Mode')}
             aria-label={themeId === 'light' ? 'Chế độ Sáng' : 'Chế độ Tối'}
-            className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 sm:py-2 text-xs font-semibold rounded-xl border transition-transform duration-100 cursor-pointer shadow-xs active:scale-95"
+            className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 sm:py-2 text-xs font-semibold rounded-xl border transition-all duration-100 cursor-pointer shadow-xs active:scale-90 scale-95 origin-center"
             style={{
               backgroundColor: themeId === 'light' ? '#f1f5f9' : 'rgba(30, 41, 59, 0.6)',
               borderColor: themeId === 'light' ? '#cbd5e1' : 'rgba(51, 65, 85, 0.8)',

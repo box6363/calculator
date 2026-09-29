@@ -1,4 +1,5 @@
 import { LanguageCode } from './languages';
+import { NATIVE_TOOL_NAMES } from '../data/internationalKeywords';
 
 export interface TranslationDictionary {
   siteTitle: string;
@@ -1327,3 +1328,15 @@ export const TRANSLATIONS: Record<LanguageCode, TranslationDictionary> = {
     }
   }
 };
+
+// Automatically enrich all 20 language dictionaries with 63 native tool names
+for (const [lang, names] of Object.entries(NATIVE_TOOL_NAMES)) {
+  const langKey = lang as LanguageCode;
+  if (TRANSLATIONS[langKey]) {
+    TRANSLATIONS[langKey].toolNames = {
+      ...names,
+      ...(TRANSLATIONS[langKey].toolNames || {})
+    };
+  }
+}
+

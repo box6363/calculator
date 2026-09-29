@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { ToolId } from './types';
 import { TOOLS_CONFIG } from './data/toolsData';
+import { getToolSEO } from './data/internationalSEO';
 import { Header } from './components/common/Header';
 import { Sidebar } from './components/common/Sidebar';
 import { BottomTabBar } from './components/common/BottomTabBar';
@@ -156,6 +157,65 @@ export default function App() {
       window.removeEventListener('hashchange', onLocationChange);
     };
   }, [currentToolId]);
+
+  // Dynamic SEO synchronization across tool changes & language changes
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    const isHome = currentToolId === 'basic';
+    const toolSEO = getToolSEO(currentToolId, language);
+    const domain = window.location.origin;
+    const cleanPath = isHome ? `/${language}/` : `/${language}/${currentToolId}`;
+    const canonicalUrl = `${domain}${cleanPath}`;
+
+    const title = toolSEO.title.includes('Web Calculator')
+      ? toolSEO.title
+      : `${toolSEO.title} | Web Calculator`;
+
+    // 1. Update Title
+    document.title = title;
+
+    // 2. Update Meta Description
+    const metaDesc = document.querySelector('meta[name="description"]');
+    if (metaDesc) {
+      metaDesc.setAttribute('content', toolSEO.description);
+    }
+
+    // 3. Update Meta Keywords
+    let metaKeywords = document.querySelector('meta[name="keywords"]');
+    if (!metaKeywords) {
+      metaKeywords = document.createElement('meta');
+      metaKeywords.setAttribute('name', 'keywords');
+      document.head.appendChild(metaKeywords);
+    }
+    metaKeywords.setAttribute('content', toolSEO.keywords.join(', '));
+
+    // 4. Update Canonical Link
+    let canonicalLink = document.querySelector('link[rel="canonical"]');
+    if (!canonicalLink) {
+      canonicalLink = document.createElement('link');
+      canonicalLink.setAttribute('rel', 'canonical');
+      document.head.appendChild(canonicalLink);
+    }
+    canonicalLink.setAttribute('href', canonicalUrl);
+
+    // 5. Update Open Graph
+    const ogTitle = document.querySelector('meta[property="og:title"]');
+    if (ogTitle) ogTitle.setAttribute('content', title);
+
+    const ogDesc = document.querySelector('meta[property="og:description"]');
+    if (ogDesc) ogDesc.setAttribute('content', toolSEO.description);
+
+    const ogUrl = document.querySelector('meta[property="og:url"]');
+    if (ogUrl) ogUrl.setAttribute('content', canonicalUrl);
+
+    // 6. Update Twitter Card
+    const twTitle = document.querySelector('meta[name="twitter:title"]');
+    if (twTitle) twTitle.setAttribute('content', title);
+
+    const twDesc = document.querySelector('meta[name="twitter:description"]');
+    if (twDesc) twDesc.setAttribute('content', toolSEO.description);
+  }, [currentToolId, language]);
 
   const handleResetTool = () => {
     setResetKey(prev => prev + 1);

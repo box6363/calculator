@@ -1,5 +1,6 @@
 import { LanguageCode } from '../i18n/languages';
 import { ToolId } from '../types';
+import { NATIVE_TOOL_NAMES, NATIVE_SEO_TEMPLATES } from './internationalKeywords';
 
 export interface LocalizedToolSEO {
   title: string;
@@ -69,15 +70,87 @@ export const INTERNATIONAL_SEO_MATRIX: Record<LanguageCode, Partial<Record<ToolI
       description: 'Công cụ tính tiền điện bậc thang EVN, tiền nước sạch & thoát nước, tiền gas, cước internet viễn thông và dự toán chi tiêu 1 tháng trọn gói chuẩn quốc tế.',
       keywords: ['tính tiền điện evn', 'tính tiền điện bậc thang', 'tính tiền nước sinh hoạt', 'chi phí sinh hoạt 1 tháng', 'tính tiền gas', 'cước internet cáp quang', 'chia tiền phòng'],
       lsiTerms: ['biểu giá điện 6 bậc', 'định mức nước sạch', 'hóa đơn tiền điện thoại', 'chi phí sinh hoạt gia đình']
+    },
+    tip: {
+      title: 'Tính Tiền Tip (Tiền Boa) – Chia Tiền Hóa Đơn & Gợi Ý % Phục Vụ Chuẩn',
+      description: 'Công cụ tính tiền tip (tiền boa) nhà hàng, quán cafe, khách sạn chuẩn quốc tế: gợi ý % boa theo chất lượng dịch vụ, chia đều hóa đơn cho nhóm bạn.',
+      keywords: ['tính tiền tip', 'tính tiền boa', 'tiền tip là gì', 'cách tính tiền boa', 'chia tiền hóa đơn', 'tip calculator online', 'tiền boa nhà hàng'],
+      lsiTerms: ['văn hóa tiền tip', 'chia tiền ăn nhóm', 'tỷ lệ tiền boa', 'hóa đơn tip']
+    },
+    discount: {
+      title: 'Tính Giảm Giá & Chiết Khấu % – Tính Giá Sau Khuyến Mãi & Tiền Tiết Kiệm',
+      description: 'Máy tính giảm giá và chiết khấu phần trăm: tính nhanh giá sau giảm, tính chiết khấu kép (voucher thêm) và số tiền thực tế bạn tiết kiệm được khi mua sắm.',
+      keywords: ['tính giảm giá', 'tính chiết khấu', 'cách tính phần trăm giảm giá', 'máy tính giảm giá', 'tính tiền sale', 'giá sau khuyến mãi'],
+      lsiTerms: ['chiết khấu kép', 'voucher giảm giá', 'tiết kiệm tiền mua sắm', 'tính % giảm']
+    },
+    mortgage: {
+      title: 'Tính Lãi Vay Mua Nhà – Vay Thế Chấp & Lịch Trả Nợ Chi Tiết Hàng Tháng',
+      description: 'Công cụ tính lãi vay mua nhà, vay thế chấp bất động sản: tính số tiền trả hàng tháng, tổng lãi phải trả và bảng kế hoạch thanh toán theo dư nợ giảm dần.',
+      keywords: ['tính lãi vay mua nhà', 'vay thế chấp', 'vay mua nhà trả góp', 'lãi suất vay thế chấp', 'bảng tính vay mua nhà'],
+      lsiTerms: ['dư nợ giảm dần', 'khoản vay bất động sản', 'trả góp mua nhà']
+    },
+    tax: {
+      title: 'Tính Thuế Thu Nhập Cá Nhân (TNCN) 2026 – Biểu Thuế Lũy Tiến Từng Phần',
+      description: 'Tính thuế TNCN chính xác theo luật thuế mới nhất: mức giảm trừ bản thân 11 triệu/tháng, người phụ thuộc 4.4 triệu/tháng và 7 bậc thuế lũy tiến.',
+      keywords: ['tính thuế thu nhập cá nhân', 'thuế tncn 2026', 'biểu thuế lũy tiến', 'giảm trừ gia cảnh', 'cách tính thuế thu nhập'],
+      lsiTerms: ['thu nhập tính thuế', 'thu nhập chịu thuế', 'bậc thuế tncn']
+    },
+    calorie: {
+      title: 'Tính Calo & TDEE – Nhu Cầu Năng Lượng Hàng Ngày & Giảm Cân Khoa Học',
+      description: 'Tính chỉ số BMR và TDEE chính xác theo công thức Mifflin-St Jeor: xác định lượng calo cần nạp mỗi ngày để giảm mỡ, tăng cơ hoặc giữ cân lành mạnh.',
+      keywords: ['tính calo', 'tính tdee', 'tính bmr', 'tính calo giảm cân', 'bảng tính calo hàng ngày', 'thâm hụt calo'],
+      lsiTerms: ['chỉ số bmr', 'năng lượng tiêu hao', 'macro dinh dưỡng']
+    },
+    bodyfat: {
+      title: 'Tính Tỷ Lệ Mỡ Cơ Thể (% Body Fat) – Chuẩn Hải Quân Hoa Kỳ (US Navy)',
+      description: 'Đo lường tỷ lệ mỡ cơ thể % Body Fat chuẩn xác theo phương pháp Hải quân Hoa Kỳ từ số đo vòng cổ, eo, mông và chiều cao cho nam và nữ.',
+      keywords: ['tính tỷ lệ mỡ', 'tính body fat', 'đo mỡ cơ thể', 'body fat calculator', 'chuẩn us navy body fat'],
+      lsiTerms: ['khối lượng mỡ', 'tỷ lệ cơ mỡ', 'thể hình fitness']
+    },
+    fraction: {
+      title: 'Máy Tính Phân Số – Cộng Trừ Nhân Chia & Rút Gọn Phân Số Chuẩn Xác',
+      description: 'Máy tính phân số trực tuyến: thực hiện các phép cộng, trừ, nhân, chia phân số và hỗn số có lời giải từng bước và tự động rút gọn tối giản.',
+      keywords: ['máy tính phân số', 'cộng trừ phân số', 'rút gọn phân số', 'nhân chia phân số', 'hỗn số sang phân số'],
+      lsiTerms: ['quy đồng mẫu số', 'phân số tối giản', 'toán phân số']
+    },
+    time: {
+      title: 'Tính Thời Gian – Cộng Trừ Giờ Phút Giây & Khoảng Cách Giữa 2 Mốc Giờ',
+      description: 'Công cụ tính khoảng cách thời gian giữa hai thời điểm, cộng trừ giờ phút giây, tính số giờ làm việc trong ngày và quy đổi đơn vị thời gian.',
+      keywords: ['tính thời gian', 'cộng trừ thời gian', 'tính số giờ làm việc', 'khoảng cách thời gian', 'tính giờ phút'],
+      lsiTerms: ['tính giờ công', 'quy đổi thời gian', 'chênh lệch múi giờ']
+    },
+    date: {
+      title: 'Tính Ngày Tháng – Đếm Số Ngày Giữa 2 Ngày & Cộng Trừ Ngày Tháng Năm',
+      description: 'Tính chính xác số ngày, tuần, tháng giữa hai mốc ngày bất kỳ trong lịch. Thêm hoặc bớt số ngày để tìm ngày trong tương lai hoặc quá khứ.',
+      keywords: ['tính ngày tháng', 'đếm ngày giữa 2 ngày', 'cộng trừ ngày', 'tính khoảng cách ngày', 'máy tính ngày'],
+      lsiTerms: ['số ngày làm việc', 'đếm ngược ngày', 'lịch vạn niên']
+    },
+    gpa: {
+      title: 'Tính Điểm GPA Đại Học – Thang Điểm 4 & Thang Điểm 10 Chuẩn Tín Chỉ',
+      description: 'Tính điểm trung bình học tập GPA tích lũy đại học theo tín chỉ chuẩn xác: hỗ trợ quy đổi thang điểm chữ (A, B, C, D, F) sang thang 4 và thang 10.',
+      keywords: ['tính điểm gpa', 'tính gpa đại học', 'thang điểm 4', 'quy đổi điểm gpa', 'tính điểm tín chỉ'],
+      lsiTerms: ['điểm rèn luyện', 'học bổng đại học', 'bảng điểm tích lũy']
+    },
+    password: {
+      title: 'Tạo Mật Khẩu Ngẫu Nhiên An Toàn & Mạnh Nhất – Bảo Mật Chống Hack',
+      description: 'Công cụ tạo mật khẩu mạnh ngẫu nhiên an toàn cao: tùy chỉnh độ dài, chữ hoa, chữ thường, số và ký tự đặc biệt. 100% xử lý cục bộ trên máy bạn.',
+      keywords: ['tạo mật khẩu', 'tạo mật khẩu mạnh', 'mật khẩu ngẫu nhiên', 'password generator', 'mật khẩu an toàn'],
+      lsiTerms: ['bảo mật tài khoản', 'độ mạnh mật khẩu', 'chống brute force']
+    },
+    love: {
+      title: 'Máy Tính Tình Yêu – Bói Tình Yêu Theo Tên & Đo Độ Hợp Nhau (Love Calculator)',
+      description: 'Máy tính tình yêu và bói tình duyên theo tên hai người chuẩn xác: tính phần trăm hợp nhau, xem mức độ hòa hợp trong tình yêu và lời khuyên duyên số lãng mạn.',
+      keywords: ['máy tính tình yêu', 'love calculator', 'bói tình yêu theo tên', 'đo độ hợp nhau', 'tính phần trăm tình yêu', 'bói duyên số theo tên', 'test tình yêu'],
+      lsiTerms: ['máy tính tình duyên', 'xem bói tình yêu 2 người', 'flames love calculator tiếng việt', 'tỷ lệ hợp nhau']
     }
   },
 
   en: {
     basic: {
-      title: 'Free Online Calculator – Fast, Accurate Scientific & Math Tools',
-      description: 'Free, clean online scientific calculator with powers, roots, algebra, trigonometry, memory registers, and responsive 10-column layout.',
-      keywords: ['online calculator', 'scientific calculator', 'free web calculator', 'math calculator online', 'clean calculator', 'instant math tool'],
-      lsiTerms: ['math tool online', 'arithmetic calculator', 'scientific notation', 'algebra calculator']
+      title: 'Calculator Online – Free Online Calculator & Scientific Math Tools',
+      description: 'Free online calculator and fast calculator online for everyday math, science, algebra, trigonometry, and fractions. 100% free, accurate, and mobile-friendly.',
+      keywords: ['calculator online', 'online calculator', 'free online calculator', 'calculator', 'free calculator online', 'scientific calculator online', 'math calculator online', 'simple calculator online', 'web calculator'],
+      lsiTerms: ['calculator online free', 'instant web calculator', 'arithmetic calculator', 'scientific notation']
     },
     salary: {
       title: 'Salary Gross to Net Calculator – Take-Home Pay & Tax Deductions',
@@ -132,6 +205,78 @@ export const INTERNATIONAL_SEO_MATRIX: Record<LanguageCode, Partial<Record<ToolI
       description: 'Comprehensive international utility bills calculator: electricity (tiered/flat kWh), clean water & sewage, gas, fiber broadband, and total monthly living expenses.',
       keywords: ['utility bill calculator', 'electricity bill calculator', 'water bill calculator', 'monthly living expenses', 'gas bill calculator', 'roommate bill split'],
       lsiTerms: ['tiered electricity rates', 'household utility costs', 'daily cost of living', 'energy consumption estimator']
+    },
+    tip: {
+      title: 'Tip Calculator – Free Online Bill Splitter & Gratuity Calculator',
+      description: 'Calculate restaurant tips and split the bill easily among friends. Fast, accurate gratuity calculator with custom tip percentages, tax options, and per-person breakdown.',
+      keywords: ['tip calculator', 'bill splitter', 'gratuity calculator', 'restaurant tip calculator', 'split the bill calculator', 'tip percentage'],
+      lsiTerms: ['tip per person', 'gratuity rate', 'restaurant check splitter', 'dining tip']
+    },
+    discount: {
+      title: 'Discount Calculator – Sale Price, Coupon & Savings Calculator',
+      description: 'Calculate discounted sale prices and see how much money you save. Handles double discounts, percent off, dollar off coupons, and final price with tax.',
+      keywords: ['discount calculator', 'sale price calculator', 'percent off calculator', 'savings calculator', 'coupon discount calculator'],
+      lsiTerms: ['clearance price', 'double discount', 'markup markdown', 'store sale']
+    },
+    mortgage: {
+      title: 'Mortgage Calculator – Monthly Payment, Interest & Amortization Schedule',
+      description: 'Accurate mortgage payment calculator with property taxes, home insurance, PMI, and complete month-by-month loan amortization schedule.',
+      keywords: ['mortgage calculator', 'home loan calculator', 'mortgage payment', 'amortization schedule', 'housing loan emi'],
+      lsiTerms: ['principal and interest', 'down payment', 'pmi insurance', 'fixed rate mortgage']
+    },
+    tax: {
+      title: 'Income Tax Calculator – Federal & State Tax Estimate',
+      description: 'Estimate your annual income tax liability, effective tax rate, standard deductions, and take-home pay based on current progressive tax brackets.',
+      keywords: ['income tax calculator', 'tax calculator', 'tax bracket calculator', 'federal income tax estimate', 'after tax salary'],
+      lsiTerms: ['taxable income', 'standard deduction', 'marginal tax rate', 'tax refund']
+    },
+    calorie: {
+      title: 'Calorie Calculator – Daily Caloric Needs & TDEE for Weight Loss',
+      description: 'Estimate your Basal Metabolic Rate (BMR) and Total Daily Energy Expenditure (TDEE). Calculate exact daily calorie targets to lose weight, gain muscle, or maintain.',
+      keywords: ['calorie calculator', 'tdee calculator', 'daily calorie needs', 'calorie deficit calculator', 'bmr calculator for weight loss'],
+      lsiTerms: ['caloric deficit', 'mifflin st jeor', 'macro split', 'maintenance calories']
+    },
+    bodyfat: {
+      title: 'Body Fat Calculator – US Navy Fitness Standard for Men & Women',
+      description: 'Calculate your body fat percentage accurately using the U.S. Navy circumference method. Includes fat mass, lean mass, and healthy category ratings.',
+      keywords: ['body fat calculator', 'navy body fat calculator', 'body fat percentage', 'lean body mass calculator', 'fat mass calculation'],
+      lsiTerms: ['circumference method', 'essential fat', 'athlete body fat', 'fitness metrics']
+    },
+    fraction: {
+      title: 'Fraction Calculator – Add, Subtract, Multiply & Divide Fractions',
+      description: 'Free online fraction calculator with step-by-step reduction. Add, subtract, multiply, and divide proper fractions, improper fractions, and mixed numbers.',
+      keywords: ['fraction calculator', 'simplifying fractions calculator', 'adding fractions', 'mixed numbers calculator', 'fraction math solver'],
+      lsiTerms: ['common denominator', 'reduced fraction', 'cross multiplication', 'arithmetic fractions']
+    },
+    time: {
+      title: 'Time Calculator – Add, Subtract Time & Calculate Duration Between Hours',
+      description: 'Add or subtract hours, minutes, and seconds. Calculate total time between two events, work hours, timesheets, and decimal hour conversion.',
+      keywords: ['time calculator', 'add time calculator', 'hours and minutes calculator', 'time duration calculator', 'work hours calculator'],
+      lsiTerms: ['elapsed time', 'timesheet calculator', 'decimal hours', 'time difference']
+    },
+    date: {
+      title: 'Date Calculator – Days Between Dates & Add or Subtract Days',
+      description: 'Calculate the exact number of days, weeks, months, and years between two dates. Add or subtract days from a date to find future or past calendar deadlines.',
+      keywords: ['date calculator', 'days between dates', 'date difference calculator', 'add days to date', 'calendar day counter'],
+      lsiTerms: ['business days calculator', 'working days', 'countdown days', 'leap year dates']
+    },
+    gpa: {
+      title: 'GPA Calculator – College & High School Grade Point Average (4.0 Scale)',
+      description: 'Calculate your semester and cumulative Grade Point Average (GPA) on a 4.0 scale with weighted and unweighted credit hours support.',
+      keywords: ['gpa calculator', 'college gpa calculator', 'high school gpa calculator', 'cumulative gpa calculator', '4.0 scale calculator'],
+      lsiTerms: ['credit hours', 'weighted gpa', 'grade points', 'semester gpa']
+    },
+    password: {
+      title: 'Strong Password Generator – Secure, Random & Hack-Resistant Passwords',
+      description: 'Generate ultra-secure, cryptographically strong random passwords with custom lengths, symbols, numbers, and capital letters. 100% client-side privacy.',
+      keywords: ['password generator', 'random password generator', 'strong password generator', 'secure password tool', 'safe password maker'],
+      lsiTerms: ['password strength', 'entropy generator', 'cybersecurity tool', 'random passcode']
+    },
+    love: {
+      title: 'Love Calculator – Test Love Compatibility by Name (True Love Tester)',
+      description: 'Free online Love Calculator by name. Calculate your exact love percentage and relationship compatibility test with your crush or partner using numerology algorithms.',
+      keywords: ['love calculator', 'love calculator by name', 'true love calculator', 'love test by name', 'flames love calculator', 'calculate love percentage', 'relationship compatibility test', 'love tester online'],
+      lsiTerms: ['love meter by name', 'crush compatibility test', 'real love calculator', 'name matching love test']
     }
   },
 
@@ -1163,11 +1308,26 @@ export const INTERNATIONAL_SEO_MATRIX: Record<LanguageCode, Partial<Record<ToolI
 };
 
 export function getToolSEO(toolId: ToolId, lang: LanguageCode): LocalizedToolSEO {
-  const langMatrix = INTERNATIONAL_SEO_MATRIX[lang] || INTERNATIONAL_SEO_MATRIX.en;
-  return langMatrix[toolId] || INTERNATIONAL_SEO_MATRIX.en[toolId] || {
-    title: `${toolId} Calculator | Web Calculator`,
-    description: `Free online calculator for ${toolId}. Fast, client-side, mobile-first utility.`,
-    keywords: [`${toolId} calculator`, 'online calculator', 'free tool'],
-    lsiTerms: ['calculation tool', 'online math']
+  // 1. Direct match in target language matrix (high-intent handcrafted)
+  const langMatrix = INTERNATIONAL_SEO_MATRIX[lang];
+  if (langMatrix && langMatrix[toolId]) {
+    return langMatrix[toolId]!;
+  }
+
+  // 2. Exact match in English matrix if user requested English
+  if (lang === 'en' && INTERNATIONAL_SEO_MATRIX.en && INTERNATIONAL_SEO_MATRIX.en[toolId]) {
+    return INTERNATIONAL_SEO_MATRIX.en[toolId]!;
+  }
+
+  // 3. Smart Localized Generation using real native tool names and language SEO templates
+  const toolKey = String(toolId);
+  const localizedName = NATIVE_TOOL_NAMES[lang]?.[toolKey] || NATIVE_TOOL_NAMES.en?.[toolKey] || toolKey;
+  const template = NATIVE_SEO_TEMPLATES[lang] || NATIVE_SEO_TEMPLATES.en;
+
+  return {
+    title: template.formatTitle(localizedName),
+    description: template.formatDescription(localizedName),
+    keywords: template.generateKeywords(localizedName, toolKey),
+    lsiTerms: [localizedName, `${toolKey} calculator`, 'online tool']
   };
 }

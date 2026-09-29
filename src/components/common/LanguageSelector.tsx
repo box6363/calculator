@@ -75,7 +75,7 @@ export const LanguageSelector: React.FC<LanguageSelectorProps> = ({ variant = 'h
         aria-label={`Chọn ngôn ngữ (Đang chọn: ${currentLanguageItem.nativeName})`}
         className={`flex items-center gap-1.5 rounded-xl transition-all cursor-pointer select-none ${
           variant === 'header'
-            ? 'px-2.5 py-1.5 text-xs font-semibold text-slate-700 dark:text-slate-200 bg-slate-100 dark:bg-slate-800/80 hover:bg-slate-200 dark:hover:bg-slate-700/80 border border-slate-300 dark:border-slate-700/70 hover:border-slate-400 dark:hover:border-slate-600 shadow-2xs'
+            ? 'px-2.5 py-1.5 text-xs font-semibold text-slate-700 dark:text-slate-200 bg-slate-100 dark:bg-slate-800/80 hover:bg-slate-200 dark:hover:bg-slate-700/80 border border-slate-300 dark:border-slate-700/70 hover:border-slate-400 dark:hover:border-slate-600 shadow-2xs scale-95 origin-center'
             : 'px-3 py-1.5 text-xs font-medium text-slate-600 dark:text-slate-400 bg-slate-100 dark:bg-slate-800/50 hover:bg-slate-200 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-slate-200 border border-slate-300 dark:border-slate-700/60'
         }`}
       >
