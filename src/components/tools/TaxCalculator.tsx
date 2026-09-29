@@ -23,8 +23,6 @@ import {
   CheckCircle2,
   Share2
 } from 'lucide-react';
-import html2canvas from 'html2canvas-pro';
-import jsPDF from 'jspdf';
 import { exportElementPagesToPdf, PdfExportResult } from '../../utils/pdfExportHelper';
 import { useCurrency, CurrencyCode } from '../../context/CurrencyContext';
 import { CurrencySelector } from '../common/CurrencySelector';
@@ -281,10 +279,18 @@ const REGION_CONFIGS: Record<string, RegionConfig> = {
 export const TaxCalculator: React.FC = () => {
   const { currency, currencyInfo, formatMoney, setCurrency } = useCurrency();
 
-  // 1. Selected Region
+  // 1. Selected Region & Vietnam Minimum Wage Tiers (Nghị định 74/2024/NĐ-CP)
   const [selectedRegionId, setSelectedRegionId] = useState<string>(() => {
     return currency === 'VND' ? 'vn' : 'us';
   });
+
+  const VN_REGION_WAGES: Record<string, { minWage: number; cap: number; name: string }> = {
+    '1': { minWage: 4960000, cap: 99200000, name: 'Vùng I (Hà Nội, TP.HCM, Hải Phòng...)' },
+    '2': { minWage: 4410000, cap: 88200000, name: 'Vùng II (Đà Nẵng, Cần Thơ, Nha Trang...)' },
+    '3': { minWage: 3860000, cap: 77200000, name: 'Vùng III (Các TP trực thuộc tỉnh còn lại)' },
+    '4': { minWage: 3450000, cap: 69000000, name: 'Vùng IV (Các địa bàn còn lại)' },
+  };
+  const [vnRegionTier, setVnRegionTier] = useState<'1' | '2' | '3' | '4'>('1');
 
   const activePreset = REGION_CONFIGS[selectedRegionId] || REGION_CONFIGS.vn;
 
@@ -295,9 +301,23 @@ export const TaxCalculator: React.FC = () => {
   const [dependentDeduction, setDependentDeduction] = useState<number>(activePreset.dependentDeduction);
 
   // 3. Customizable Insurance Items (BHXH, BHYT, BHTN...)
-  const [insurances, setInsurances] = useState<InsuranceItem[]>(() => [
-    ...activePreset.insurances.map(item => ({ ...item }))
-  ]);
+  const [insurances, setInsurances] = useState<InsuranceItem[]>(() => {
+    const list = activePreset.insurances.map(item => ({ ...item }));
+    if (selectedRegionId === 'vn') {
+      const wageInfo = VN_REGION_WAGES['1'];
+      return list.map(item => {
+        if (item.id === 'bhtn') {
+          return {
+            ...item,
+            salaryCap: wageInfo.cap,
+            note: `Trần ${(wageInfo.cap / 1000000).toFixed(1)} triệu (20× LTT Vùng 1 theo NĐ 74/2024)`
+          };
+        }
+        return item;
+      });
+    }
+    return list;
+  });
 
   // 4. Customizable Tax Brackets
   const [brackets, setBrackets] = useState<TaxBracket[]>(() => [
@@ -328,6 +348,21 @@ export const TaxCalculator: React.FC = () => {
   const [newInsCap, setNewInsCap] = useState<string>('');
   const [showAddIns, setShowAddIns] = useState<boolean>(false);
 
+  const handleVnRegionChange = (tier: '1' | '2' | '3' | '4') => {
+    setVnRegionTier(tier);
+    const wageInfo = VN_REGION_WAGES[tier];
+    setInsurances(prev => prev.map(ins => {
+      if (ins.id === 'bhtn') {
+        return {
+          ...ins,
+          salaryCap: wageInfo.cap,
+          note: `Trần ${(wageInfo.cap / 1000000).toFixed(1)} triệu (20× LTT ${wageInfo.minWage.toLocaleString('vi-VN')}đ - Vùng ${tier} theo NĐ 74/2024)`
+        };
+      }
+      return ins;
+    }));
+  };
+
   // When user switches Region
   const handleSelectRegion = (regionId: string) => {
     setSelectedRegionId(regionId);
@@ -336,7 +371,21 @@ export const TaxCalculator: React.FC = () => {
       setGrossMonthly(config.defaultGross);
       setSelfDeduction(config.selfDeduction);
       setDependentDeduction(config.dependentDeduction);
-      setInsurances(config.insurances.map(i => ({ ...i })));
+      if (regionId === 'vn') {
+        const wageInfo = VN_REGION_WAGES[vnRegionTier];
+        setInsurances(config.insurances.map(i => {
+          if (i.id === 'bhtn') {
+            return {
+              ...i,
+              salaryCap: wageInfo.cap,
+              note: `Trần ${(wageInfo.cap / 1000000).toFixed(1)} triệu (20× LTT Vùng ${vnRegionTier} theo NĐ 74/2024)`
+            };
+          }
+          return { ...i };
+        }));
+      } else {
+        setInsurances(config.insurances.map(i => ({ ...i })));
+      }
       setBrackets(config.brackets.map(b => ({ ...b })));
       setCustomIncomes([]);
       setCustomDeductions([]);
@@ -595,106 +644,23 @@ export const TaxCalculator: React.FC = () => {
       setExportError(null);
       setExportSuccess(false);
 
-      // Ưu tiên 1: nếu modal đang mở, dùng element đó
-      let targetElement = document.getElementById('tax-statement-modal-sheet') as HTMLElement | null;
-      let restoredStyle = '';
-
+      const targetElement = document.getElementById('tax-statement-modal-sheet') || document.getElementById('tax-statement-printable');
       if (!targetElement) {
-        // Ưu tiên 2: dùng printable element ẩn
-        const source = document.getElementById('tax-statement-printable') as HTMLElement | null;
-        if (!source) {
-          // Fallback: mở dialog in của trình duyệt
-          window.print();
-          return;
-        }
-        // Tạm thời force visible để html2canvas capture được
-        restoredStyle = source.getAttribute('style') || '';
-        source.style.cssText = [
-          'position: fixed !important',
-          'left: -9999px !important',
-          'top: 0px !important',
-          'width: 800px !important',
-          'display: block !important',
-          'visibility: visible !important',
-          'z-index: -9999 !important',
-          'background-color: #ffffff !important',
-          'color: #0f172a !important',
-          'pointer-events: none !important',
-        ].join('; ');
-        targetElement = source;
+        window.print();
+        return;
       }
 
-      // Đợi trình duyệt reflow sau khi thay style
-      await new Promise(r => setTimeout(r, 100));
-
-      const canvas = await html2canvas(targetElement, {
-        scale: 2,
-        useCORS: true,
-        allowTaint: true,
-        logging: false,
-        backgroundColor: '#ffffff',
-        imageTimeout: 15000,
-        scrollX: 0,
-        scrollY: -window.scrollY,
-        windowWidth: 800,
-        onclone: (clonedDoc) => {
-          const el = clonedDoc.getElementById('tax-statement-modal-sheet') || clonedDoc.getElementById('tax-statement-printable');
-          if (el) {
-            el.style.filter = 'grayscale(100%)';
-            el.style.backgroundColor = '#ffffff';
-            el.style.color = '#000000';
-            el.style.border = 'none';
-            el.style.boxShadow = 'none';
-          }
-        },
-      });
-
-      // Khôi phục style ẩn ban đầu nếu đã thay
-      if (restoredStyle !== '') {
-        const src = document.getElementById('tax-statement-printable');
-        if (src) src.setAttribute('style', restoredStyle);
-      }
-
-      const imgData = canvas.toDataURL('image/jpeg', 0.95);
-      const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
-
-      const pdfWidth = 210;
-      const pdfHeight = 297;
-      const imgHeight = (canvas.height * pdfWidth) / canvas.width;
-
-      // Trang đầu
-      pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, imgHeight);
-
-      // Các trang tiếp theo — FIX lỗi offset sai
-      let heightLeft = imgHeight - pdfHeight;
-      let yOffset = -pdfHeight;
-      while (heightLeft > 1) {
-        pdf.addPage();
-        pdf.addImage(imgData, 'JPEG', 0, yOffset, pdfWidth, imgHeight);
-        yOffset -= pdfHeight;
-        heightLeft -= pdfHeight;
-      }
-
-      // Download tương thích mọi trình duyệt (kể cả iOS Safari)
       const dateStr = new Date().toISOString().slice(0, 10);
       const safeRegion = selectedRegionId.replace(/[^a-z0-9_-]/gi, '_');
       const fileName = `Bang_Du_Toan_Thue_${safeRegion}_${dateStr}.pdf`;
 
-      const pdfBlob = pdf.output('blob');
-      const blobUrl = URL.createObjectURL(pdfBlob);
-      const link = document.createElement('a');
-      link.href = blobUrl;
-      link.download = fileName;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-
-      // Lưu exportResult để hiện thẻ UI download/share trực tiếp cho điện thoại
-      setExportResult({
-        blob: pdfBlob,
-        blobUrl,
+      const result = await exportElementPagesToPdf(targetElement, {
         fileName,
+        pageSelector: '.pdf-report-page',
+        isVi: true,
       });
+
+      setExportResult(result);
       setExportSuccess(true);
       setTimeout(() => {
         setExportSuccess(false);
@@ -894,6 +860,39 @@ export const TaxCalculator: React.FC = () => {
             );
           })}
         </div>
+
+        {selectedRegionId === 'vn' && (
+          <div className="p-3 bg-blue-50/70 dark:bg-slate-800/60 border border-blue-200 dark:border-slate-700 rounded-xl space-y-2">
+            <div className="flex flex-wrap items-center justify-between gap-1">
+              <span className="text-xs font-bold text-blue-900 dark:text-blue-300 flex items-center gap-1.5">
+                <span>📍</span>
+                <span>Vùng áp dụng lương tối thiểu (Nghị định 74/2024/NĐ-CP):</span>
+              </span>
+              <span className="text-[11px] font-semibold text-blue-700 dark:text-blue-400">
+                Trần BHTN: {(VN_REGION_WAGES[vnRegionTier].cap / 1000000).toFixed(1)} triệu/tháng
+              </span>
+            </div>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+              {(['1', '2', '3', '4'] as const).map((tier) => (
+                <button
+                  key={tier}
+                  type="button"
+                  onClick={() => handleVnRegionChange(tier)}
+                  className={`px-2.5 py-1.5 rounded-lg text-xs font-bold transition-all text-left border cursor-pointer ${
+                    vnRegionTier === tier
+                      ? 'bg-blue-600 text-white border-blue-600 shadow-sm'
+                      : 'bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:border-blue-400'
+                  }`}
+                >
+                  <div className="font-bold">Vùng {tier}</div>
+                  <div className="text-[10px] opacity-80 truncate">
+                    {(VN_REGION_WAGES[tier].minWage / 1000000).toFixed(2)}tr → Trần {(VN_REGION_WAGES[tier].cap / 1000000).toFixed(1)}tr
+                  </div>
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
 
         {activePreset.regionNotes && (
           <div className="p-2.5 rounded-xl bg-blue-50 dark:bg-slate-800/50 border border-blue-200 dark:border-slate-700/60 flex items-start gap-2 text-xs text-blue-900 dark:text-slate-300">

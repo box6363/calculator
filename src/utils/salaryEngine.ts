@@ -752,16 +752,28 @@ export function formatCurrency(
   value: number, 
   currencySymbol: string, 
   decimals: number = 2,
-  locale: string = 'en-US'
+  locale?: string
 ): string {
   if (isNaN(value)) return `${currencySymbol}0`;
-  const formatted = new Intl.NumberFormat(locale, {
+
+  let effectiveLocale = locale;
+  if (!effectiveLocale) {
+    if (currencySymbol === '₫' || currencySymbol === 'VND') effectiveLocale = 'vi-VN';
+    else if (currencySymbol === '€') effectiveLocale = 'de-DE';
+    else if (currencySymbol === '¥') effectiveLocale = 'ja-JP';
+    else if (currencySymbol === '₩') effectiveLocale = 'ko-KR';
+    else if (currencySymbol === '₽') effectiveLocale = 'ru-RU';
+    else if (currencySymbol === 'R$') effectiveLocale = 'pt-BR';
+    else effectiveLocale = 'en-US';
+  }
+
+  const formatted = new Intl.NumberFormat(effectiveLocale, {
     minimumFractionDigits: decimals,
     maximumFractionDigits: decimals
   }).format(value);
 
   // Position symbol (e.g. 20.000.000 ₫ vs $75,000.00)
-  if (currencySymbol === '₫') {
+  if (currencySymbol === '₫' || currencySymbol === 'VND') {
     return `${formatted} ₫`;
   }
   return `${currencySymbol}${formatted}`;

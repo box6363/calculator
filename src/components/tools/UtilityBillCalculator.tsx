@@ -336,9 +336,6 @@ export const UtilityBillCalculator: React.FC = () => {
   // Active Sub-Tab: 'all' | 'electricity' | 'water' | 'gas' | 'internet' | 'living' | 'split'
   const [activeTab, setActiveTab] = useState<'all' | 'electricity' | 'water' | 'gas' | 'internet' | 'living' | 'split'>('all');
 
-  // Compute initial ratio from preset native currency to active currency
-  const initRatio = getExchangeRateRatio(preset.currencyCode, currency);
-
   // ELECTRICITY STATE
   const [electricityInputMode, setElectricityInputMode] = useState<'kwh' | 'meter' | 'appliances'>('kwh');
   const [electricityKwh, setElectricityKwh] = useState<number>(preset.defaultElectricityKwh);
@@ -397,13 +394,26 @@ export const UtilityBillCalculator: React.FC = () => {
   const [copiedShare, setCopiedShare] = useState<boolean>(false);
 
   // Previous currency ref to automatically convert user inputs when currency toggles
-  const prevCurrencyRef = useRef<CurrencyCode>('USD');
+  const prevCurrencyRef = useRef<CurrencyCode>(currency);
 
-  // Ensure default currency and initial examples start in USD ($)
+  // If user enters with a different currency than the preset default, scale initial values appropriately
   useEffect(() => {
-    if (currency !== 'USD') {
-      prevCurrencyRef.current = 'USD';
-      setCurrency('USD');
+    if (preset.currencyCode !== currency) {
+      const ratio = getExchangeRateRatio(preset.currencyCode, currency);
+      if (ratio !== 1.0 && !isNaN(ratio) && ratio > 0) {
+        setElectricityFlatRate(prev => Math.round((prev * ratio) * 1000) / 1000);
+        setElectricityFixedFee(prev => Math.round((prev * ratio) * 100) / 100);
+        setWaterRate(prev => Math.round((prev * ratio) * 1000) / 1000);
+        setCylinderPrice(prev => Math.round((prev * ratio) * 100) / 100);
+        setPipedGasRate(prev => Math.round((prev * ratio) * 1000) / 1000);
+        setInternetFee(prev => Math.round((prev * ratio) * 100) / 100);
+        setTvFee(prev => Math.round((prev * ratio) * 100) / 100);
+        setMobilePlanPrice(prev => Math.round((prev * ratio) * 100) / 100);
+        setManagementFee(prev => Math.round((prev * ratio) * 100) / 100);
+        setParkingFee(prev => Math.round((prev * ratio) * 100) / 100);
+        setRentFee(prev => Math.round((prev * ratio) * 100) / 100);
+        setFoodFee(prev => Math.round((prev * ratio) * 100) / 100);
+      }
     }
   }, []);
 

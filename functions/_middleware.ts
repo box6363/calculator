@@ -179,9 +179,9 @@ Always output clean plain text or simple markdown. Keep answers under 150 words.
       // Fetch the static index.html built by Vite from Cloudflare Pages static assets
       const response = await next();
       
-      // If the static asset was fetched successfully, inject the complete SEO Prerender markup
+      // If the static asset was fetched successfully, inject the complete SEO Prerender markup only for HTML responses
       const contentType = response.headers.get('content-type') || '';
-      if (contentType.includes('text/html') || response.status === 200 || response.status === 404) {
+      if (contentType.includes('text/html')) {
         const templateHtml = await response.text();
         const renderedHtml = renderServerHtml(templateHtml, langCandidate as any, toolId, baseUrl);
 

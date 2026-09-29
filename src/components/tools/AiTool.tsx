@@ -390,6 +390,7 @@ export const AiTool: React.FC = () => {
         const file = item.getAsFile();
         if (file) {
           e.preventDefault();
+          e.stopPropagation();
           processFile(file);
           setPasteToast('Đã dán ảnh từ bộ nhớ tạm (Clipboard)!');
           setTimeout(() => setPasteToast(null), 3500);

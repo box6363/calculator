@@ -9,6 +9,7 @@ export interface PdfExportOptions {
   format?: 'a4';
   autoDownload?: boolean; // default true
   showMobileSheet?: boolean; // default true on mobile
+  isVi?: boolean; // default auto-detected from html lang or true
 }
 
 export interface PdfExportResult {
@@ -489,8 +490,11 @@ export async function exportElementPagesToPdf(
     // Luôn luôn hiển thị Mobile PDF Action Sheet tương tác (trừ khi người dùng đã share thành công)
     // để người dùng có thể chạm trực tiếp 1 chạm tải về máy 100% không bao giờ bị chặn!
     const shouldShowMobileSheet = options.showMobileSheet !== false && isMobile;
+    const isVietnamese = options.isVi !== undefined 
+      ? options.isVi 
+      : (typeof document !== 'undefined' && document.documentElement.lang === 'vi');
     if (shouldShowMobileSheet && !sharedDirectly) {
-      showMobilePdfDownloadSheet(exportResult, true);
+      showMobilePdfDownloadSheet(exportResult, isVietnamese);
     }
 
     // Giữ blob URL sống trong 10 phút để người dùng có thể tải nhiều lần mà không bị lỗi đứt link

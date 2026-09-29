@@ -124,7 +124,9 @@ function evaluateScientificFormula(
     clean = clean.replace(/(\d)\s*Math/g, '$1 * Math');
     clean = clean.replace(/\)\s*Math/g, ') * Math');
 
-    // Handle Percentage: 50% -> (50*0.01)
+    // Handle Context-Aware Percentage (Casio/iPhone UX standard: A + B% = A + A*B%, A - B% = A - A*B%)
+    clean = clean.replace(/(\b\d+(?:\.\d+)?|\([^()]+\))\s*([+-])\s*(\d+(?:\.\d+)?)%/g, '$1 $2 ($1 * ($3 * 0.01))');
+    clean = clean.replace(/(\b\d+(?:\.\d+)?|\([^()]+\))\s*([*/])\s*(\d+(?:\.\d+)?)%/g, '$1 $2 ($3 * 0.01)');
     clean = clean.replace(/(\d+(\.\d+)?)%/g, '($1*0.01)');
 
     const scope = {

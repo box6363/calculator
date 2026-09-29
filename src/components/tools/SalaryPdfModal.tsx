@@ -1,9 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { X, FileDown, Printer, Check, Loader2, Calendar, Wallet, ShieldAlert, Globe, ArrowRight, CheckCircle2, Share2 } from 'lucide-react';
-import html2canvas from 'html2canvas-pro';
-import jsPDF from 'jspdf';
 import { useLanguage } from '../../context/LanguageContext';
-import { PdfExportResult } from '../../utils/pdfExportHelper';
+import { exportElementPagesToPdf, PdfExportResult } from '../../utils/pdfExportHelper';
 import {
   CountrySalaryProfile,
   PayPeriod,
@@ -88,89 +86,16 @@ export const SalaryPdfModal: React.FC<SalaryPdfModalProps> = ({
         ? `Phieu_Luong_${safeCountry}_Net_${Math.round(netCurrent)}_${dateStr}.pdf`
         : `Salary_Slip_${safeCountry}_Net_${Math.round(netCurrent)}_${dateStr}.pdf`;
 
-      await new Promise((r) => setTimeout(r, 120));
-
-      setExportProgress(isVi ? 'Đang kết xuất phiếu lương chuẩn A4...' : 'Rendering A4 payslip...');
-
-      const canvas = await html2canvas(source, {
-        scale: 2,
-        useCORS: true,
-        allowTaint: true,
-        logging: false,
-        backgroundColor: '#ffffff',
-        imageTimeout: 15000,
-        onclone: (clonedDoc) => {
-          const el = clonedDoc.getElementById('salary-pdf-printable-source');
-          if (el) {
-            el.style.position = 'static';
-            el.style.left = '0px';
-            el.style.top = '0px';
-            el.style.width = '794px';
-            el.style.visibility = 'visible';
-            el.style.display = 'block';
-            el.style.opacity = '1';
-            el.style.zIndex = '1';
-            el.style.filter = 'grayscale(100%)';
-            el.style.backgroundColor = '#ffffff';
-            el.style.color = '#000000';
-            const pageEl = el.querySelector('.pdf-report-page') as HTMLElement;
-            if (pageEl) {
-              pageEl.style.border = 'none';
-              pageEl.style.boxShadow = 'none';
-            }
-          }
-        },
-      });
-
-      if (!canvas || canvas.width === 0 || canvas.height === 0) {
-        throw new Error('Canvas render returned empty dimensions');
-      }
-
-      setExportProgress(isVi ? 'Đang tạo tệp PDF...' : 'Generating PDF file...');
-
-      const imgData = canvas.toDataURL('image/jpeg', 0.95);
-      const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
-
-      const pdfWidth = 210;
-      const pdfHeight = 297;
-      const imgHeight = (canvas.height * pdfWidth) / canvas.width;
-
-      // Trang 1
-      pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, imgHeight);
-
-      // Các trang tiếp theo nếu nội dung dài hơn 1 trang
-      let heightLeft = imgHeight - pdfHeight;
-      let yOffset = -pdfHeight;
-      while (heightLeft > 1) {
-        pdf.addPage();
-        pdf.addImage(imgData, 'JPEG', 0, yOffset, pdfWidth, imgHeight);
-        yOffset -= pdfHeight;
-        heightLeft -= pdfHeight;
-      }
-
-      const pdfBlob = pdf.output('blob');
-      const blobUrl = URL.createObjectURL(pdfBlob);
-
-      // Kích hoạt download trực tiếp
-      const link = document.createElement('a');
-      link.href = blobUrl;
-      link.download = fileName;
-      document.body.appendChild(link);
-      link.click();
-      setTimeout(() => {
-        if (document.body.contains(link)) {
-          document.body.removeChild(link);
-        }
-      }, 3000);
-
-      setExportResult({
-        blob: pdfBlob,
-        blobUrl,
+      const result = await exportElementPagesToPdf(source, {
         fileName,
+        pageSelector: '.pdf-report-page',
+        onProgress: (text) => setExportProgress(text),
+        isVi,
       });
 
+      setExportResult(result);
       setIsDone(true);
-      setExportProgress(isVi ? 'Xuất PDF thành công! Đang tải file...' : 'PDF exported successfully! Downloading...');
+      setExportProgress(isVi ? 'Xuất PDF thành công!' : 'PDF exported successfully!');
       setTimeout(() => {
         setIsDone(false);
         setExportProgress('');
