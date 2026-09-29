@@ -6,17 +6,70 @@ import { ChevronDown, Check, Coins } from 'lucide-react';
 interface CurrencySelectorProps {
   variant?: 'header' | 'inline' | 'compact';
   className?: string;
+  align?: 'left' | 'right' | 'auto';
 }
 
 export const CurrencySelector: React.FC<CurrencySelectorProps> = ({
   variant = 'header',
-  className = ''
+  className = '',
+  align = 'auto'
 }) => {
   const { currency, setCurrency, currencyInfo, currencies } = useCurrency();
   const { language } = useLanguage();
   const isVi = language === 'vi';
   const [isOpen, setIsOpen] = useState(false);
+  const [dropdownSide, setDropdownSide] = useState<'left' | 'right'>(align === 'left' ? 'left' : 'right');
+  const [dropdownStyle, setDropdownStyle] = useState<React.CSSProperties>({});
   const dropdownRef = useRef<HTMLDivElement>(null);
+
+  const calculatePosition = () => {
+    if (!dropdownRef.current) return;
+    const rect = dropdownRef.current.getBoundingClientRect();
+    const screenWidth = window.innerWidth;
+
+    if (variant === 'compact') {
+      const dropdownWidth = 224;
+      if (align === 'left' || rect.right - dropdownWidth < 15 || rect.left < screenWidth / 2) {
+        setDropdownSide('left');
+        if (rect.left + dropdownWidth > screenWidth - 12) {
+          const shift = (rect.left + dropdownWidth) - (screenWidth - 12);
+          setDropdownStyle({ transform: `translateX(-${shift}px)` });
+        } else {
+          setDropdownStyle({});
+        }
+      } else {
+        setDropdownSide('right');
+        if (rect.right - dropdownWidth < 12) {
+          const shift = 12 - (rect.right - dropdownWidth);
+          setDropdownStyle({ transform: `translateX(${shift}px)` });
+        } else {
+          setDropdownStyle({});
+        }
+      }
+      return;
+    }
+
+    // Default 'header' variant
+    const dropdownWidth = 256;
+    const naturalLeft = rect.right - dropdownWidth;
+    let shiftX = 0;
+    if (naturalLeft < 12) {
+      shiftX = 12 - naturalLeft;
+    } else if (rect.right > screenWidth - 12) {
+      shiftX = (screenWidth - 12) - rect.right;
+    }
+
+    setDropdownStyle({
+      transform: shiftX !== 0 ? `translateX(${shiftX}px)` : undefined,
+    });
+  };
+
+  const toggleOpen = () => {
+    if (!isOpen) {
+      calculatePosition();
+    }
+    setIsOpen(!isOpen);
+  };
 
   // Close when clicking outside
   useEffect(() => {
@@ -26,12 +79,15 @@ export const CurrencySelector: React.FC<CurrencySelectorProps> = ({
       }
     };
     if (isOpen) {
+      calculatePosition();
       document.addEventListener('mousedown', handleClickOutside);
+      window.addEventListener('resize', calculatePosition);
     }
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
+      window.removeEventListener('resize', calculatePosition);
     };
-  }, [isOpen]);
+  }, [isOpen, align, variant]);
 
   const handleSelect = (code: CurrencyCode) => {
     setCurrency(code);
@@ -44,7 +100,7 @@ export const CurrencySelector: React.FC<CurrencySelectorProps> = ({
         <button
           id="currency-compact-selector-btn"
           type="button"
-          onClick={() => setIsOpen(!isOpen)}
+          onClick={toggleOpen}
           className="currency-compact-btn flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold rounded-lg bg-slate-100 dark:bg-slate-800/80 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-300 dark:border-slate-700 transition-colors cursor-pointer"
           title={isVi ? 'Đổi đơn vị tiền tệ' : 'Change Currency'}
         >
@@ -55,7 +111,10 @@ export const CurrencySelector: React.FC<CurrencySelectorProps> = ({
         </button>
 
         {isOpen && (
-          <div className="currency-compact-dropdown absolute right-0 mt-1.5 w-56 max-h-72 overflow-y-auto rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 shadow-2xl z-50 p-1.5 scrollbar-thin scrollbar-thumb-slate-300 dark:scrollbar-thumb-slate-700">
+          <div 
+            style={dropdownStyle}
+            className={`currency-compact-dropdown absolute ${dropdownSide === 'left' ? 'left-0' : 'right-0'} mt-1.5 w-56 max-w-[calc(100vw-2rem)] max-h-72 overflow-y-auto rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 shadow-2xl z-50 p-1.5 scrollbar-thin scrollbar-thumb-slate-300 dark:scrollbar-thumb-slate-700 animate-in fade-in zoom-in-95 duration-150`}
+          >
             <div className="px-2.5 py-1 text-[11px] font-bold tracking-wider text-slate-500 dark:text-slate-400 uppercase border-b border-slate-200 dark:border-slate-800">
               {isVi ? 'Chọn tiền tệ (Gốc: $ USD)' : 'Select Currency (Base: $ USD)'}
             </div>
@@ -135,7 +194,8 @@ export const CurrencySelector: React.FC<CurrencySelectorProps> = ({
       {isOpen && (
         <div 
           id="header-currency-dropdown"
-          className="absolute right-0 mt-2 w-64 max-h-80 overflow-y-auto rounded-2xl bg-white dark:bg-slate-900/95 backdrop-blur-md border border-slate-200 dark:border-slate-700/80 shadow-2xl z-50 p-2 scrollbar-thin scrollbar-thumb-slate-300 dark:scrollbar-thumb-slate-700 animate-in fade-in zoom-in-95 duration-150"
+          style={dropdownStyle}
+          className="absolute right-0 mt-2 w-64 max-w-[calc(100vw-1.5rem)] max-h-80 overflow-y-auto rounded-2xl bg-white dark:bg-slate-900/95 backdrop-blur-md border border-slate-200 dark:border-slate-700/80 shadow-2xl z-50 p-2 scrollbar-thin scrollbar-thumb-slate-300 dark:scrollbar-thumb-slate-700 animate-in fade-in zoom-in-95 duration-150"
         >
           <div className="px-3 py-2 border-b border-slate-200 dark:border-slate-800 mb-1 flex items-center justify-between">
             <div className="flex items-center gap-1.5">

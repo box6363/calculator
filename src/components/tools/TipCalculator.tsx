@@ -83,7 +83,7 @@ export const TipCalculator: React.FC = () => {
         </div>
 
         <div className="flex items-center gap-2">
-          <CurrencySelector variant="compact" />
+          <CurrencySelector variant="compact" align="left" />
           <button
             onClick={handleCopy}
             className="flex items-center gap-1.5 px-3.5 py-2 text-xs font-semibold rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 transition-colors active:scale-95 cursor-pointer"

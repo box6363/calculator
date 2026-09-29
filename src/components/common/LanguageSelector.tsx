@@ -11,7 +11,33 @@ export const LanguageSelector: React.FC<LanguageSelectorProps> = ({ variant = 'h
   const { language, setLanguage, languages, currentLanguageItem } = useLanguage();
   const [isOpen, setIsOpen] = useState(false);
   const [search, setSearch] = useState('');
+  const [dropdownStyle, setDropdownStyle] = useState<React.CSSProperties>({});
   const dropdownRef = useRef<HTMLDivElement>(null);
+
+  const calculatePosition = () => {
+    if (!dropdownRef.current) return;
+    const rect = dropdownRef.current.getBoundingClientRect();
+    const screenWidth = window.innerWidth;
+    const dropdownWidth = 256;
+    const naturalLeft = rect.right - dropdownWidth;
+    let shiftX = 0;
+    if (naturalLeft < 12) {
+      shiftX = 12 - naturalLeft;
+    } else if (rect.right > screenWidth - 12) {
+      shiftX = (screenWidth - 12) - rect.right;
+    }
+
+    setDropdownStyle({
+      transform: shiftX !== 0 ? `translateX(${shiftX}px)` : undefined,
+    });
+  };
+
+  const toggleOpen = () => {
+    if (!isOpen) {
+      calculatePosition();
+    }
+    setIsOpen(!isOpen);
+  };
 
   // Close dropdown on outside click
   useEffect(() => {
@@ -20,9 +46,16 @@ export const LanguageSelector: React.FC<LanguageSelectorProps> = ({ variant = 'h
         setIsOpen(false);
       }
     };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
+    if (isOpen) {
+      calculatePosition();
+      document.addEventListener('mousedown', handleClickOutside);
+      window.addEventListener('resize', calculatePosition);
+    }
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      window.removeEventListener('resize', calculatePosition);
+    };
+  }, [isOpen]);
 
   const filteredLanguages = languages.filter((l: LanguageItem) => 
     l.nativeName.toLowerCase().includes(search.toLowerCase()) ||
@@ -36,7 +69,7 @@ export const LanguageSelector: React.FC<LanguageSelectorProps> = ({ variant = 'h
       <button
         type="button"
         id={`language-selector-btn-${variant}`}
-        onClick={() => setIsOpen(!isOpen)}
+        onClick={toggleOpen}
         aria-expanded={isOpen}
         aria-haspopup="listbox"
         aria-label={`Chọn ngôn ngữ (Đang chọn: ${currentLanguageItem.nativeName})`}
@@ -57,7 +90,8 @@ export const LanguageSelector: React.FC<LanguageSelectorProps> = ({ variant = 'h
         <div 
           id="header-language-dropdown"
           role="listbox"
-          className="absolute right-0 bottom-auto mt-2 w-64 max-h-80 overflow-hidden bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-2xl z-50 flex flex-col animate-in fade-in zoom-in-95 duration-150"
+          style={dropdownStyle}
+          className="absolute right-0 bottom-auto mt-2 w-64 max-w-[calc(100vw-1.5rem)] max-h-80 overflow-hidden bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-2xl z-50 flex flex-col animate-in fade-in zoom-in-95 duration-150"
         >
           {/* Header / Search input */}
           <div className="p-2.5 border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/90 language-search-header">
