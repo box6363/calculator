@@ -284,12 +284,14 @@ export const TaxCalculator: React.FC = () => {
     return currency === 'VND' ? 'vn' : 'us';
   });
 
-  const VN_REGION_WAGES: Record<string, { minWage: number; cap: number; name: string }> = {
+  const DEFAULT_VN_REGION_WAGES: Record<string, { minWage: number; cap: number; name: string }> = {
     '1': { minWage: 4960000, cap: 99200000, name: 'Vùng I (Hà Nội, TP.HCM, Hải Phòng...)' },
     '2': { minWage: 4410000, cap: 88200000, name: 'Vùng II (Đà Nẵng, Cần Thơ, Nha Trang...)' },
     '3': { minWage: 3860000, cap: 77200000, name: 'Vùng III (Các TP trực thuộc tỉnh còn lại)' },
     '4': { minWage: 3450000, cap: 69000000, name: 'Vùng IV (Các địa bàn còn lại)' },
   };
+  const [vnRegionWages, setVnRegionWages] = useState(DEFAULT_VN_REGION_WAGES);
+  const [isEditingVnWages, setIsEditingVnWages] = useState(false);
   const [vnRegionTier, setVnRegionTier] = useState<'1' | '2' | '3' | '4'>('1');
 
   const activePreset = REGION_CONFIGS[selectedRegionId] || REGION_CONFIGS.vn;
@@ -304,7 +306,7 @@ export const TaxCalculator: React.FC = () => {
   const [insurances, setInsurances] = useState<InsuranceItem[]>(() => {
     const list = activePreset.insurances.map(item => ({ ...item }));
     if (selectedRegionId === 'vn') {
-      const wageInfo = VN_REGION_WAGES['1'];
+      const wageInfo = DEFAULT_VN_REGION_WAGES['1'];
       return list.map(item => {
         if (item.id === 'bhtn') {
           return {
@@ -350,16 +352,71 @@ export const TaxCalculator: React.FC = () => {
 
   const handleVnRegionChange = (tier: '1' | '2' | '3' | '4') => {
     setVnRegionTier(tier);
-    const wageInfo = VN_REGION_WAGES[tier];
+    const wageInfo = vnRegionWages[tier];
     setInsurances(prev => prev.map(ins => {
       if (ins.id === 'bhtn') {
         return {
           ...ins,
           salaryCap: wageInfo.cap,
-          note: `Trần ${(wageInfo.cap / 1000000).toFixed(1)} triệu (20× LTT ${wageInfo.minWage.toLocaleString('vi-VN')}đ - Vùng ${tier} theo NĐ 74/2024)`
+          note: `Trần ${(wageInfo.cap / 1000000).toFixed(1)} triệu (20× LTT ${wageInfo.minWage.toLocaleString('vi-VN')}đ - Vùng ${tier})`
         };
       }
       return ins;
+    }));
+  };
+
+  const handleUpdateVnMinWage = (tier: '1' | '2' | '3' | '4', newMinWage: number) => {
+    const validWage = Math.max(0, newMinWage);
+    const newCap = validWage * 20;
+    setVnRegionWages(prev => ({
+      ...prev,
+      [tier]: {
+        ...prev[tier],
+        minWage: validWage,
+        cap: newCap
+      }
+    }));
+    // If currently selected tier, update BHTN salaryCap immediately
+    if (vnRegionTier === tier) {
+      setInsurances(prev => prev.map(ins => {
+        if (ins.id === 'bhtn') {
+          return {
+            ...ins,
+            salaryCap: newCap,
+            note: `Trần ${(newCap / 1000000).toFixed(1)} triệu (20× LTT ${validWage.toLocaleString('vi-VN')}đ - Vùng ${tier})`
+          };
+        }
+        return ins;
+      }));
+    }
+  };
+
+  const handleResetVnWages = () => {
+    setVnRegionWages(DEFAULT_VN_REGION_WAGES);
+    const defaultInfo = DEFAULT_VN_REGION_WAGES[vnRegionTier];
+    setInsurances(prev => prev.map(ins => {
+      if (ins.id === 'bhtn') {
+        return {
+          ...ins,
+          salaryCap: defaultInfo.cap,
+          note: `Trần ${(defaultInfo.cap / 1000000).toFixed(1)} triệu (20× LTT ${defaultInfo.minWage.toLocaleString('vi-VN')}đ - Vùng ${vnRegionTier})`
+        };
+      }
+      return ins;
+    }));
+  };
+
+  const handleUpdateInsuranceCap = (id: string, newCap: number) => {
+    const validCap = Math.max(0, newCap);
+    setInsurances(prev => prev.map(i => {
+      if (i.id === id) {
+        return {
+          ...i,
+          salaryCap: validCap,
+          note: validCap > 0 ? `Trần ${validCap.toLocaleString()}` : 'Không trần'
+        };
+      }
+      return i;
     }));
   };
 
@@ -372,13 +429,13 @@ export const TaxCalculator: React.FC = () => {
       setSelfDeduction(config.selfDeduction);
       setDependentDeduction(config.dependentDeduction);
       if (regionId === 'vn') {
-        const wageInfo = VN_REGION_WAGES[vnRegionTier];
+        const wageInfo = vnRegionWages[vnRegionTier];
         setInsurances(config.insurances.map(i => {
           if (i.id === 'bhtn') {
             return {
               ...i,
               salaryCap: wageInfo.cap,
-              note: `Trần ${(wageInfo.cap / 1000000).toFixed(1)} triệu (20× LTT Vùng ${vnRegionTier} theo NĐ 74/2024)`
+              note: `Trần ${(wageInfo.cap / 1000000).toFixed(1)} triệu (20× LTT ${wageInfo.minWage.toLocaleString('vi-VN')}đ - Vùng ${vnRegionTier})`
             };
           }
           return { ...i };
@@ -862,35 +919,94 @@ export const TaxCalculator: React.FC = () => {
         </div>
 
         {selectedRegionId === 'vn' && (
-          <div className="p-3 bg-blue-50/70 dark:bg-slate-800/60 border border-blue-200 dark:border-slate-700 rounded-xl space-y-2">
-            <div className="flex flex-wrap items-center justify-between gap-1">
+          <div className="p-3.5 bg-blue-50/70 dark:bg-slate-800/60 border border-blue-200 dark:border-slate-700 rounded-xl space-y-3">
+            <div className="flex flex-wrap items-center justify-between gap-2">
               <span className="text-xs font-bold text-blue-900 dark:text-blue-300 flex items-center gap-1.5">
                 <span>📍</span>
                 <span>Vùng áp dụng lương tối thiểu (Nghị định 74/2024/NĐ-CP):</span>
               </span>
-              <span className="text-[11px] font-semibold text-blue-700 dark:text-blue-400">
-                Trần BHTN: {(VN_REGION_WAGES[vnRegionTier].cap / 1000000).toFixed(1)} triệu/tháng
-              </span>
+              <div className="flex items-center gap-2">
+                <span className="text-[11px] font-semibold text-blue-700 dark:text-blue-400">
+                  Trần BHTN đang áp dụng: <strong className="font-sans font-bold text-emerald-600 dark:text-emerald-400">{(vnRegionWages[vnRegionTier].cap / 1000000).toFixed(1)} triệu</strong>
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setIsEditingVnWages(prev => !prev)}
+                  className="px-2 py-0.5 text-[11px] font-bold text-blue-700 dark:text-blue-300 hover:text-white bg-blue-100 hover:bg-blue-600 dark:bg-blue-950 dark:hover:bg-blue-700 border border-blue-300 dark:border-blue-700 rounded-md transition-colors cursor-pointer"
+                >
+                  {isEditingVnWages ? '✕ Đóng chỉnh sửa' : '✏️ Tùy chỉnh thông số 4 vùng'}
+                </button>
+              </div>
             </div>
+
+            {/* Quick Region Selector Buttons */}
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
               {(['1', '2', '3', '4'] as const).map((tier) => (
                 <button
                   key={tier}
                   type="button"
                   onClick={() => handleVnRegionChange(tier)}
-                  className={`px-2.5 py-1.5 rounded-lg text-xs font-bold transition-all text-left border cursor-pointer ${
+                  className={`px-2.5 py-2 rounded-lg text-xs font-bold transition-all text-left border cursor-pointer ${
                     vnRegionTier === tier
-                      ? 'bg-blue-600 text-white border-blue-600 shadow-sm'
+                      ? 'bg-blue-600 text-white border-blue-600 shadow-sm ring-1 ring-blue-400'
                       : 'bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:border-blue-400'
                   }`}
                 >
-                  <div className="font-bold">Vùng {tier}</div>
-                  <div className="text-[10px] opacity-80 truncate">
-                    {(VN_REGION_WAGES[tier].minWage / 1000000).toFixed(2)}tr → Trần {(VN_REGION_WAGES[tier].cap / 1000000).toFixed(1)}tr
+                  <div className="font-bold flex items-center justify-between">
+                    <span>Vùng {tier}</span>
+                    {vnRegionTier === tier && <span className="text-[10px] bg-blue-500 text-white px-1.5 py-0.2 rounded">Đang chọn</span>}
+                  </div>
+                  <div className="text-[10px] opacity-85 truncate mt-0.5 font-sans">
+                    LTT: {(vnRegionWages[tier].minWage / 1000000).toFixed(2)}tr → Trần {(vnRegionWages[tier].cap / 1000000).toFixed(1)}tr
                   </div>
                 </button>
               ))}
             </div>
+
+            {/* Expandable Custom Wage Inputs for 4 Regions */}
+            {isEditingVnWages && (
+              <div className="p-3 bg-white dark:bg-slate-900 rounded-lg border border-blue-300 dark:border-slate-700 space-y-3 animate-fadeIn">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold text-slate-800 dark:text-slate-200 flex items-center gap-1.5">
+                    <Sliders className="w-3.5 h-3.5 text-blue-500" />
+                    <span>Nhập Lương Tối Thiểu Mới (Nếu luật thay đổi trong tương lai):</span>
+                  </span>
+                  <button
+                    type="button"
+                    onClick={handleResetVnWages}
+                    className="text-[11px] text-slate-500 hover:text-blue-500 underline cursor-pointer"
+                  >
+                    Khôi phục chuẩn NĐ 74/2024
+                  </button>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5">
+                  {(['1', '2', '3', '4'] as const).map((tier) => (
+                    <div key={tier} className="p-2 bg-slate-50 dark:bg-slate-950 rounded-lg border border-slate-200 dark:border-slate-800 space-y-1">
+                      <div className="text-[11px] font-bold text-slate-700 dark:text-slate-300 flex items-center justify-between">
+                        <span>Lương tối thiểu Vùng {tier}:</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <input
+                          type="number"
+                          step={50000}
+                          min={0}
+                          value={vnRegionWages[tier].minWage}
+                          onChange={(e) => handleUpdateVnMinWage(tier, parseFloat(e.target.value) || 0)}
+                          className="w-full px-2 py-1 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded text-xs font-bold text-slate-900 dark:text-white font-sans focus:outline-hidden focus:border-blue-500"
+                        />
+                        <span className="text-[10px] text-slate-400 font-sans">đ</span>
+                      </div>
+                      <div className="text-[10px] text-slate-500 dark:text-slate-400 font-sans">
+                        Trần BHTN (20×): <strong className="text-emerald-600 dark:text-emerald-400">{formatMoney(vnRegionWages[tier].cap)}</strong>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                <p className="text-[11px] text-slate-500 dark:text-slate-400 italic">
+                  * Khi bạn đổi lương tối thiểu của vùng đang chọn, mức trần bảo hiểm thất nghiệp sẽ tự động cập nhật ngay lập tức vào bảng tính.
+                </p>
+              </div>
+            )}
           </div>
         )}
 
@@ -1336,7 +1452,7 @@ export const TaxCalculator: React.FC = () => {
                         </div>
                       </div>
 
-                      <div className="mt-2.5 grid grid-cols-2 gap-2 text-xs text-slate-300 pl-6">
+                      <div className="mt-2.5 flex flex-wrap items-center justify-between gap-2 text-xs text-slate-300 pl-6">
                         <div className="flex items-center gap-1.5">
                           <span className="font-semibold text-slate-300">Tỷ lệ NLĐ đóng:</span>
                           <input
@@ -1346,16 +1462,23 @@ export const TaxCalculator: React.FC = () => {
                             max={100}
                             value={ins.rate}
                             onChange={(e) => handleUpdateInsuranceRate(ins.id, parseFloat(e.target.value) || 0)}
-                            className="w-20 px-2 py-1 bg-slate-950 border-2 border-slate-500 hover:border-slate-400 focus:border-emerald-400 rounded text-center text-white font-sans text-xs font-black outline-none"
+                            className="w-18 px-2 py-1 bg-slate-950 border-2 border-slate-500 hover:border-slate-400 focus:border-emerald-400 rounded text-center text-white font-sans text-xs font-black outline-none"
                           />
                           <span className="font-bold text-emerald-400">%</span>
                         </div>
-                        <div className="text-right truncate">
-                          {ins.salaryCap > 0 ? (
-                            <span>Trần lương tính BH: <strong className="text-white font-bold font-sans">{formatMoney(ins.salaryCap)}</strong></span>
-                          ) : (
-                            <span className="text-slate-400 italic">Không áp dụng trần</span>
-                          )}
+                        <div className="flex items-center gap-1.5">
+                          <span className="font-semibold text-slate-300">Trần lương đóng:</span>
+                          <input
+                            type="number"
+                            step={100000}
+                            min={0}
+                            value={ins.salaryCap}
+                            onChange={(e) => handleUpdateInsuranceCap(ins.id, parseFloat(e.target.value) || 0)}
+                            className="w-32 px-2 py-1 bg-slate-950 border-2 border-slate-500 hover:border-slate-400 focus:border-emerald-400 rounded text-right text-white font-sans text-xs font-black outline-none"
+                            placeholder="0 (Không trần)"
+                            title="Nhập 0 nếu không áp dụng trần tối đa"
+                          />
+                          <span className="text-[11px] text-slate-400 font-sans">{currencyInfo.symbol}</span>
                         </div>
                       </div>
                     </div>

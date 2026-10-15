@@ -396,6 +396,12 @@ export const TOOL_COLOR_MAP: Record<ToolId, ToolColorTheme> = {
     badgeClass: 'bg-red-50 text-red-600 border border-red-200/80 dark:bg-red-950/50 dark:text-red-400 dark:border-red-800/50 shadow-xs',
     activeClass: 'bg-white/20 text-white',
     hoverClass: 'group-hover:border-red-400'
+  },
+  blog: {
+    iconColor: 'text-indigo-600 dark:text-indigo-400',
+    badgeClass: 'bg-indigo-50 text-indigo-600 border border-indigo-200/80 dark:bg-indigo-950/50 dark:text-indigo-400 dark:border-indigo-800/50 shadow-xs',
+    activeClass: 'bg-white/20 text-white',
+    hoverClass: 'group-hover:border-indigo-400'
   }
 };
 

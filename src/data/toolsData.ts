@@ -1697,5 +1697,36 @@ export const TOOLS_CONFIG: Record<string, ToolMeta> = {
       }
     ],
     relatedToolIds: ['age', 'date', 'random', 'percentage']
+  },
+  blog: {
+    id: 'blog',
+    category: 'knowledge',
+    name: 'Cẩm nang & Blog Tính Toán (Guides & Blog)',
+    shortName: 'Blog & Cẩm nang',
+    tierNumber: 1,
+    iconName: 'BookOpen',
+    badge: 'Mới',
+    seoTitle: 'Blog & Cẩm Nang Tính Toán – Hướng Dẫn Tài Chính, Tiền Lương & Sức Khỏe',
+    seoH1: 'Cẩm Nang Tính Toán & Kiến Thức Tài Chính, Tiền Lương, Vay Vốn & Sức Khỏe',
+    tagline: 'Kho tàng kiến thức, công thức thực tế và cẩm nang tính toán thông minh',
+    description: 'Tổng hợp các bài viết chuyên sâu, công thức chuẩn xác và cẩm nang hướng dẫn thực tế về tiền lương Gross Net, thuế TNCN 7 bậc, vay mua nhà, lãi kép, hóa đơn điện nước và chỉ số sức khỏe TDEE/BMI.',
+    formulaDescription: 'Giải thích toán học và các quy định pháp lý, tài chính thực tế.',
+    formulaEquation: 'Knowledge = Accurate_Formulas + Practical_Guides',
+    usageSteps: [
+      'Chọn chủ đề bạn quan tâm: Tiền lương, Thuế, Vay vốn, Đầu tư hoặc Sức khỏe.',
+      'Đọc bài viết phân tích chi tiết với các ví dụ thực tiễn.',
+      'Sử dụng trực tiếp các máy tính liên quan được tích hợp sẵn trong bài viết.'
+    ],
+    faqs: [
+      {
+        question: 'Nội dung các bài viết trên Blog có được cập nhật thường xuyên không?',
+        answer: 'Có. Tất cả bài viết về thuế, tiền lương, chính sách bảo hiểm và lãi suất đều được cập nhật liên tục theo các quy định mới nhất của Nhà nước.'
+      },
+      {
+        question: 'Tôi có thể sử dụng các công cụ tính toán ngay trong bài viết không?',
+        answer: 'Hoàn toàn được. Mỗi bài viết đều có nút liên kết nhanh đưa bạn tới thẳng máy tính chuyên dụng tương ứng với số liệu của bạn.'
+      }
+    ],
+    relatedToolIds: ['salary', 'tax', 'mortgage', 'interest', 'utilitybill', 'bmi']
   }
 };

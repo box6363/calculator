@@ -1,4 +1,4 @@
-export type ToolCategory = 'math' | 'geometry' | 'financial' | 'fitness' | 'conversion' | 'utility';
+export type ToolCategory = 'math' | 'geometry' | 'financial' | 'fitness' | 'conversion' | 'utility' | 'knowledge';
 
 export type ToolId = 
   // Financial
@@ -67,7 +67,8 @@ export type ToolId =
   | 'discount'
   | 'utilitybill'
   | 'love'
-  | 'ai';
+  | 'ai'
+  | 'blog';
 
 export interface ToolMeta {
   id: ToolId;

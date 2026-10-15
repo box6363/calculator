@@ -27,7 +27,8 @@ import {
   Boxes,
   Dice5,
   KeyRound,
-  Zap
+  Zap,
+  BookOpen
 } from 'lucide-react';
 import { ToolId } from '../../types';
 import { TOOLS_CONFIG } from '../../data/toolsData';
@@ -208,6 +209,35 @@ export const BottomTabBar: React.FC<BottomTabBarProps> = ({
                 <X className="w-5 h-5" />
               </button>
             </div>
+
+            {/* Direct Blog & Guides Banner */}
+            <button
+              id="mobile-modal-blog-btn"
+              onClick={() => {
+                onSelectTool('blog');
+                setIsMoreMenuOpen(false);
+                setSearchQuery('');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+              }}
+              className={`w-full flex items-center justify-between p-3 rounded-2xl border transition-all cursor-pointer ${
+                currentToolId === 'blog'
+                  ? 'bg-blue-600 text-white border-blue-500 shadow-md shadow-blue-500/20'
+                  : 'bg-blue-50/70 dark:bg-blue-950/40 border-blue-200 dark:border-blue-900/60 text-slate-800 dark:text-slate-100 hover:bg-blue-100 dark:hover:bg-blue-900/50'
+              }`}
+            >
+              <div className="flex items-center gap-3">
+                <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${
+                  currentToolId === 'blog' ? 'bg-white/20 text-white' : 'bg-blue-500 text-white'
+                }`}>
+                  <BookOpen className="w-5 h-5" />
+                </div>
+                <div className="text-left">
+                  <div className="text-xs font-bold">{language === 'vi' ? 'Cẩm nang & Blog Tính Toán' : 'Calculation Guides & Blog'}</div>
+                  <div className="text-[11px] opacity-75">{language === 'vi' ? '12+ bài viết tài chính, thuế & sức khỏe' : '12+ finance, tax & health articles'}</div>
+                </div>
+              </div>
+              <ChevronRight className="w-4 h-4 shrink-0 opacity-70" />
+            </button>
 
             {/* Quick Search Bar */}
             <div className="relative">

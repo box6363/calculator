@@ -409,7 +409,11 @@ interface LoveHistoryItem {
   time: string;
 }
 
-export const LoveCalculator: React.FC = () => {
+interface LoveCalculatorProps {
+  onOpenBlog?: () => void;
+}
+
+export const LoveCalculator: React.FC<LoveCalculatorProps> = ({ onOpenBlog }) => {
   const { language } = useLanguage();
   const isVi = language === 'vi';
   const name1InputId = useId();
@@ -1129,17 +1133,43 @@ export const LoveCalculator: React.FC = () => {
         </div>
       )}
 
-      {/* 5. Educational / Fun Guide Section */}
-      <div className="rounded-2xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200/80 dark:border-slate-800 p-5 sm:p-6 space-y-3 text-xs sm:text-sm text-slate-600 dark:text-slate-400">
-        <h4 className="font-bold text-slate-900 dark:text-white flex items-center gap-1.5">
-          <HelpCircle className="w-4 h-4 text-rose-500" />
-          <span>{isVi ? 'Nguyên lý hoạt động của máy tính tình yêu' : 'How does the Love Calculator work?'}</span>
-        </h4>
-        <p>
-          {isVi
-            ? 'Máy tính tình yêu phân tích tần số tương đồng giữa hai họ tên, kết hợp giải thuật số học tình duyên đối xứng và bộ lọc ký tự tình yêu truyền thống. Kết quả mang tính chất giải trí, gắn kết và gợi mở những góc nhìn thú vị cho các cặp đôi.'
-            : 'The Love Calculator analyzes name harmonics and character frequencies using a deterministic symmetric algorithm. Designed for entertainment, romance, and sharing joyful moments together.'}
-        </p>
+      {/* 5. Educational / Fun Guide Section & Link to Blog */}
+      <div className="rounded-2xl bg-gradient-to-br from-pink-500/10 via-rose-500/5 to-purple-500/10 border border-pink-500/20 p-5 sm:p-6 space-y-4 text-xs sm:text-sm text-slate-700 dark:text-slate-300">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div className="space-y-1">
+            <h4 className="font-black text-sm sm:text-base text-slate-900 dark:text-white flex items-center gap-2">
+              <Sparkles className="w-4 h-4 text-pink-500" />
+              <span>{isVi ? 'Khám Phá Cẩm Nang & Giải Mã Thuật Toán Tình Yêu' : 'Explore Love Calculator & Romance Guides'}</span>
+            </h4>
+            <p className="text-xs text-slate-500 dark:text-slate-400">
+              {isVi 
+                ? 'Tìm hiểu chi tiết về cơ chế tính điểm đối xứng, giải mã bói FLAMES và thần số học họ tên trên chuyên mục Blog.'
+                : 'Learn the math behind symmetrical matching, the classic FLAMES algorithm, and name numerology on our blog.'}
+            </p>
+          </div>
+          {onOpenBlog && (
+            <button
+              onClick={onOpenBlog}
+              type="button"
+              className="px-4 py-2 rounded-xl bg-pink-600 hover:bg-pink-700 text-white font-bold text-xs shadow-md transition-all shrink-0 cursor-pointer self-start sm:self-auto flex items-center gap-1.5"
+            >
+              <span>{isVi ? 'Đọc Blog Tình Yêu' : 'Read Love Blog'}</span>
+              <Sparkles className="w-3.5 h-3.5" />
+            </button>
+          )}
+        </div>
+
+        <div className="pt-3 border-t border-pink-500/10 space-y-2 text-xs text-slate-600 dark:text-slate-400">
+          <h5 className="font-bold text-slate-900 dark:text-white flex items-center gap-1.5">
+            <HelpCircle className="w-3.5 h-3.5 text-rose-500" />
+            <span>{isVi ? 'Nguyên lý hoạt động của máy tính tình yêu' : 'How does the Love Calculator work?'}</span>
+          </h5>
+          <p>
+            {isVi
+              ? 'Máy tính tình yêu phân tích tần số tương đồng giữa hai họ tên, kết hợp giải thuật số học tình duyên đối xứng và bộ lọc ký tự tình yêu truyền thống. Kết quả mang tính chất giải trí, gắn kết và gợi mở những góc nhìn thú vị cho các cặp đôi.'
+              : 'The Love Calculator analyzes name harmonics and character frequencies using a deterministic symmetric algorithm. Designed for entertainment, romance, and sharing joyful moments together.'}
+          </p>
+        </div>
       </div>
 
       {/* 6. Legal Disclaimer Footer - Chuẩn Pháp Lý & Tuyên Bố Miễn Trừ Trách Nhiệm */}

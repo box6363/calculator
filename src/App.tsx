@@ -11,7 +11,7 @@ import { TermsModal } from './components/common/TermsModal';
 import { LanguageSelector } from './components/common/LanguageSelector';
 import { GlobalFooterEcosystem } from './components/common/GlobalFooterEcosystem';
 import { useLanguage } from './context/LanguageContext';
-import { ShieldCheck, Copyright, FileText, Lock, Globe } from 'lucide-react';
+import { ShieldCheck, Copyright, FileText, Lock, Globe, BookOpen } from 'lucide-react';
 
 // Direct synchronous imports for instant (0ms) zero-latency tab switching without loading delays
 import { BasicCalculator } from './components/tools/BasicCalculator';
@@ -77,6 +77,7 @@ import { IpSubnetCalculator } from './components/tools/IpSubnetCalculator';
 import { USLotteryCalculator } from './components/tools/lottery/USLotteryCalculator';
 import { UtilityBillCalculator } from './components/tools/UtilityBillCalculator';
 import { LoveCalculator } from './components/tools/LoveCalculator';
+import { BlogSection } from './components/tools/BlogSection';
 
 // Helper to parse tool ID from clean path or hash
 const parseToolFromUrl = (): ToolId => {
@@ -270,7 +271,7 @@ export default function App() {
       case 'concrete':
         return <ConcreteCalculator key={resetKey} />;
       case 'love':
-        return <LoveCalculator key={resetKey} />;
+        return <LoveCalculator key={resetKey} onOpenBlog={() => handleSelectTool('blog')} />;
       case 'random':
         return <RandomNumberCalculator key={resetKey} />;
       case 'password':
@@ -351,6 +352,8 @@ export default function App() {
         return <IpSubnetCalculator key={resetKey} />;
       case 'utilitybill':
         return <UtilityBillCalculator key={resetKey} />;
+      case 'blog':
+        return <BlogSection key={resetKey} onSelectTool={handleSelectTool} />;
       default:
         return <BasicCalculator key={resetKey} />;
     }
@@ -424,6 +427,23 @@ export default function App() {
 
             {/* Middle row: Links & Language Switcher */}
             <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-6 pt-2">
+              <button
+                id="footer-blog-btn"
+                onClick={() => {
+                  handleSelectTool('blog');
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                }}
+                className={`flex items-center gap-1.5 transition-colors cursor-pointer font-medium ${
+                  currentToolId === 'blog'
+                    ? 'text-blue-400 font-bold'
+                    : 'text-slate-300 hover:text-white'
+                }`}
+                title={language === 'vi' ? 'Xem Cẩm nang & Blog Tính Toán' : 'Calculation Guides & Blog'}
+              >
+                <BookOpen className="w-3.5 h-3.5 text-blue-400" />
+                <span>{language === 'vi' ? 'Cẩm nang & Blog' : 'Guides & Blog'}</span>
+              </button>
+
               <button
                 onClick={() => setIsTermsOpen(true)}
                 className="flex items-center gap-1.5 text-slate-300 hover:text-white transition-colors cursor-pointer font-medium"

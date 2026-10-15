@@ -67,8 +67,10 @@ interface SidebarProps {
   isOpen: boolean;
 }
 
+const HOT_TOOL_IDS: ToolId[] = ['ai', 'basic', 'bmi', 'love', 'age', 'time', 'salary'];
+
 interface CategoryDefinition {
-  id: ToolCategory;
+  id: 'hot' | ToolCategory;
   nameVi: string;
   nameEn: string;
   color: string;
@@ -77,6 +79,14 @@ interface CategoryDefinition {
 }
 
 const CATEGORIES: CategoryDefinition[] = [
+  {
+    id: 'hot',
+    nameVi: 'Hot Calculator',
+    nameEn: 'Hot Calculator',
+    color: 'text-amber-500 dark:text-amber-400',
+    badgeBg: 'bg-amber-500/15 border-amber-500/30',
+    badgeText: 'text-amber-600 dark:text-amber-400'
+  },
   {
     id: 'financial',
     nameVi: 'Tài chính & Đầu tư',
@@ -137,7 +147,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   const isVi = language === 'vi';
 
   // Category filter state ('all' or specific category)
-  const [selectedCategory, setSelectedCategory] = useState<ToolCategory | 'all'>('all');
+  const [selectedCategory, setSelectedCategory] = useState<'hot' | ToolCategory | 'all'>('all');
   const [searchQuery, setSearchQuery] = useState<string>('');
   
   // Track open/collapsed categories
@@ -151,6 +161,13 @@ export const Sidebar: React.FC<SidebarProps> = ({
   };
 
   const tools = useMemo(() => Object.values(TOOLS_CONFIG), []);
+
+  // Featured Hot Calculators
+  const hotTools = useMemo(() => {
+    return HOT_TOOL_IDS
+      .map(id => tools.find(t => t.id === id))
+      .filter(Boolean) as typeof tools;
+  }, [tools]);
 
   // Filter tools by search query if any
   const filteredTools = useMemo(() => {
@@ -249,7 +266,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
             {isVi ? 'Tất cả' : 'All'} ({tools.length})
           </button>
           {CATEGORIES.map(cat => {
-            const count = tools.filter(t => t.category === cat.id).length;
+            const count = cat.id === 'hot' ? hotTools.length : tools.filter(t => t.category === cat.id).length;
             const isSel = selectedCategory === cat.id;
             return (
               <button
@@ -261,7 +278,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
                     : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200 dark:hover:bg-slate-700'
                 }`}
               >
-                {isVi ? cat.nameVi.split(' ')[0] : cat.nameEn.split(' ')[0]} ({count})
+                {cat.id === 'hot' 
+                  ? '🔥 Hot' 
+                  : (isVi ? cat.nameVi.split(' ')[0] : cat.nameEn.split(' ')[0])
+                } ({count})
               </button>
             );
           })}
@@ -276,7 +296,17 @@ export const Sidebar: React.FC<SidebarProps> = ({
             return null;
           }
 
-          const catTools = filteredTools.filter(t => t.category === cat.id);
+          const catTools = cat.id === 'hot'
+            ? hotTools.filter(tool => {
+                if (!searchQuery.trim()) return true;
+                const q = searchQuery.toLowerCase().trim();
+                const name = (t.toolNames[tool.id] || tool.name).toLowerCase();
+                const short = (t.toolShortNames[tool.id] || tool.shortName || '').toLowerCase();
+                const id = tool.id.toLowerCase();
+                return name.includes(q) || short.includes(q) || id.includes(q);
+              })
+            : filteredTools.filter(t => t.category === cat.id);
+
           if (catTools.length === 0) return null;
 
           const isCollapsed = collapsedCategories[cat.id];
@@ -288,14 +318,28 @@ export const Sidebar: React.FC<SidebarProps> = ({
               <button
                 type="button"
                 onClick={() => toggleCategory(cat.id)}
-                className="w-full flex items-center justify-between px-2 py-1.5 rounded-lg text-left hover:bg-slate-100 dark:hover:bg-slate-800/50 transition-colors cursor-pointer group"
+                className={`w-full flex items-center justify-between px-2 py-1.5 rounded-lg text-left transition-colors cursor-pointer group ${
+                  cat.id === 'hot'
+                    ? 'hover:bg-amber-500/10 dark:hover:bg-amber-500/15'
+                    : 'hover:bg-slate-100 dark:hover:bg-slate-800/50'
+                }`}
               >
                 <div className="flex items-center gap-2">
-                  <span className={`text-[12.5px] font-bold tracking-wider uppercase ${cat.color} group-hover:brightness-110`}>
-                    {isVi ? cat.nameVi : cat.nameEn}
+                  {cat.id === 'hot' && (
+                    <Flame className="w-4 h-4 text-amber-500 fill-amber-500 shrink-0 animate-pulse" />
+                  )}
+                  <span className={`text-[12.5px] font-bold tracking-wider uppercase ${cat.color} group-hover:brightness-110 flex items-center gap-1.5`}>
+                    <span>{isVi ? cat.nameVi : cat.nameEn}</span>
+                    {cat.id === 'hot' && (
+                      <span className="px-1.5 py-0.5 text-[9px] font-black uppercase rounded-md bg-gradient-to-r from-amber-500 to-rose-500 text-white shadow-xs">
+                        HOT
+                      </span>
+                    )}
                   </span>
                   {hasActiveTool && (
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                    <span className={`w-1.5 h-1.5 rounded-full animate-pulse ${
+                      cat.id === 'hot' ? 'bg-amber-400' : 'bg-emerald-400'
+                    }`} />
                   )}
                 </div>
                 <div className="flex items-center">

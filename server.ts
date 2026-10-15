@@ -438,6 +438,12 @@ Bước 3: Kết luận rõ ràng đáp số.
       fallthrough: false
     }));
 
+    // Serve raw static assets in src/assets
+    app.use("/src/assets", express.static(path.join(process.cwd(), "src/assets"), {
+      maxAge: "1d",
+      fallthrough: true
+    }));
+
     // Serve other public static files from dist
     app.use(express.static(distPath, { index: false }));
 

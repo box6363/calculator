@@ -508,6 +508,16 @@ export const GlobalFooterEcosystem: React.FC<GlobalFooterEcosystemProps> = ({
 
               <li className="pt-1">
                 <button 
+                  onClick={() => handleToolClick('blog')}
+                  className="group flex items-start gap-1.5 text-left text-blue-400 hover:text-white transition-colors cursor-pointer w-full font-bold"
+                >
+                  <span className="text-blue-400 group-hover:text-blue-300 group-hover:translate-x-0.5 transition-all shrink-0 mt-0.5 font-mono text-xs">›</span>
+                  <span>Cẩm nang &amp; Blog Tính Toán (Mới)</span>
+                </button>
+              </li>
+
+              <li>
+                <button 
                   onClick={() => {
                     if (onOpenGemini) {
                       onOpenGemini();
@@ -518,7 +528,7 @@ export const GlobalFooterEcosystem: React.FC<GlobalFooterEcosystemProps> = ({
                   className="group flex items-start gap-1.5 text-left hover:text-white transition-colors cursor-pointer w-full"
                 >
                   <span className="text-slate-500 group-hover:text-blue-400 group-hover:translate-x-0.5 transition-all shrink-0 mt-0.5 font-mono text-xs">›</span>
-                  <span>Cẩm nang kiến thức & Trợ lý Gemini AI</span>
+                  <span>Trợ lý Gemini AI Giải Toán &amp; Tài Chính</span>
                 </button>
               </li>
             </ul>
