@@ -67,7 +67,7 @@ interface SidebarProps {
   isOpen: boolean;
 }
 
-const HOT_TOOL_IDS: ToolId[] = ['ai', 'basic', 'bmi', 'love', 'age', 'time', 'salary'];
+const HOT_TOOL_IDS: ToolId[] = ['basic', 'ai', 'bmi', 'love', 'age', 'time', 'salary'];
 
 interface CategoryDefinition {
   id: 'hot' | ToolCategory;
@@ -150,14 +150,25 @@ export const Sidebar: React.FC<SidebarProps> = ({
   const [selectedCategory, setSelectedCategory] = useState<'hot' | ToolCategory | 'all'>('all');
   const [searchQuery, setSearchQuery] = useState<string>('');
   
-  // Track open/collapsed categories
-  const [collapsedCategories, setCollapsedCategories] = useState<Record<string, boolean>>({});
+  // Track open/collapsed categories: only 'hot' is expanded by default, all 6 other categories are collapsed
+  const [collapsedCategories, setCollapsedCategories] = useState<Record<string, boolean>>({
+    financial: true,
+    fitness: true,
+    math: true,
+    geometry: true,
+    conversion: true,
+    utility: true,
+    hot: false
+  });
 
   const toggleCategory = (catId: string) => {
-    setCollapsedCategories(prev => ({
-      ...prev,
-      [catId]: !prev[catId]
-    }));
+    setCollapsedCategories(prev => {
+      const currentVal = catId === 'hot' ? (prev['hot'] ?? false) : (prev[catId] ?? true);
+      return {
+        ...prev,
+        [catId]: !currentVal
+      };
+    });
   };
 
   const tools = useMemo(() => Object.values(TOOLS_CONFIG), []);
@@ -309,7 +320,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
           if (catTools.length === 0) return null;
 
-          const isCollapsed = collapsedCategories[cat.id];
+          const isCollapsed = searchQuery.trim()
+            ? false
+            : (cat.id === 'hot' ? (collapsedCategories['hot'] ?? false) : (collapsedCategories[cat.id] ?? true));
           const hasActiveTool = catTools.some(t => t.id === currentToolId);
 
           return (
