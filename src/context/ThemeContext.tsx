@@ -46,18 +46,18 @@ export const THEMES: ThemeConfig[] = [
   },
   {
     id: 'dark',
-    name: 'Chế độ Tối',
-    tag: 'Tối',
-    tagClass: 'bg-slate-800 text-cyan-300 border-cyan-800/60',
-    description: 'Nền tối chống mỏi mắt (#141526), ô nhập xám chữ trắng',
+    name: 'Chế độ Tối (OLED Black)',
+    tag: 'OLED',
+    tagClass: 'bg-black text-cyan-300 border-neutral-800',
+    description: 'Nền đen OLED thuần khiết (#000000), điểm ảnh tắt hoàn toàn',
     dotColor: '#00E5FF',
-    bg: '#141526',
-    headerBg: 'rgba(20, 21, 38, 0.95)',
-    surface: '#1B1D33',
-    subsurface: 'rgba(27, 29, 51, 0.75)',
-    border: '#272A47',
-    inputBg: '#252525',
-    inputBorder: '#3F3F3F',
+    bg: '#000000',
+    headerBg: 'rgba(0, 0, 0, 0.95)',
+    surface: '#0a0b0e',
+    subsurface: 'rgba(10, 11, 14, 0.85)',
+    border: '#1e2029',
+    inputBg: '#14151a',
+    inputBorder: '#2d303e',
     accent: '#00E5FF',
     checkColor: '#00E5FF',
     textPrimary: '#FFFFFF',
@@ -130,7 +130,7 @@ export const applyThemeToDOM = (id: ThemeId, config: ThemeConfig, freezeTransiti
   // Cập nhật meta theme-color cho thanh địa chỉ mobile
   const metaThemeColor = document.querySelector('meta[name="theme-color"]');
   if (metaThemeColor) {
-    metaThemeColor.setAttribute('content', id === 'light' ? '#FFFFFF' : '#0F1628');
+    metaThemeColor.setAttribute('content', id === 'light' ? '#FFFFFF' : '#000000');
   }
 
   try {

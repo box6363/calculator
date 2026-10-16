@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { 
   Calculator, 
   Sparkles,
@@ -51,6 +51,8 @@ import {
   Divide,
   Ticket,
   Search,
+  Command,
+  Crown,
   X
 } from 'lucide-react';
 import { ToolId, ToolCategory } from '../../types';
@@ -60,6 +62,7 @@ import { ToolIcon } from './ToolIcon';
 import { getToolColorTheme } from '../../data/toolColors';
 import { useLanguage } from '../../context/LanguageContext';
 import { getSectionUi } from '../../data/internationalSections';
+import { useAuth } from '../../context/AuthContext';
 
 interface SidebarProps {
   currentToolId: ToolId;
@@ -143,6 +146,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   isOpen
 }) => {
   const { language, t } = useLanguage();
+  const { user, isVip, daysRemaining, setIsPricingModalOpen } = useAuth();
   const secUi = getSectionUi(language);
   const isVi = language === 'vi';
 
@@ -150,6 +154,26 @@ export const Sidebar: React.FC<SidebarProps> = ({
   const [selectedCategory, setSelectedCategory] = useState<'hot' | ToolCategory | 'all'>('all');
   const [searchQuery, setSearchQuery] = useState<string>('');
   
+  // Search Modal state (Command Palette under web logo)
+  const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
+  const [searchModalQuery, setSearchModalQuery] = useState('');
+  const [modalSelectedIndex, setModalSelectedIndex] = useState(0);
+
+  // Global Keyboard shortcut listener for Ctrl+K / ⌘K and Escape
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault();
+        setIsSearchModalOpen(prev => !prev);
+      }
+      if (e.key === 'Escape') {
+        setIsSearchModalOpen(false);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
+
   // Track open/collapsed categories: only 'hot' is expanded by default, all 6 other categories are collapsed
   const [collapsedCategories, setCollapsedCategories] = useState<Record<string, boolean>>({
     financial: true,
@@ -179,6 +203,28 @@ export const Sidebar: React.FC<SidebarProps> = ({
       .map(id => tools.find(t => t.id === id))
       .filter(Boolean) as typeof tools;
   }, [tools]);
+
+  // Filter tools for Command Palette Modal (matching Image 2)
+  const modalFilteredTools = useMemo(() => {
+    const q = searchModalQuery.toLowerCase().trim();
+    if (!q) return tools;
+    return tools.filter(tool => {
+      const localizedName = (t.toolNames[tool.id] || tool.name).toLowerCase();
+      const localizedShort = (t.toolShortNames[tool.id] || tool.shortName || '').toLowerCase();
+      const localizedDesc = (t.toolDescriptions[tool.id] || tool.description || '').toLowerCase();
+      const id = tool.id.toLowerCase();
+      return (
+        localizedName.includes(q) ||
+        localizedShort.includes(q) ||
+        localizedDesc.includes(q) ||
+        id.includes(q)
+      );
+    });
+  }, [tools, searchModalQuery, t]);
+
+  useEffect(() => {
+    setModalSelectedIndex(0);
+  }, [searchModalQuery]);
 
   // Filter tools by search query if any
   const filteredTools = useMemo(() => {
@@ -232,8 +278,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
   };
 
   return (
-    <aside 
-      id="desktop-sidebar"
+    <>
+      <aside 
+        id="desktop-sidebar"
       className={`hidden md:flex flex-col shrink-0 border-r transition-all duration-300 ease-in-out ${
         isOpen ? 'w-80' : 'w-0 -translate-x-full overflow-hidden'
       }`}
@@ -244,25 +291,26 @@ export const Sidebar: React.FC<SidebarProps> = ({
     >
       {/* Search & Category Filter Header */}
       <div className="p-3 border-b border-slate-200 dark:border-slate-800 space-y-2.5 shrink-0">
-        {/* Quick Search */}
-        <div className="relative">
-          <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder={isVi ? 'Tìm nhanh công cụ...' : 'Search tools...'}
-            className="w-full pl-8 pr-7 py-1.5 text-xs bg-slate-100 dark:bg-slate-800/90 text-slate-900 dark:text-white rounded-lg border border-slate-300 dark:border-slate-700/80 placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-blue-500"
-          />
-          {searchQuery && (
-            <button
-              onClick={() => setSearchQuery('')}
-              className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-900 dark:hover:text-white"
-            >
-              <X className="w-3 h-3" />
-            </button>
-          )}
-        </div>
+        {/* Quick Search under Logo with ⌘K / Ctrl+K (Image 1) */}
+        <button
+          id="sidebar-quick-search-trigger"
+          type="button"
+          onClick={() => {
+            setIsSearchModalOpen(true);
+            setSearchModalQuery('');
+          }}
+          className="w-full flex items-center justify-between px-3 py-2 text-xs text-slate-600 dark:text-slate-400 bg-slate-100 hover:bg-slate-200/80 dark:bg-slate-800/70 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-slate-200 text-left rounded-xl border border-slate-300 dark:border-slate-700/80 transition-all shadow-inner focus:outline-none focus:ring-2 focus:ring-blue-500/50 cursor-pointer group"
+          title={isVi ? 'Tìm kiếm công cụ tính toán (Ctrl+K / ⌘K)' : 'Quick search calculation tools (Ctrl+K / ⌘K)'}
+          aria-label="Quick search calculation tools"
+        >
+          <div className="flex items-center gap-2 min-w-0 pr-1">
+            <Search className="w-3.5 h-3.5 text-slate-400 group-hover:text-blue-500 dark:group-hover:text-sky-400 transition-colors shrink-0" />
+            <span className="truncate">{t.searchPlaceholder || (isVi ? 'Tìm nhanh công cụ...' : 'Quick search calculation tools...')}</span>
+          </div>
+          <kbd className="inline-flex items-center gap-0.5 px-1.5 py-0.5 text-[10px] font-mono bg-slate-200 dark:bg-slate-900/90 text-slate-600 dark:text-slate-400 rounded border border-slate-300 dark:border-slate-700 shrink-0">
+            <Command className="w-2.5 h-2.5" /> K
+          </kbd>
+        </button>
 
         {/* Category Pill Filters */}
         <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none text-[11px]">
@@ -374,8 +422,35 @@ export const Sidebar: React.FC<SidebarProps> = ({
           );
         })}
 
+        {/* VIP Upgrade Banner */}
+        <div 
+          onClick={() => setIsPricingModalOpen(true)}
+          className="p-3.5 rounded-2xl bg-gradient-to-br from-amber-500/15 via-rose-500/10 to-amber-500/5 border border-amber-500/30 hover:border-amber-500/60 transition-all cursor-pointer group mt-4 shadow-xs"
+        >
+          <div className="flex items-center justify-between mb-1.5">
+            <div className="flex items-center gap-1.5 font-bold text-xs text-amber-600 dark:text-amber-400">
+              <Crown className="w-3.5 h-3.5 fill-amber-500 text-amber-500" />
+              <span>{isVip ? (user?.plan === 'yearly' ? 'VIP Pro 1 Năm' : 'VIP Pro 1 Tháng') : 'Gói VIP Pro'}</span>
+            </div>
+            {!isVip ? (
+              <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded-full bg-gradient-to-r from-amber-500 to-rose-500 text-white shadow-xs">
+                4.99$/tháng
+              </span>
+            ) : (
+              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-600 dark:text-emerald-400">
+                {daysRemaining !== undefined ? `Còn ${daysRemaining} ngày` : 'Đang hoạt động'}
+              </span>
+            )}
+          </div>
+          <p className="text-[11.5px] text-slate-600 dark:text-slate-400 leading-relaxed">
+            {isVip 
+              ? 'Tài khoản VIP đang hoạt động. Mở khóa toàn bộ tính năng và giải toán AI không giới hạn.'
+              : 'Mở khóa không giới hạn AI Math Solver, xuất báo cáo 4K và tốc độ xử lý ưu tiên.'}
+          </p>
+        </div>
+
         {/* SEO Trust Guarantee Badge */}
-        <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 text-[13.5px] text-slate-600 dark:text-slate-400 space-y-1.5 mt-4">
+        <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 text-[13.5px] text-slate-600 dark:text-slate-400 space-y-1.5 mt-3">
           <div className="flex items-center gap-1.5 text-slate-800 dark:text-slate-300 font-semibold">
             <ShieldCheck className="w-4 h-4 text-[#10B981]" />
             <span>{secUi.sidebarGuaranteeTitle}</span>
@@ -386,5 +461,127 @@ export const Sidebar: React.FC<SidebarProps> = ({
         </div>
       </div>
     </aside>
+
+    {/* Quick Search Command Palette Modal (matching Image 2) */}
+    {isSearchModalOpen && (
+      <div 
+        id="search-modal-backdrop"
+        onClick={() => setIsSearchModalOpen(false)}
+        className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-start justify-center pt-20 px-4 transition-all"
+      >
+        <div 
+          onClick={(e) => e.stopPropagation()}
+          onKeyDown={(e) => {
+            if (e.key === 'ArrowDown') {
+              e.preventDefault();
+              setModalSelectedIndex(prev => (prev + 1) % Math.max(1, modalFilteredTools.length));
+            } else if (e.key === 'ArrowUp') {
+              e.preventDefault();
+              setModalSelectedIndex(prev => (prev - 1 + modalFilteredTools.length) % Math.max(1, modalFilteredTools.length));
+            } else if (e.key === 'Enter') {
+              e.preventDefault();
+              const selectedTool = modalFilteredTools[modalSelectedIndex];
+              if (selectedTool) {
+                onSelectTool(selectedTool.id);
+                setIsSearchModalOpen(false);
+                setSearchModalQuery('');
+              }
+            }
+          }}
+          className="w-full max-w-xl border rounded-2xl shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-150"
+          style={{
+            backgroundColor: 'var(--app-surface, #1b1d33)',
+            borderColor: 'var(--app-border, #272a47)'
+          }}
+        >
+          {/* Modal Search Header Input */}
+          <div className="flex items-center gap-3 px-4 py-3.5 border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50">
+            <Search className="w-5 h-5 text-blue-500 dark:text-blue-400 shrink-0" />
+            <input
+              id="search-input"
+              type="text"
+              autoFocus
+              placeholder={t.searchPlaceholder || "Search tools..."}
+              value={searchModalQuery}
+              onChange={(e) => setSearchModalQuery(e.target.value)}
+              className="flex-1 bg-transparent text-slate-900 dark:text-white placeholder-slate-400 text-sm focus:outline-none"
+            />
+            {searchModalQuery && (
+              <button
+                type="button"
+                onClick={() => setSearchModalQuery('')}
+                className="p-1 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 cursor-pointer"
+                aria-label="Clear query"
+              >
+                <X className="w-3.5 h-3.5" />
+              </button>
+            )}
+            <button
+              type="button"
+              onClick={() => setIsSearchModalOpen(false)}
+              className="p-1 rounded-lg text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200 dark:hover:bg-slate-800 cursor-pointer transition-colors"
+              aria-label="Close search modal"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+
+          {/* Modal Tool List */}
+          <div className="max-h-80 overflow-y-auto p-2 divide-y divide-slate-100 dark:divide-slate-800/40">
+            {modalFilteredTools.length === 0 ? (
+              <div className="py-8 text-center text-slate-500 dark:text-slate-400 text-sm">
+                {language === 'vi' ? `Không tìm thấy công cụ phù hợp với từ khóa "${searchModalQuery}"` : `No matching tools found for "${searchModalQuery}"`}
+              </div>
+            ) : (
+              modalFilteredTools.map((tool, idx) => {
+                const isCurrent = currentToolId === tool.id;
+                const isHighlighted = modalSelectedIndex === idx;
+                const localizedName = t.toolNames[tool.id] || tool.name;
+                const localizedDesc = t.toolDescriptions[tool.id] || tool.description;
+
+                return (
+                  <button
+                    key={tool.id}
+                    id={`search-item-${tool.id}`}
+                    onClick={() => {
+                      onSelectTool(tool.id);
+                      setIsSearchModalOpen(false);
+                      setSearchModalQuery('');
+                    }}
+                    onMouseEnter={() => setModalSelectedIndex(idx)}
+                    className={`w-full flex items-center justify-between p-3 rounded-xl text-left transition-colors cursor-pointer ${
+                      isCurrent 
+                        ? 'bg-blue-50 dark:bg-blue-600/15 border border-blue-200 dark:border-blue-500/30' 
+                        : isHighlighted
+                        ? 'bg-slate-100 dark:bg-slate-800/70 border border-transparent'
+                        : 'hover:bg-slate-100 dark:hover:bg-slate-800/70 border border-transparent'
+                    }`}
+                  >
+                    <div className="pr-3 min-w-0 flex-1">
+                      <div className="flex items-center gap-2">
+                        <span className="font-semibold text-slate-900 dark:text-white text-sm truncate">
+                          {localizedName}
+                        </span>
+                      </div>
+                      <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 line-clamp-1">
+                        {localizedDesc}
+                      </p>
+                    </div>
+                    <span className="text-xs text-blue-500 dark:text-blue-400 font-medium pl-3 whitespace-nowrap">→</span>
+                  </button>
+                );
+              })
+            )}
+          </div>
+          
+          {/* Modal Footer with Esc on left & count / 9 on right (matching Image 2) */}
+          <div className="px-4 py-2.5 bg-slate-50 dark:bg-slate-900/80 border-t border-slate-200 dark:border-slate-800 text-[11px] text-slate-500 dark:text-slate-400 flex items-center justify-between">
+            <span>Esc</span>
+            <span>{modalFilteredTools.length} / 9</span>
+          </div>
+        </div>
+      </div>
+    )}
+    </>
   );
 };

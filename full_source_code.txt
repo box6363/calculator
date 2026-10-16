@@ -1,6 +1,6 @@
 ================================================================================
 PROJECT: WEB CALCULATOR & MOBILE INTERFACE FULL SOURCE CODE
-GENERATED AT: 2026-10-15T15:50:36.541Z
+GENERATED AT: 2026-10-15T16:26:21.209Z
 TOTAL SOURCE FILES: 130
 ================================================================================
 
@@ -4800,9 +4800,7 @@ import {
   Circle,
   Dices,
   Divide,
-  Ticket,
-  Search,
-  X
+  Ticket
 } from 'lucide-react';
 import { ToolId, ToolCategory } from '../../types';
 import { TOOLS_CONFIG } from '../../data/toolsData';
@@ -4818,7 +4816,7 @@ interface SidebarProps {
   isOpen: boolean;
 }
 
-const HOT_TOOL_IDS: ToolId[] = ['ai', 'basic', 'bmi', 'love', 'age', 'time', 'salary'];
+const HOT_TOOL_IDS: ToolId[] = ['basic', 'ai', 'bmi', 'love', 'age', 'time', 'salary'];
 
 interface CategoryDefinition {
   id: 'hot' | ToolCategory;
@@ -4897,10 +4895,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
   const secUi = getSectionUi(language);
   const isVi = language === 'vi';
 
-  // Category filter state ('all' or specific category)
-  const [selectedCategory, setSelectedCategory] = useState<'hot' | ToolCategory | 'all'>('all');
-  const [searchQuery, setSearchQuery] = useState<string>('');
-  
   // Track open/collapsed categories: only 'hot' is expanded by default, all 6 other categories are collapsed
   const [collapsedCategories, setCollapsedCategories] = useState<Record<string, boolean>>({
     financial: true,
@@ -4930,18 +4924,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
       .map(id => tools.find(t => t.id === id))
       .filter(Boolean) as typeof tools;
   }, [tools]);
-
-  // Filter tools by search query if any
-  const filteredTools = useMemo(() => {
-    if (!searchQuery.trim()) return tools;
-    const q = searchQuery.toLowerCase().trim();
-    return tools.filter(tool => {
-      const name = (t.toolNames[tool.id] || tool.name).toLowerCase();
-      const short = (t.toolShortNames[tool.id] || tool.shortName || '').toLowerCase();
-      const id = tool.id.toLowerCase();
-      return name.includes(q) || short.includes(q) || id.includes(q);
-    });
-  }, [tools, searchQuery, t]);
 
   const renderToolButton = (tool: typeof tools[0]) => {
     const isActive = currentToolId === tool.id;
@@ -4993,87 +4975,18 @@ export const Sidebar: React.FC<SidebarProps> = ({
         borderColor: 'var(--app-border, #272a47)'
       }}
     >
-      {/* Search & Category Filter Header */}
-      <div className="p-3 border-b border-slate-200 dark:border-slate-800 space-y-2.5 shrink-0">
-        {/* Quick Search */}
-        <div className="relative">
-          <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder={isVi ? 'Tìm nhanh công cụ...' : 'Search tools...'}
-            className="w-full pl-8 pr-7 py-1.5 text-xs bg-slate-100 dark:bg-slate-800/90 text-slate-900 dark:text-white rounded-lg border border-slate-300 dark:border-slate-700/80 placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-blue-500"
-          />
-          {searchQuery && (
-            <button
-              onClick={() => setSearchQuery('')}
-              className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-900 dark:hover:text-white"
-            >
-              <X className="w-3 h-3" />
-            </button>
-          )}
-        </div>
-
-        {/* Category Pill Filters */}
-        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none text-[11px]">
-          <button
-            onClick={() => setSelectedCategory('all')}
-            className={`px-2.5 py-1 rounded-full whitespace-nowrap transition-colors cursor-pointer font-medium ${
-              selectedCategory === 'all'
-                ? 'bg-blue-600 text-white shadow-sm'
-                : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200 dark:hover:bg-slate-700'
-            }`}
-          >
-            {isVi ? 'Tất cả' : 'All'} ({tools.length})
-          </button>
-          {CATEGORIES.map(cat => {
-            const count = cat.id === 'hot' ? hotTools.length : tools.filter(t => t.category === cat.id).length;
-            const isSel = selectedCategory === cat.id;
-            return (
-              <button
-                key={cat.id}
-                onClick={() => setSelectedCategory(cat.id)}
-                className={`px-2.5 py-1 rounded-full whitespace-nowrap transition-colors cursor-pointer font-medium ${
-                  isSel
-                    ? 'bg-blue-600 text-white shadow-sm'
-                    : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200 dark:hover:bg-slate-700'
-                }`}
-              >
-                {cat.id === 'hot' 
-                  ? '🔥 Hot' 
-                  : (isVi ? cat.nameVi.split(' ')[0] : cat.nameEn.split(' ')[0])
-                } ({count})
-              </button>
-            );
-          })}
-        </div>
-      </div>
-
       {/* Scrollable Tool Categories */}
       <div className="flex-1 overflow-y-auto p-3 space-y-4 scrollbar-thin scrollbar-thumb-slate-300 dark:scrollbar-thumb-slate-800">
         {CATEGORIES.map(cat => {
-          // If a category filter is active and this isn't it, hide
-          if (selectedCategory !== 'all' && selectedCategory !== cat.id) {
-            return null;
-          }
-
           const catTools = cat.id === 'hot'
-            ? hotTools.filter(tool => {
-                if (!searchQuery.trim()) return true;
-                const q = searchQuery.toLowerCase().trim();
-                const name = (t.toolNames[tool.id] || tool.name).toLowerCase();
-                const short = (t.toolShortNames[tool.id] || tool.shortName || '').toLowerCase();
-                const id = tool.id.toLowerCase();
-                return name.includes(q) || short.includes(q) || id.includes(q);
-              })
-            : filteredTools.filter(t => t.category === cat.id);
+            ? hotTools
+            : tools.filter(t => t.category === cat.id);
 
           if (catTools.length === 0) return null;
 
-          const isCollapsed = searchQuery.trim()
-            ? false
-            : (cat.id === 'hot' ? (collapsedCategories['hot'] ?? false) : (collapsedCategories[cat.id] ?? true));
+          const isCollapsed = cat.id === 'hot' 
+            ? (collapsedCategories['hot'] ?? false) 
+            : (collapsedCategories[cat.id] ?? true);
           const hasActiveTool = catTools.some(t => t.id === currentToolId);
 
           return (

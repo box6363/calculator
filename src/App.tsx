@@ -10,6 +10,8 @@ import { GeminiDrawer } from './components/common/GeminiDrawer';
 import { TermsModal } from './components/common/TermsModal';
 import { LanguageSelector } from './components/common/LanguageSelector';
 import { GlobalFooterEcosystem } from './components/common/GlobalFooterEcosystem';
+import { GoogleLoginModal } from './components/Auth/GoogleLoginModal';
+import { PricingModal } from './components/Subscription/PricingModal';
 import { useLanguage } from './context/LanguageContext';
 import { ShieldCheck, Copyright, FileText, Lock, Globe, BookOpen } from 'lucide-react';
 
@@ -492,6 +494,12 @@ export default function App() {
         isOpen={isTermsOpen}
         onClose={() => setIsTermsOpen(false)}
       />
+
+      {/* Google Login & Signup Modal */}
+      <GoogleLoginModal />
+
+      {/* VIP Pricing & Multi-channel Payment Modal ($4.99/mo & $49.99/yr) */}
+      <PricingModal />
 
       {/* Gemini Right Slide-Over Drawer with Ads (Triggered via `>` button) */}
       <GeminiDrawer

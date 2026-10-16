@@ -28,7 +28,9 @@ import {
   Dice5,
   KeyRound,
   Zap,
-  BookOpen
+  BookOpen,
+  Crown,
+  User
 } from 'lucide-react';
 import { ToolId } from '../../types';
 import { TOOLS_CONFIG } from '../../data/toolsData';
@@ -37,6 +39,7 @@ import { ToolIcon } from './ToolIcon';
 import { getToolColorTheme } from '../../data/toolColors';
 import { useLanguage } from '../../context/LanguageContext';
 import { getSectionUi } from '../../data/internationalSections';
+import { useAuth } from '../../context/AuthContext';
 
 interface BottomTabBarProps {
   currentToolId: ToolId;
@@ -48,6 +51,7 @@ export const BottomTabBar: React.FC<BottomTabBarProps> = ({
   onSelectTool
 }) => {
   const { language, t } = useLanguage();
+  const { user, isVip, setIsLoginModalOpen, setIsPricingModalOpen } = useAuth();
   const secUi = getSectionUi(language);
   const [isMoreMenuOpen, setIsMoreMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -207,6 +211,47 @@ export const BottomTabBar: React.FC<BottomTabBarProps> = ({
                 className="w-9 h-9 rounded-full bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 flex items-center justify-center text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-colors cursor-pointer"
               >
                 <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Mobile VIP & User Account Bar */}
+            <div className="grid grid-cols-2 gap-2">
+              <button
+                type="button"
+                onClick={() => {
+                  setIsMoreMenuOpen(false);
+                  setIsPricingModalOpen(true);
+                }}
+                className="flex items-center gap-2 p-2.5 rounded-2xl bg-gradient-to-r from-amber-500/15 to-rose-500/15 border border-amber-500/30 text-amber-600 dark:text-amber-400 font-bold text-xs cursor-pointer shadow-xs text-left"
+              >
+                <Crown className="w-4 h-4 fill-amber-500 text-amber-500 shrink-0" />
+                <div className="min-w-0">
+                  <div className="truncate leading-tight">{isVip ? 'VIP Pro' : 'Nâng cấp VIP'}</div>
+                  <div className="text-[10px] text-slate-500 dark:text-slate-400 font-normal truncate">Chỉ từ 4.99$/tháng</div>
+                </div>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  setIsMoreMenuOpen(false);
+                  setIsLoginModalOpen(true);
+                }}
+                className="flex items-center gap-2 p-2.5 rounded-2xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 font-bold text-xs cursor-pointer shadow-xs text-left"
+              >
+                {user ? (
+                  <img
+                    src={user.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(user.email)}`}
+                    alt={user.name}
+                    className="w-5 h-5 rounded-full object-cover ring-1 ring-blue-500 shrink-0"
+                  />
+                ) : (
+                  <User className="w-4 h-4 text-blue-500 shrink-0" />
+                )}
+                <div className="min-w-0">
+                  <div className="truncate leading-tight">{user ? user.name.split(' ')[0] : (language === 'vi' ? 'Đăng nhập' : 'Sign In')}</div>
+                  <div className="text-[10px] text-slate-500 dark:text-slate-400 font-normal truncate">{user ? 'Hồ sơ' : 'Google account'}</div>
+                </div>
               </button>
             </div>
 

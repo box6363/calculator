@@ -1018,22 +1018,22 @@ div[class*="translate-x-full"] {
 }
 
 /* ============================================================
-   CHẾ ĐỘ GIAO DIỆN: TỐI (DARK)
-   - Nền tối chống mỏi mắt: #141526
-   - Thẻ card / surface: #1B1D33, viền #272A47
-   - Ô nhập liệu: Xám đậm #252525, viền #3F3F3F, chữ trắng #FFFFFF
+   CHẾ ĐỘ GIAO DIỆN: TỐI (DARK / OLED TRUE BLACK)
+   - Nền đen OLED thuần khiết: #000000 (Tắt hẳn điểm ảnh trên màn hình OLED)
+   - Thẻ card / surface: #0a0b0e, viền #1e2029
+   - Ô nhập liệu: Xám đen #14151a, viền #2d303e, chữ trắng #FFFFFF
    - Focus: Viền xanh neon #00E5FF
    - Độ tương phản WCAG AAA vượt trội, loại bỏ triệt để chữ xám/trắng trên nền xám
    ============================================================ */
 [data-theme="dark"] {
-  --app-bg: #141526;
-  --app-header-bg: rgba(20, 21, 38, 0.96);
-  --app-surface: #1b1d33;
-  --app-subsurface: rgba(27, 29, 51, 0.75);
-  --app-border: #272a47;
+  --app-bg: #000000;
+  --app-header-bg: rgba(0, 0, 0, 0.95);
+  --app-surface: #0a0b0e;
+  --app-subsurface: rgba(10, 11, 14, 0.85);
+  --app-border: #1e2029;
   --app-accent: #00e5ff;
-  --app-input-bg: #252525;
-  --app-input-border: #3f3f3f;
+  --app-input-bg: #14151a;
+  --app-input-border: #2d303e;
   --app-text-primary: #ffffff;
   --app-text-secondary: #cbd5e1;
   --app-text-muted: #94a3b8;
@@ -1050,8 +1050,8 @@ div[class*="translate-x-full"] {
 [data-theme="dark"] .bg-gray-50:not(.pdf-report-page):not([id*="printable"]):not(.keep-light),
 [data-theme="dark"] .bg-gray-100:not(.pdf-report-page):not([id*="printable"]):not(.keep-light),
 [data-theme="dark"] .bg-gray-200:not(.pdf-report-page):not([id*="printable"]):not(.keep-light) {
-  background-color: #1b1d33 !important;
-  border-color: #272a47 !important;
+  background-color: #0a0b0e !important;
+  border-color: #1e2029 !important;
   color: #ffffff !important;
 }
 
@@ -1061,7 +1061,7 @@ div[class*="translate-x-full"] {
 [data-theme="dark"] .border-slate-300:not(.pdf-report-page):not([id*="printable"]),
 [data-theme="dark"] .divide-slate-100:not(.pdf-report-page) > :not([hidden]) ~ :not([hidden]),
 [data-theme="dark"] .divide-slate-200:not(.pdf-report-page) > :not([hidden]) ~ :not([hidden]) {
-  border-color: #272a47 !important;
+  border-color: #1e2029 !important;
 }
 
 /* Nút bấm chip / nút chọn nhanh có nền xám (bg-slate-100 / bg-slate-200) */
