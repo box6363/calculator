@@ -18,7 +18,8 @@ import { useLanguage } from '../../context/LanguageContext';
 
 // Client ID chính thức từ Google Cloud Console
 const OFFICIAL_GOOGLE_CLIENT_ID =
-  '724645847537-juildda4mhl5k5e3gquo1htpf6f33u0r.apps.googleusercontent.com';
+  (import.meta as any).env?.VITE_GOOGLE_CLIENT_ID ||
+  '356123633584-d6h6kqtf9lkmeis2hked6kqsvr8vh3h1.apps.googleusercontent.com';
 
 declare global {
   interface Window {
@@ -49,6 +50,7 @@ export const GoogleLoginModal: React.FC = () => {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [copiedUri, setCopiedUri] = useState(false);
   const [copiedOrigin, setCopiedOrigin] = useState(false);
+  const [copiedClientId, setCopiedClientId] = useState(false);
   const [showConfigGuide, setShowConfigGuide] = useState(false);
 
   useEffect(() => {
@@ -179,6 +181,12 @@ export const GoogleLoginModal: React.FC = () => {
     navigator.clipboard.writeText(callbackUrl);
     setCopiedUri(true);
     setTimeout(() => setCopiedUri(false), 2000);
+  };
+
+  const copyClientId = () => {
+    navigator.clipboard.writeText(OFFICIAL_GOOGLE_CLIENT_ID);
+    setCopiedClientId(true);
+    setTimeout(() => setCopiedClientId(false), 2000);
   };
 
   if (!isLoginModalOpen) return null;
@@ -449,6 +457,21 @@ export const GoogleLoginModal: React.FC = () => {
                   <p className="font-semibold text-slate-800 dark:text-slate-200">
                     Thêm vào Google Cloud Console ➔ Credentials:
                   </p>
+                  <div className="space-y-1">
+                    <div className="flex items-center justify-between font-mono">
+                      <span>Active Client ID:</span>
+                      <button
+                        type="button"
+                        onClick={copyClientId}
+                        className="text-blue-600 dark:text-blue-400 font-bold hover:underline cursor-pointer"
+                      >
+                        {copiedClientId ? 'Đã copy!' : 'Sao chép'}
+                      </button>
+                    </div>
+                    <div className="p-1.5 rounded bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 font-mono text-[9px] break-all select-all font-semibold text-blue-600 dark:text-blue-400">
+                      {OFFICIAL_GOOGLE_CLIENT_ID}
+                    </div>
+                  </div>
                   <div className="space-y-1">
                     <div className="flex items-center justify-between font-mono">
                       <span>Origin:</span>

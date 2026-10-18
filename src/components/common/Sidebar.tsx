@@ -76,6 +76,8 @@ interface CategoryDefinition {
   id: 'hot' | ToolCategory;
   nameVi: string;
   nameEn: string;
+  shortNameVi?: string;
+  shortNameEn?: string;
   color: string;
   badgeBg: string;
   badgeText: string;
@@ -86,6 +88,8 @@ const CATEGORIES: CategoryDefinition[] = [
     id: 'hot',
     nameVi: 'Hot Calculator',
     nameEn: 'Hot Calculator',
+    shortNameVi: '🔥 Hot',
+    shortNameEn: '🔥 Hot',
     color: 'text-amber-500 dark:text-amber-400',
     badgeBg: 'bg-amber-500/15 border-amber-500/30',
     badgeText: 'text-amber-600 dark:text-amber-400'
@@ -94,6 +98,8 @@ const CATEGORIES: CategoryDefinition[] = [
     id: 'financial',
     nameVi: 'Tài chính & Đầu tư',
     nameEn: 'Finance & Investment',
+    shortNameVi: 'Tài chính',
+    shortNameEn: 'Finance',
     color: 'text-emerald-600 dark:text-emerald-400',
     badgeBg: 'bg-emerald-500/15 border-emerald-500/30',
     badgeText: 'text-emerald-600 dark:text-emerald-400'
@@ -102,6 +108,8 @@ const CATEGORIES: CategoryDefinition[] = [
     id: 'fitness',
     nameVi: 'Sức khỏe & Thể hình',
     nameEn: 'Health & Fitness',
+    shortNameVi: 'Sức khỏe',
+    shortNameEn: 'Health',
     color: 'text-rose-600 dark:text-rose-400',
     badgeBg: 'bg-rose-500/15 border-rose-500/30',
     badgeText: 'text-rose-600 dark:text-rose-400'
@@ -110,6 +118,8 @@ const CATEGORIES: CategoryDefinition[] = [
     id: 'math',
     nameVi: 'Toán học & Thống kê',
     nameEn: 'Math & Statistics',
+    shortNameVi: 'Toán học',
+    shortNameEn: 'Math',
     color: 'text-blue-600 dark:text-blue-400',
     badgeBg: 'bg-blue-500/15 border-blue-500/30',
     badgeText: 'text-blue-600 dark:text-blue-400'
@@ -118,6 +128,8 @@ const CATEGORIES: CategoryDefinition[] = [
     id: 'geometry',
     nameVi: 'Hình học & Đo lường',
     nameEn: 'Geometry & Space',
+    shortNameVi: 'Hình học',
+    shortNameEn: 'Geometry',
     color: 'text-amber-600 dark:text-amber-400',
     badgeBg: 'bg-amber-500/15 border-amber-500/30',
     badgeText: 'text-amber-600 dark:text-amber-400'
@@ -126,6 +138,8 @@ const CATEGORIES: CategoryDefinition[] = [
     id: 'conversion',
     nameVi: 'Chuyển đổi đơn vị',
     nameEn: 'Unit Conversion',
+    shortNameVi: 'Chuyển đổi',
+    shortNameEn: 'Conversion',
     color: 'text-cyan-600 dark:text-cyan-400',
     badgeBg: 'bg-cyan-500/15 border-cyan-500/30',
     badgeText: 'text-cyan-600 dark:text-cyan-400'
@@ -134,6 +148,8 @@ const CATEGORIES: CategoryDefinition[] = [
     id: 'utility',
     nameVi: 'Tiện ích & Đời sống',
     nameEn: 'Utilities & Life',
+    shortNameVi: 'Tiện ích',
+    shortNameEn: 'Utilities',
     color: 'text-purple-600 dark:text-purple-400',
     badgeBg: 'bg-purple-500/15 border-purple-500/30',
     badgeText: 'text-purple-600 dark:text-purple-400'
@@ -337,9 +353,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
                     : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200 dark:hover:bg-slate-700'
                 }`}
               >
-                {cat.id === 'hot' 
-                  ? '🔥 Hot' 
-                  : (isVi ? cat.nameVi.split(' ')[0] : cat.nameEn.split(' ')[0])
+                {isVi 
+                  ? (cat.shortNameVi || cat.nameVi) 
+                  : (cat.shortNameEn || cat.nameEn)
                 } ({count})
               </button>
             );
