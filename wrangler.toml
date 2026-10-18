@@ -1,0 +1,14 @@
+# Cloudflare Pages / Workers Configuration for Web Calculator Pro
+name = "web-calculator"
+compatibility_date = "2024-01-01"
+pages_build_output_dir = "dist"
+
+# Ràng buộc cơ sở dữ liệu Cloudflare D1
+[[d1_databases]]
+binding = "DB"
+database_name = "webcalc-db"
+database_id = "your-d1-database-id-here"
+
+[vars]
+GOOGLE_CLIENT_ID = "356123633584-d6h6kqtf9lkmeis2hked6kqsvr8vh3h1.apps.googleusercontent.com"
+ADMIN_KEY = "admin_secret_key_123"

@@ -27,7 +27,9 @@ export const PricingModal: React.FC = () => {
     isPricingModalOpen,
     setIsPricingModalOpen,
     setIsLoginModalOpen,
-    upgradePlan
+    confirmPaypalPayment,
+    submitTransferRecord,
+    adminGrantPlan,
   } = useAuth();
 
   const { language } = useLanguage();
@@ -41,6 +43,17 @@ export const PricingModal: React.FC = () => {
   const [copiedAccount, setCopiedAccount] = useState(false);
   const [copiedMemo, setCopiedMemo] = useState(false);
   const [copiedAmount, setCopiedAmount] = useState(false);
+
+  const [transferPendingInfo, setTransferPendingInfo] = useState<{
+    memo: string;
+    amount: number;
+    channelName: string;
+    planLabel: string;
+  } | null>(null);
+
+  const [showAdminGrant, setShowAdminGrant] = useState(false);
+  const [adminKey, setAdminKey] = useState('');
+  const [adminError, setAdminError] = useState<string | null>(null);
 
   const [successData, setSuccessData] = useState<{
     plan: 'monthly' | 'yearly';
@@ -93,8 +106,8 @@ export const PricingModal: React.FC = () => {
     setTimeout(() => setCopiedAmount(false), 2000);
   };
 
-  // Kích hoạt thanh toán & Lưu vào CSDL
-  const handleConfirmPayment = async (method: string = paymentChannel) => {
+  // Xác nhận đã thanh toán hoặc chuyển khoản
+  const handleConfirmPayment = async () => {
     if (!user?.email) {
       setIsPricingModalOpen(false);
       setIsLoginModalOpen(true);
@@ -103,33 +116,73 @@ export const PricingModal: React.FC = () => {
 
     setIsProcessing(true);
     try {
-      const orderId = `PAY-${Date.now().toString(36).toUpperCase()}`;
-      const res = await upgradePlan(selectedPlan, method, orderId);
+      if (paymentChannel === 'paypal') {
+        const orderId = `PP-${Date.now().toString(36).toUpperCase()}`;
+        const res = await confirmPaypalPayment(selectedPlan, orderId);
 
+        if (res.success && res.customer) {
+          const now = new Date();
+          const expires = res.customer.expiresAt ? new Date(res.customer.expiresAt) : new Date(now.getTime() + durationDays * 86400000);
+
+          setSuccessData({
+            plan: selectedPlan,
+            email: user.email,
+            subscribedAt: now.toLocaleDateString(isVi ? 'vi-VN' : 'en-US', {
+              year: 'numeric',
+              month: '2-digit',
+              day: '2-digit',
+              hour: '2-digit',
+              minute: '2-digit',
+            }),
+            expiresAt: expires.toLocaleDateString(isVi ? 'vi-VN' : 'en-US', {
+              year: 'numeric',
+              month: '2-digit',
+              day: '2-digit',
+              hour: '2-digit',
+              minute: '2-digit',
+            }),
+            daysRemaining: res.customer.daysRemaining || durationDays,
+            price: currentPriceUSD,
+          });
+        }
+      } else {
+        // VietQR / MoMo: Ghi nhận yêu cầu chuyển khoản chờ xác nhận
+        await submitTransferRecord(selectedPlan, paymentChannel as any, transferMemo, currentPriceVND);
+        setTransferPendingInfo({
+          memo: transferMemo,
+          amount: currentPriceVND,
+          channelName: paymentChannel === 'momo' ? 'Ví MoMo' : 'VietQR Napas',
+          planLabel
+        });
+      }
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  const handleAdminGrant = async () => {
+    if (!user?.email) return;
+    if (!adminKey) {
+      setAdminError(isVi ? 'Vui lòng nhập ADMIN_KEY' : 'Please enter ADMIN_KEY');
+      return;
+    }
+    setIsProcessing(true);
+    setAdminError(null);
+    try {
+      const res = await adminGrantPlan(user.email, selectedPlan, adminKey);
       if (res.success && res.customer) {
         const now = new Date();
         const expires = res.customer.expiresAt ? new Date(res.customer.expiresAt) : new Date(now.getTime() + durationDays * 86400000);
-
         setSuccessData({
           plan: selectedPlan,
           email: user.email,
-          subscribedAt: now.toLocaleDateString(isVi ? 'vi-VN' : 'en-US', {
-            year: 'numeric',
-            month: '2-digit',
-            day: '2-digit',
-            hour: '2-digit',
-            minute: '2-digit',
-          }),
-          expiresAt: expires.toLocaleDateString(isVi ? 'vi-VN' : 'en-US', {
-            year: 'numeric',
-            month: '2-digit',
-            day: '2-digit',
-            hour: '2-digit',
-            minute: '2-digit',
-          }),
+          subscribedAt: now.toLocaleDateString(isVi ? 'vi-VN' : 'en-US'),
+          expiresAt: expires.toLocaleDateString(isVi ? 'vi-VN' : 'en-US'),
           daysRemaining: res.customer.daysRemaining || durationDays,
           price: currentPriceUSD,
         });
+      } else {
+        setAdminError(res.error || (isVi ? 'Sai ADMIN_KEY hoặc không thể cấp quyền' : 'Invalid ADMIN_KEY'));
       }
     } finally {
       setIsProcessing(false);
@@ -245,6 +298,69 @@ export const PricingModal: React.FC = () => {
                   >
                     <Sparkles className="w-4 h-4" />
                     <span>{isVi ? 'Bắt đầu trải nghiệm VIP Pro ngay' : 'Start Using VIP Pro Now'}</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          ) : transferPendingInfo ? (
+            <div className="space-y-4 animate-in zoom-in-95">
+              <div className="p-6 text-center space-y-3 bg-gradient-to-b from-blue-50 to-indigo-50 dark:from-blue-950/40 dark:to-indigo-950/20 border border-blue-200 dark:border-blue-800 rounded-3xl shadow-sm">
+                <div className="w-14 h-14 rounded-full bg-blue-500 text-white mx-auto flex items-center justify-center shadow-lg shadow-blue-500/30">
+                  <Clock className="w-7 h-7" />
+                </div>
+                <h4 className="font-extrabold text-lg text-blue-900 dark:text-blue-100">
+                  {isVi ? 'Đã Ghi Nhận Chuyển Khoản • Chờ Xác Nhận' : 'Transfer Logged • Pending Confirmation'}
+                </h4>
+                <p className="text-xs text-blue-700 dark:text-blue-300 max-w-md mx-auto">
+                  {isVi
+                    ? 'Hệ thống đã lưu thông tin chuyển khoản của bạn. Ban quản trị sẽ đối soát và kích hoạt gói VIP cho bạn trong thời gian sớm nhất (thường từ 1-5 phút).'
+                    : 'Your transfer notification has been submitted. The admin will verify and activate your VIP subscription shortly (typically within 1-5 minutes).'}
+                </p>
+
+                {/* Bảng chi tiết đối soát */}
+                <div className="mt-4 p-4 rounded-2xl bg-white dark:bg-slate-900 border border-blue-200 dark:border-blue-800/80 text-left space-y-2.5 text-xs">
+                  <div className="flex items-center justify-between pb-2 border-b border-slate-100 dark:border-slate-800">
+                    <span className="text-slate-500">{isVi ? 'Tài khoản:' : 'Account:'}</span>
+                    <span className="font-bold text-slate-800 dark:text-slate-200">{user?.email}</span>
+                  </div>
+                  <div className="flex items-center justify-between pb-2 border-b border-slate-100 dark:border-slate-800">
+                    <span className="text-slate-500">{isVi ? 'Gói đăng ký:' : 'Plan:'}</span>
+                    <span className="font-bold text-amber-600 dark:text-amber-400">{transferPendingInfo.planLabel}</span>
+                  </div>
+                  <div className="flex items-center justify-between pb-2 border-b border-slate-100 dark:border-slate-800">
+                    <span className="text-slate-500">{isVi ? 'Cú pháp chuyển khoản:' : 'Transfer Memo:'}</span>
+                    <span className="font-mono font-bold text-blue-600 dark:text-blue-400">{transferPendingInfo.memo}</span>
+                  </div>
+                  <div className="flex items-center justify-between pb-2 border-b border-slate-100 dark:border-slate-800">
+                    <span className="text-slate-500">{isVi ? 'Số tiền:' : 'Amount:'}</span>
+                    <span className="font-bold text-emerald-600 dark:text-emerald-400">{formatVND(transferPendingInfo.amount)}</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-slate-500">{isVi ? 'Trạng thái:' : 'Status:'}</span>
+                    <span className="inline-flex items-center gap-1 font-bold text-amber-600 dark:text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded-full">
+                      <Clock className="w-3 h-3" />
+                      <span>{isVi ? 'Đã chuyển khoản, chờ xác nhận' : 'Transferred, pending confirmation'}</span>
+                    </span>
+                  </div>
+                </div>
+
+                <div className="pt-3 flex gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setTransferPendingInfo(null)}
+                    className="flex-1 py-2.5 px-4 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 font-semibold text-xs hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+                  >
+                    {isVi ? 'Quay lại phương thức' : 'Back to payment'}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setTransferPendingInfo(null);
+                      setIsPricingModalOpen(false);
+                    }}
+                    className="flex-1 py-2.5 px-4 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs shadow-md transition-colors cursor-pointer"
+                  >
+                    {isVi ? 'Hoàn tất & Đóng' : 'Done & Close'}
                   </button>
                 </div>
               </div>
@@ -650,44 +766,84 @@ export const PricingModal: React.FC = () => {
                 </div>
               </div>
 
-              {/* Nút hành động thanh toán & Nút kích hoạt thử nghiệm */}
+              {/* Nút hành động thanh toán & Admin Key Activation */}
               <div className="space-y-2 pt-1">
                 <button
                   type="button"
                   id="btn-confirm-payment"
                   disabled={isProcessing}
-                  onClick={() => handleConfirmPayment(paymentChannel)}
+                  onClick={handleConfirmPayment}
                   className="w-full py-3.5 px-5 rounded-2xl bg-gradient-to-r from-amber-500 via-amber-600 to-rose-500 hover:brightness-105 text-white font-bold text-sm shadow-lg shadow-amber-500/25 transition-all cursor-pointer flex items-center justify-center gap-2 active:scale-[0.99] disabled:opacity-60"
                 >
                   {isProcessing ? (
                     <>
                       <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                      <span>{isVi ? 'Đang xử lý kích hoạt CSDL...' : 'Activating in database...'}</span>
+                      <span>{isVi ? 'Đang gửi thông tin...' : 'Submitting...'}</span>
+                    </>
+                  ) : paymentChannel === 'paypal' ? (
+                    <>
+                      <span className="font-black italic">PP</span>
+                      <span>
+                        {isVi 
+                          ? `Thanh toán qua PayPal ($${currentPriceUSD} USD) • ${planLabel}`
+                          : `Pay with PayPal ($${currentPriceUSD} USD) • ${planLabel}`}
+                      </span>
                     </>
                   ) : (
                     <>
-                      <Crown className="w-4 h-4 fill-white" />
+                      <Check className="w-4 h-4 text-white" />
                       <span>
                         {isVi 
-                          ? `Xác nhận đã chuyển khoản • Kích hoạt ${planLabel}`
-                          : `Confirm Payment • Activate ${planLabel}`}
+                          ? `Đã chuyển khoản, chờ xác nhận • ${planLabel}`
+                          : `I have transferred, pending confirmation • ${planLabel}`}
                       </span>
                     </>
                   )}
                 </button>
 
-                {/* Nút kích hoạt thử nghiệm cho Dev/Preview (Đúng chuẩn tài liệu tham khảo) */}
-                <div className="flex items-center justify-between text-[11px] text-slate-400 dark:text-slate-500 px-1 pt-1">
-                  <span>{isVi ? 'Đang đăng nhập bằng:' : 'Logged in as:'} <strong className="text-slate-700 dark:text-slate-300">{user.email}</strong></span>
-                  <button
-                    type="button"
-                    disabled={isProcessing}
-                    onClick={() => handleConfirmPayment('test_simulation')}
-                    className="text-blue-600 dark:text-blue-400 hover:underline font-bold cursor-pointer"
-                    title="Kiểm tra lưu CSDL và tính thời hạn ngay trong bản xem trước"
-                  >
-                    {isProcessing ? 'Đang kích hoạt...' : (isVi ? 'Kích hoạt thử nghiệm (Test Lưu CSDL)' : 'Test Activate (Save DB)')}
-                  </button>
+                {/* Quản trị viên kích hoạt bằng ADMIN_KEY */}
+                <div className="pt-2 border-t border-slate-200 dark:border-slate-800">
+                  <div className="flex items-center justify-between text-[11px] text-slate-400 dark:text-slate-500 px-1">
+                    <span>{isVi ? 'Đang đăng nhập bằng:' : 'Logged in as:'} <strong className="text-slate-700 dark:text-slate-300">{user.email}</strong></span>
+                    <button
+                      type="button"
+                      onClick={() => setShowAdminGrant(!showAdminGrant)}
+                      className="text-amber-600 dark:text-amber-400 hover:underline font-semibold cursor-pointer"
+                    >
+                      {showAdminGrant ? (isVi ? 'Đóng Admin Tool' : 'Close Admin Tool') : (isVi ? 'Kích hoạt bằng Admin Key' : 'Grant with Admin Key')}
+                    </button>
+                  </div>
+
+                  {showAdminGrant && (
+                    <div className="mt-2.5 p-3 rounded-2xl bg-amber-500/10 border border-amber-500/30 space-y-2 text-xs">
+                      <div className="flex items-center justify-between">
+                        <span className="font-bold text-amber-800 dark:text-amber-300">
+                          {isVi ? 'Xác nhận thủ công bằng ADMIN_KEY:' : 'Manual Grant with ADMIN_KEY:'}
+                        </span>
+                        <span className="text-[10px] text-slate-500 font-mono">(Mặc định: admin_secret_key_123)</span>
+                      </div>
+                      <div className="flex gap-2">
+                        <input
+                          type="password"
+                          value={adminKey}
+                          onChange={(e) => setAdminKey(e.target.value)}
+                          placeholder="Nhập ADMIN_KEY..."
+                          className="flex-1 px-3 py-1.5 rounded-xl bg-white dark:bg-slate-900 border border-amber-300 dark:border-amber-700 text-xs text-slate-800 dark:text-slate-200 focus:outline-none"
+                        />
+                        <button
+                          type="button"
+                          disabled={isProcessing}
+                          onClick={handleAdminGrant}
+                          className="px-3.5 py-1.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs shadow-sm cursor-pointer disabled:opacity-50"
+                        >
+                          {isProcessing ? 'Đang cấp...' : (isVi ? 'Kích hoạt' : 'Grant')}
+                        </button>
+                      </div>
+                      {adminError && (
+                        <p className="text-[11px] text-rose-600 font-semibold">{adminError}</p>
+                      )}
+                    </div>
+                  )}
                 </div>
               </div>
             </>

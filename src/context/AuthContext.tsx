@@ -6,15 +6,22 @@ interface AuthContextType {
   isVip: boolean;
   vipPlan: UserPlan;
   daysRemaining: number | undefined;
+  aiQuotaRemaining: number;
+  aiCountToday: number;
   isLoginModalOpen: boolean;
   setIsLoginModalOpen: (open: boolean) => void;
   isPricingModalOpen: boolean;
   setIsPricingModalOpen: (open: boolean) => void;
   authModalMode: 'login' | 'signup';
   setAuthModalMode: (mode: 'login' | 'signup') => void;
-  loginWithGoogle: (email: string, name?: string, avatar?: string) => Promise<any>;
-  signupWithGoogle: (email: string, name?: string, avatar?: string) => Promise<any>;
+  loginWithGoogle: (emailOrToken: string, name?: string, avatar?: string) => Promise<any>;
+  signupWithGoogle: (emailOrToken: string, name?: string, avatar?: string) => Promise<any>;
+  confirmPaypalPayment: (plan: 'monthly' | 'yearly', orderId: string) => Promise<any>;
+  submitTransferRecord: (plan: 'monthly' | 'yearly', paymentMethod: 'vietqr' | 'momo', memo: string, amount?: number) => Promise<any>;
+  adminGrantPlan: (email: string, plan: 'monthly' | 'yearly', adminKey: string, days?: number, quota?: number) => Promise<any>;
   upgradePlan: (plan: 'monthly' | 'yearly', paymentMethod?: string, orderId?: string) => Promise<any>;
+  refreshUser: () => Promise<void>;
+  updateUserUsage: (usage: { plan?: UserPlan; aiCountToday?: number; aiQuotaRemaining?: number }) => void;
   logout: () => void;
 }
 
@@ -44,6 +51,46 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   const vipPlan: UserPlan = user?.plan || 'free';
   const daysRemaining = user?.daysRemaining;
+  const aiCountToday = user?.aiCountToday ?? 0;
+  const aiQuotaRemaining = user?.aiQuotaRemaining ?? (isVip ? (user?.plan === 'yearly' ? 7200 : 1500) : Math.max(0, 3 - aiCountToday));
+
+  // Sync with server on load if user is logged in
+  const refreshUser = async () => {
+    if (!user?.email) return;
+    try {
+      const res = await fetch(`/api/auth/me?email=${encodeURIComponent(user.email)}`);
+      const data = await res.json();
+      if (data.success && data.customer) {
+        setUser(prev => {
+          const updated = { ...prev, ...data.customer };
+          try {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
+          } catch {}
+          return updated;
+        });
+      }
+    } catch {}
+  };
+
+  useEffect(() => {
+    refreshUser();
+  }, [user?.email]);
+
+  const updateUserUsage = (usage: { plan?: UserPlan; aiCountToday?: number; aiQuotaRemaining?: number }) => {
+    setUser(prev => {
+      if (!prev) return null;
+      const updated = {
+        ...prev,
+        plan: usage.plan || prev.plan,
+        aiCountToday: usage.aiCountToday !== undefined ? usage.aiCountToday : prev.aiCountToday,
+        aiQuotaRemaining: usage.aiQuotaRemaining !== undefined ? usage.aiQuotaRemaining : prev.aiQuotaRemaining,
+      };
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
+      } catch {}
+      return updated;
+    });
+  };
 
   // Listen for Google Auth Popup postMessage callback
   useEffect(() => {
@@ -62,52 +109,32 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     return () => window.removeEventListener('message', handleAuthMessage);
   }, []);
 
-  // Sync / Verify with server on load if user is logged in
-  useEffect(() => {
-    if (user?.email) {
-      fetch(`/api/customers/check/${encodeURIComponent(user.email)}`)
-        .then(res => res.json())
-        .then(data => {
-          if (data.success && data.customer) {
-            setUser(prev => {
-              const updated = { ...prev, ...data.customer };
-              try {
-                localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
-              } catch {}
-              return updated;
-            });
-          }
-        })
-        .catch(() => {});
-    }
-  }, [user?.email]);
-
   const signupWithGoogle = async (
-    customEmail?: string,
+    emailOrToken: string,
     customName?: string,
     customAvatar?: string
   ): Promise<any> => {
-    const email = (customEmail || '').trim().toLowerCase();
-    if (!email) {
-      return { success: false, error: 'Thiếu địa chỉ email đăng ký' };
-    }
-    const name = customName?.trim() || email.split('@')[0];
-    const avatar =
-      customAvatar ||
-      `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(email)}`;
+    const isToken = !emailOrToken.includes('@');
+    const bodyPayload = isToken
+      ? { accessToken: emailOrToken }
+      : {
+          email: emailOrToken.trim().toLowerCase(),
+          name: customName?.trim() || emailOrToken.split('@')[0],
+          avatar: customAvatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(emailOrToken)}`
+        };
 
     try {
       const res = await fetch('/api/auth/signup', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, name, avatar }),
+        body: JSON.stringify(bodyPayload),
       });
       const data = await res.json();
       if (res.status === 409 || data.alreadyExists) {
         return {
           success: false,
           alreadyExists: true,
-          error: data.error || 'Tài khoản với email này đã tồn tại. Vui lòng chuyển sang tab Đăng nhập.',
+          error: data.error || 'Tài khoản với email này đã tồn tại trên hệ thống. Vui lòng chuyển sang tab Đăng nhập.',
         };
       }
       if (data.success && data.customer) {
@@ -124,31 +151,31 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   };
 
   const loginWithGoogle = async (
-    customEmail?: string,
+    emailOrToken: string,
     customName?: string,
     customAvatar?: string
   ): Promise<any> => {
-    const email = (customEmail || '').trim().toLowerCase();
-    if (!email) {
-      return { success: false, error: 'Thiếu địa chỉ email đăng nhập' };
-    }
-    const name = customName?.trim() || email.split('@')[0];
-    const avatar =
-      customAvatar ||
-      `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(email)}`;
+    const isToken = !emailOrToken.includes('@');
+    const bodyPayload = isToken
+      ? { accessToken: emailOrToken }
+      : {
+          email: emailOrToken.trim().toLowerCase(),
+          name: customName?.trim() || emailOrToken.split('@')[0],
+          avatar: customAvatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(emailOrToken)}`
+        };
 
     try {
       const res = await fetch('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, name, avatar }),
+        body: JSON.stringify(bodyPayload),
       });
       const data = await res.json();
       if (res.status === 404 || data.notRegistered) {
         return {
           success: false,
           notRegistered: true,
-          error: data.error || 'Tài khoản chưa tồn tại. Vui lòng chuyển sang tab Đăng ký.',
+          error: data.error || 'Chưa có tài khoản. Vui lòng chuyển sang tab Đăng ký để tạo tài khoản mới.',
         };
       }
       if (data.success && data.customer) {
@@ -164,40 +191,113 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
   };
 
+  // Xác nhận đơn thanh toán PayPal
+  const confirmPaypalPayment = async (plan: 'monthly' | 'yearly', orderId: string): Promise<any> => {
+    if (!user?.email) {
+      setIsLoginModalOpen(true);
+      return { success: false, error: 'Vui lòng đăng nhập trước khi thanh toán' };
+    }
+
+    try {
+      const res = await fetch('/api/payments/paypal-confirm', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          orderId,
+          plan,
+          email: user.email,
+        })
+      });
+      const data = await res.json();
+      if (data.success && data.customer) {
+        setUser(data.customer);
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(data.customer));
+        return { success: true, customer: data.customer, message: data.message };
+      }
+      return { success: false, error: data.error || 'Xác nhận PayPal thất bại' };
+    } catch (err: any) {
+      return { success: false, error: err.message || 'Lỗi kết nối máy chủ' };
+    }
+  };
+
+  // Khách hàng bấm "Đã chuyển khoản, chờ xác nhận" cho VietQR / MoMo
+  const submitTransferRecord = async (
+    plan: 'monthly' | 'yearly',
+    paymentMethod: 'vietqr' | 'momo',
+    memo: string,
+    amount?: number
+  ): Promise<any> => {
+    if (!user?.email) {
+      setIsLoginModalOpen(true);
+      return { success: false, error: 'Vui lòng đăng nhập trước khi xác nhận chuyển khoản' };
+    }
+
+    try {
+      const res = await fetch('/api/payments/transfer-submit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          plan,
+          paymentMethod,
+          memo,
+          amount,
+          email: user.email,
+        })
+      });
+      const data = await res.json();
+      return data;
+    } catch (err: any) {
+      return { success: false, error: err.message || 'Lỗi gửi yêu cầu chuyển khoản' };
+    }
+  };
+
+  // Xác nhận thủ công bằng ADMIN_KEY
+  const adminGrantPlan = async (
+    email: string,
+    plan: 'monthly' | 'yearly',
+    adminKey: string,
+    days?: number,
+    quota?: number
+  ): Promise<any> => {
+    try {
+      const res = await fetch('/api/admin/grant', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          adminKey,
+          email,
+          plan,
+          days,
+          quota,
+        })
+      });
+      const data = await res.json();
+      if (data.success && data.customer) {
+        if (user?.email && user.email.toLowerCase() === email.toLowerCase()) {
+          setUser(data.customer);
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(data.customer));
+        }
+        return { success: true, customer: data.customer, message: data.message };
+      }
+      return { success: false, error: data.error || 'Cấp quyền Admin thất bại' };
+    } catch (err: any) {
+      return { success: false, error: err.message || 'Lỗi kết nối máy chủ' };
+    }
+  };
+
   const upgradePlan = async (
     plan: 'monthly' | 'yearly',
     paymentMethod: string = 'vietqr',
     orderId?: string
   ): Promise<any> => {
-    if (!user?.email) {
-      setIsLoginModalOpen(true);
-      return { success: false, error: 'Vui lòng đăng nhập trước khi kích hoạt' };
+    if (paymentMethod === 'paypal') {
+      return confirmPaypalPayment(plan, orderId || `PP-${Date.now()}`);
     }
-
-    try {
-      const res = await fetch('/api/customers/subscribe', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          email: user.email,
-          name: user.name,
-          avatar: user.avatar,
-          plan,
-          paymentMethod,
-          paypalOrderId: orderId || `ORD-${Date.now().toString(36).toUpperCase()}`
-        })
-      });
-
-      const data = await res.json();
-      if (data.success && data.customer) {
-        setUser(data.customer);
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(data.customer));
-        return { success: true, customer: data.customer };
-      }
-      return { success: false, error: data.error || 'Nâng cấp không thành công' };
-    } catch (err: any) {
-      return { success: false, error: err.message || 'Lỗi kết nối máy chủ' };
-    }
+    return submitTransferRecord(
+      plan,
+      paymentMethod === 'momo' ? 'momo' : 'vietqr',
+      `VIP-${plan.toUpperCase()}-${user?.email?.split('@')[0]}`
+    );
   };
 
   const logout = () => {
@@ -214,6 +314,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         isVip,
         vipPlan,
         daysRemaining,
+        aiQuotaRemaining,
+        aiCountToday,
         isLoginModalOpen,
         setIsLoginModalOpen,
         isPricingModalOpen,
@@ -222,7 +324,12 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         setAuthModalMode,
         loginWithGoogle,
         signupWithGoogle,
+        confirmPaypalPayment,
+        submitTransferRecord,
+        adminGrantPlan,
         upgradePlan,
+        refreshUser,
+        updateUserUsage,
         logout
       }}
     >

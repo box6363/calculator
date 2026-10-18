@@ -15,6 +15,7 @@ import Markdown from 'react-markdown';
 import { ToolId } from '../../types';
 import { TOOLS_CONFIG } from '../../data/toolsData';
 import { AD_CLIENT_ID } from './AdBanner';
+import { useAuth } from '../../context/AuthContext';
 
 interface GeminiDrawerProps {
   isOpen: boolean;
@@ -397,6 +398,7 @@ export const GeminiDrawer: React.FC<GeminiDrawerProps> = ({
   onSelectTool,
   initialToolKey
 }) => {
+  const { user, setIsLoginModalOpen } = useAuth();
   const [selectedKey, setSelectedKey] = useState<ToolId>(initialToolKey || currentToolId || 'basic');
   const [customQuestion, setCustomQuestion] = useState('');
   const [dynamicAiContent, setDynamicAiContent] = useState<string | null>(null);
@@ -422,6 +424,11 @@ export const GeminiDrawer: React.FC<GeminiDrawerProps> = ({
 
   // Ask Gemini AI dynamic questions
   const handleFetchAiAnalysis = async (customPrompt?: string) => {
+    if (!user) {
+      setIsLoginModalOpen(true);
+      return;
+    }
+
     setIsLoading(true);
     const promptToSend = customPrompt || `Hãy phân tích chuyên sâu, nguyên lý hoạt động và ứng dụng thực tế chuẩn xác nhất của công cụ ${currentInsight.name}. Trình bày bố cục chuyên nghiệp theo cấu trúc: Giới thiệu chuyên sâu, Nguyên lý hoạt động, Ứng dụng thực tế, Mẹo sử dụng chuẩn xác.`;
 
@@ -432,7 +439,8 @@ export const GeminiDrawer: React.FC<GeminiDrawerProps> = ({
         body: JSON.stringify({
           prompt: promptToSend,
           toolName: currentInsight.name,
-          context: `Người dùng đang xem công cụ tính toán: ${currentInsight.name} (${currentInsight.title})`
+          context: `Người dùng đang xem công cụ tính toán: ${currentInsight.name} (${currentInsight.title})`,
+          userEmail: user.email
         })
       });
 

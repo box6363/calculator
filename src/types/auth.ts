@@ -15,6 +15,10 @@ export interface UserAccount {
   expiresAt?: string | null;
   daysRemaining?: number;
   status?: 'active' | 'expired';
+  aiCountToday?: number;
+  aiResetDate?: string;
+  aiQuotaRemaining?: number;
+  totalAiQueries?: number;
 }
 
 export interface PricingPlan {

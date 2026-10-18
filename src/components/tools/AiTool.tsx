@@ -32,6 +32,7 @@ import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
 import * as XLSX from 'xlsx';
 import mammoth from 'mammoth';
+import { useAuth } from '../../context/AuthContext';
 
 export type FileCategory = 'image' | 'pdf' | 'excel' | 'word' | 'text';
 
@@ -69,6 +70,7 @@ function getTodayString(): string {
 }
 
 export const AiTool: React.FC = () => {
+  const { user, isVip, setIsLoginModalOpen, updateUserUsage } = useAuth();
   const [prompt, setPrompt] = useState('');
   const [attachedFile, setAttachedFile] = useState<AttachedFile | null>(null);
   const [loading, setLoading] = useState(false);
@@ -438,6 +440,12 @@ export const AiTool: React.FC = () => {
   const handleSubmit = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
 
+    if (!user) {
+      setError('Vui lòng đăng nhập bằng tài khoản Google để sử dụng công cụ AI giải toán & phân tích.');
+      setIsLoginModalOpen(true);
+      return;
+    }
+
     if (!prompt.trim() && !attachedFile) {
       setError('Vui lòng nhập câu hỏi hoặc tải lên hình ảnh / tệp tài liệu.');
       return;
@@ -450,8 +458,8 @@ export const AiTool: React.FC = () => {
       setQuotaDate(today);
     }
 
-    if (currentUsed >= DAILY_LIMIT) {
-      setError('Bạn đã sử dụng hết 3 lượt hỏi miễn phí hôm nay. Hạn mức sẽ tự động được làm mới vào 00:00 ngày mai.');
+    if (!isVip && currentUsed >= DAILY_LIMIT) {
+      setError('Bạn đã sử dụng hết 3 lượt hỏi miễn phí hôm nay (theo giờ Việt Nam). Vui lòng nâng cấp gói VIP để tiếp tục hoặc quay lại ngày mai.');
       return;
     }
 
@@ -471,6 +479,7 @@ export const AiTool: React.FC = () => {
       const payload: any = {
         prompt: prompt.trim() || defaultPrompt,
         toolName: 'AI Tool (Giải Toán & Xử Lý Tài Liệu)',
+        userEmail: user.email,
       };
 
       if (attachedFile) {
@@ -492,11 +501,18 @@ export const AiTool: React.FC = () => {
       const data = await response.json();
 
       if (!response.ok || data.error) {
+        if (data.requireLogin) {
+          setIsLoginModalOpen(true);
+        }
         throw new Error(data.error || 'Đã xảy ra lỗi khi kết nối với AI.');
       }
 
       const answerText = data.answer;
       setCurrentAnswer(answerText);
+
+      if (data.customerUsage) {
+        updateUserUsage(data.customerUsage);
+      }
 
       // Increment quota count
       const nextCount = currentUsed + 1;

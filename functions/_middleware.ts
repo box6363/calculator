@@ -90,6 +90,17 @@ export async function onRequest(context: EventContext): Promise<Response> {
     );
   }
 
+  // Block insecure /api/customers/subscribe
+  if (pathname === '/api/customers/subscribe') {
+    return new Response(
+      JSON.stringify({ 
+        success: false, 
+        error: 'Route /api/customers/subscribe đã bị vô hiệu hóa vì lý do bảo mật. Vui lòng sử dụng /api/payments/paypal-confirm hoặc xác nhận qua Admin.' 
+      }),
+      { status: 403, headers: { 'Content-Type': 'application/json; charset=utf-8' } }
+    );
+  }
+
   // 4. Gemini AI API endpoint for Cloudflare Pages Functions
   if (pathname === '/api/gemini/answer' && request.method === 'POST') {
     try {
@@ -101,7 +112,12 @@ export async function onRequest(context: EventContext): Promise<Response> {
         );
       }
 
-      const body = (await request.json()) as { prompt?: string; context?: string };
+      const body = (await request.json()) as { 
+        prompt?: string; 
+        context?: string; 
+        userEmail?: string; 
+        token?: string; 
+      };
       const userPrompt = body.prompt;
 
       if (!userPrompt || typeof userPrompt !== 'string' || !userPrompt.trim()) {
@@ -109,6 +125,84 @@ export async function onRequest(context: EventContext): Promise<Response> {
           JSON.stringify({ error: 'Missing prompt parameter' }),
           { status: 400, headers: { 'Content-Type': 'application/json; charset=utf-8' } }
         );
+      }
+
+      // Kiểm tra đăng nhập (Khách chưa đăng nhập không dùng được AI tools)
+      const userEmail = (body.userEmail || request.headers.get('x-user-email') || '').trim().toLowerCase();
+      if (!userEmail) {
+        return new Response(
+          JSON.stringify({
+            error: 'Vui lòng đăng nhập bằng tài khoản Google để sử dụng công cụ AI giải toán & phân tích.',
+            requireLogin: true
+          }),
+          { status: 401, headers: { 'Content-Type': 'application/json; charset=utf-8' } }
+        );
+      }
+
+      // Kiểm tra hạn mức trong Cloudflare D1
+      let userRecord: any = null;
+      const now = new Date();
+      const vnTime = new Date(now.getTime() + (7 * 60 + now.getTimezoneOffset()) * 60000);
+      const todayVN = `${vnTime.getFullYear()}-${String(vnTime.getMonth() + 1).padStart(2, '0')}-${String(vnTime.getDate()).padStart(2, '0')}`;
+
+      if (env.DB) {
+        try {
+          userRecord = await env.DB.prepare('SELECT * FROM users WHERE email = ?').bind(userEmail).first();
+          if (!userRecord) {
+            return new Response(
+              JSON.stringify({
+                error: 'Tài khoản chưa tồn tại trong hệ thống. Vui lòng bấm Đăng ký để bắt đầu.',
+                requireLogin: true
+              }),
+              { status: 401, headers: { 'Content-Type': 'application/json; charset=utf-8' } }
+            );
+          }
+
+          // Kiểm tra hạn VIP
+          const isFree = userRecord.plan === 'free';
+          const expiresTime = userRecord.expires_at ? new Date(userRecord.expires_at).getTime() : 0;
+          const isVipExpired = !isFree && expiresTime > 0 && expiresTime <= Date.now();
+
+          if (isVipExpired) {
+            userRecord.plan = 'free';
+            await env.DB.prepare("UPDATE users SET plan = 'free', status = 'expired' WHERE email = ?").bind(userEmail).run();
+          }
+
+          if (userRecord.plan === 'free') {
+            // Tài khoản Free: Giới hạn 3 câu/ngày theo giờ VN
+            let aiCountToday = userRecord.ai_count_today || 0;
+            if (userRecord.ai_reset_date !== todayVN) {
+              aiCountToday = 0;
+            }
+            if (aiCountToday >= 3) {
+              return new Response(
+                JSON.stringify({
+                  error: 'Bạn đã sử dụng hết 3 lượt AI miễn phí hôm nay (theo giờ Việt Nam). Vui lòng nâng cấp VIP để tiếp tục hoặc quay lại ngày mai.',
+                  quotaExceeded: true,
+                  plan: 'free',
+                  usedToday: aiCountToday,
+                  limitToday: 3
+                }),
+                { status: 429, headers: { 'Content-Type': 'application/json; charset=utf-8' } }
+              );
+            }
+          } else {
+            // Tài khoản VIP: Kiểm tra số câu hỏi còn lại
+            const quota = typeof userRecord.ai_quota_remaining === 'number' ? userRecord.ai_quota_remaining : 1500;
+            if (quota <= 0) {
+              return new Response(
+                JSON.stringify({
+                  error: 'Bạn đã dùng hết số câu hỏi trong gói VIP hiện tại. Vui lòng gia hạn để tiếp tục.',
+                  quotaExceeded: true,
+                  plan: userRecord.plan
+                }),
+                { status: 429, headers: { 'Content-Type': 'application/json; charset=utf-8' } }
+              );
+            }
+          }
+        } catch (dbErr) {
+          console.warn('Lỗi kiểm tra quota trong D1:', dbErr);
+        }
       }
 
       const systemInstruction = `You are an expert mathematician and financial calculator assistant for Web Calculator (AC Studio). 
@@ -142,6 +236,28 @@ Always output clean plain text or simple markdown. Keep answers under 150 words.
 
       const geminiData = (await geminiRes.json()) as any;
       const answer = geminiData.candidates?.[0]?.content?.parts?.[0]?.text || 'No explanation generated.';
+
+      // Cập nhật lượt hỏi trong D1
+      if (env.DB && userRecord) {
+        try {
+          if (userRecord.plan === 'free') {
+            let nextCount = (userRecord.ai_reset_date === todayVN ? (userRecord.ai_count_today || 0) : 0) + 1;
+            await env.DB.prepare(`
+              UPDATE users 
+              SET ai_count_today = ?, ai_reset_date = ?, total_ai_queries = total_ai_queries + 1
+              WHERE email = ?
+            `).bind(nextCount, todayVN, userEmail).run();
+          } else {
+            await env.DB.prepare(`
+              UPDATE users 
+              SET ai_quota_remaining = MAX(0, ai_quota_remaining - 1), total_ai_queries = total_ai_queries + 1
+              WHERE email = ?
+            `).bind(userEmail).run();
+          }
+        } catch (updateErr) {
+          console.warn('Lỗi cập nhật quota D1:', updateErr);
+        }
+      }
 
       return new Response(
         JSON.stringify({ answer }),

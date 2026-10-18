@@ -84,40 +84,33 @@ export const GoogleLoginModal: React.FC = () => {
           callback: async (tokenResponse: any) => {
             if (tokenResponse?.access_token) {
               try {
-                const res = await fetch(
-                  'https://www.googleapis.com/oauth2/v3/userinfo',
-                  {
-                    headers: {
-                      Authorization: `Bearer ${tokenResponse.access_token}`,
-                    },
+                if (mode === 'signup') {
+                  const result = await signupWithGoogle(tokenResponse.access_token);
+                  if (result?.alreadyExists) {
+                    setErrorMessage(
+                      isVi
+                        ? 'Tài khoản với email này đã tồn tại trên hệ thống. Vui lòng chuyển sang tab Đăng nhập.'
+                        : 'This account already exists. Please switch to the Sign In tab.'
+                    );
+                    setActiveTab('login');
+                  } else if (!result?.success) {
+                    setErrorMessage(result?.error || (isVi ? 'Không thể tạo tài khoản.' : 'Failed to create account.'));
                   }
-                );
-                if (res.ok) {
-                  const userInfo = await res.json();
-                  const email = userInfo.email.trim().toLowerCase();
-                  const name = userInfo.name || email.split('@')[0];
-                  const avatar = userInfo.picture;
-
-                  if (mode === 'signup') {
-                    const result = await signupWithGoogle(email, name, avatar);
-                    if (result?.alreadyExists) {
-                      await loginWithGoogle(email, name, avatar);
-                    } else if (!result?.success) {
-                      setErrorMessage(result?.error || (isVi ? 'Không thể tạo tài khoản.' : 'Failed to create account.'));
-                    }
-                  } else {
-                    const result = await loginWithGoogle(email, name, avatar);
-                    if (result?.notRegistered) {
-                      await signupWithGoogle(email, name, avatar);
-                    } else if (!result?.success) {
-                      setErrorMessage(result?.error || (isVi ? 'Đăng nhập không thành công.' : 'Login failed.'));
-                    }
+                } else {
+                  const result = await loginWithGoogle(tokenResponse.access_token);
+                  if (result?.notRegistered) {
+                    setErrorMessage(
+                      isVi
+                        ? 'Chưa có tài khoản. Vui lòng chuyển sang tab Đăng ký để tạo tài khoản mới.'
+                        : 'Account does not exist. Please switch to the Sign Up tab to create one.'
+                    );
+                    setActiveTab('signup');
+                  } else if (!result?.success) {
+                    setErrorMessage(result?.error || (isVi ? 'Đăng nhập không thành công.' : 'Login failed.'));
                   }
-                  setLoading(false);
-                  return;
                 }
               } catch (e: any) {
-                setErrorMessage(isVi ? `Lỗi kết nối Google: ${e?.message || 'Không xác định'}` : `Google connection error: ${e?.message || 'Unknown'}`);
+                setErrorMessage(isVi ? `Lỗi kết nối máy chủ: ${e?.message || 'Không xác định'}` : `Server connection error: ${e?.message || 'Unknown'}`);
               }
             }
             setLoading(false);

@@ -89,10 +89,143 @@ async function startServer() {
     return res.status(200).send(txt);
   });
 
+  // =========================================================================
+  // CUSTOMER DATABASE & GOOGLE OAUTH 2.0 / SUBSCRIPTION APIS
+  // =========================================================================
+  const CUSTOMERS_FILE = path.join(process.cwd(), "data", "customers.json");
+
+  function getCustomersFromFile(): any[] {
+    try {
+      if (fs.existsSync(CUSTOMERS_FILE)) {
+        const raw = fs.readFileSync(CUSTOMERS_FILE, "utf-8");
+        return JSON.parse(raw);
+      }
+    } catch (e) {
+      console.error("Error reading customers.json:", e);
+    }
+    return [];
+  }
+
+  function saveCustomersToFile(customers: any[]): void {
+    try {
+      const dir = path.dirname(CUSTOMERS_FILE);
+      if (!fs.existsSync(dir)) {
+        fs.mkdirSync(dir, { recursive: true });
+      }
+      fs.writeFileSync(CUSTOMERS_FILE, JSON.stringify(customers, null, 2), "utf-8");
+    } catch (e) {
+      console.error("Error writing customers.json:", e);
+    }
+  }
+
+  function getVietnamTodayString(): string {
+    const now = new Date();
+    const vnTime = new Date(now.getTime() + (7 * 60 + now.getTimezoneOffset()) * 60000);
+    const year = vnTime.getFullYear();
+    const month = String(vnTime.getMonth() + 1).padStart(2, "0");
+    const day = String(vnTime.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
+  }
+
+  async function verifyGoogleTokenOnServer(token: string): Promise<{ email: string; name: string; avatar?: string } | null> {
+    if (!token || typeof token !== "string") return null;
+    try {
+      const res = await fetch("https://www.googleapis.com/oauth2/v3/userinfo", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (res.ok) {
+        const data = await res.json() as any;
+        if (data?.email) {
+          return {
+            email: data.email.toLowerCase().trim(),
+            name: data.name || data.email.split("@")[0],
+            avatar: data.picture,
+          };
+        }
+      }
+    } catch (e) {}
+
+    try {
+      const res = await fetch(`https://oauth2.googleapis.com/tokeninfo?id_token=${encodeURIComponent(token)}`);
+      if (res.ok) {
+        const data = await res.json() as any;
+        if (data?.email) {
+          return {
+            email: data.email.toLowerCase().trim(),
+            name: data.name || data.email.split("@")[0],
+            avatar: data.picture,
+          };
+        }
+      }
+    } catch (e) {}
+
+    return null;
+  }
+
   // Gemini AI endpoint for answering & explaining math / calculations / multimodal files
   app.post("/api/gemini/answer", async (req, res) => {
     try {
-      const { prompt, context, toolName, file } = req.body;
+      const { prompt, context, toolName, file, userEmail } = req.body;
+
+      // 1. Kiểm tra đăng nhập (Khách chưa đăng nhập không dùng được AI tools)
+      const email = (userEmail || req.headers["x-user-email"] as string || "").trim().toLowerCase();
+      if (!email) {
+        return res.status(401).json({
+          error: "Vui lòng đăng nhập bằng tài khoản Google để sử dụng tính năng AI giải toán & phân tích chuyên sâu.",
+          requireLogin: true,
+        });
+      }
+
+      const customers = getCustomersFromFile();
+      let customer = customers.find((c: any) => c.email && c.email.toLowerCase() === email);
+      if (!customer) {
+        return res.status(401).json({
+          error: "Tài khoản của bạn chưa được kích hoạt trên hệ thống. Vui lòng bấm Đăng ký để bắt đầu.",
+          requireLogin: true,
+        });
+      }
+
+      // 2. Kiểm tra hạn mức sử dụng (Giờ Việt Nam UTC+7)
+      const todayVN = getVietnamTodayString();
+      if (customer.aiResetDate !== todayVN) {
+        customer.aiCountToday = 0;
+        customer.aiResetDate = todayVN;
+      }
+
+      // Kiểm tra hạn VIP
+      const now = Date.now();
+      const isFree = customer.plan === "free";
+      const expiresTime = customer.expiresAt ? new Date(customer.expiresAt).getTime() : 0;
+      const isVipExpired = !isFree && expiresTime > 0 && expiresTime <= now;
+
+      if (isVipExpired) {
+        customer.plan = "free";
+        customer.status = "expired";
+      }
+
+      if (customer.plan === "free") {
+        const usedToday = customer.aiCountToday || 0;
+        if (usedToday >= 3) {
+          return res.status(429).json({
+            error: "Bạn đã sử dụng hết 3 lượt AI miễn phí hôm nay (theo giờ Việt Nam). Vui lòng nâng cấp gói VIP để tiếp tục hỏi không giới hạn.",
+            quotaExceeded: true,
+            plan: "free",
+            usedToday,
+            limitToday: 3,
+          });
+        }
+      } else {
+        const remaining = typeof customer.aiQuotaRemaining === "number" 
+          ? customer.aiQuotaRemaining 
+          : (customer.plan === "yearly" ? 7200 : 1500);
+        if (remaining <= 0) {
+          return res.status(429).json({
+            error: "Bạn đã sử dụng hết số câu hỏi trong gói VIP hiện tại. Vui lòng gia hạn để tiếp tục.",
+            quotaExceeded: true,
+            plan: customer.plan,
+          });
+        }
+      }
 
       if ((!prompt || typeof prompt !== "string" || !prompt.trim()) && !file) {
         return res.status(400).json({ error: "Vui lòng cung cấp câu hỏi, biểu thức hoặc tệp đính kèm cần giải đáp." });
@@ -243,7 +376,29 @@ Bước 3: Kết luận rõ ràng đáp số.
       }
 
       const answerText = response.text || "Xin lỗi, hiện tại không nhận được câu trả lời từ AI.";
-      return res.json({ answer: answerText });
+
+      // Cập nhật lượt hỏi trong Database
+      const customerIdx = customers.findIndex((c: any) => c.email && c.email.toLowerCase() === email);
+      if (customerIdx >= 0) {
+        if (customers[customerIdx].plan === "free") {
+          customers[customerIdx].aiCountToday = (customers[customerIdx].aiCountToday || 0) + 1;
+        } else {
+          const cur = customers[customerIdx].aiQuotaRemaining ?? (customers[customerIdx].plan === "yearly" ? 7200 : 1500);
+          customers[customerIdx].aiQuotaRemaining = Math.max(0, cur - 1);
+        }
+        customers[customerIdx].totalAiQueries = (customers[customerIdx].totalAiQueries || 0) + 1;
+        saveCustomersToFile(customers);
+        customer = customers[customerIdx];
+      }
+
+      return res.json({ 
+        answer: answerText,
+        customerUsage: {
+          plan: customer.plan,
+          aiCountToday: customer.aiCountToday,
+          aiQuotaRemaining: customer.aiQuotaRemaining
+        }
+      });
     } catch (error: any) {
       console.error("Gemini API error:", error);
       const isMissingKey = !process.env.GEMINI_API_KEY;
@@ -267,35 +422,6 @@ Bước 3: Kết luận rõ ràng đáp số.
       return res.status(503).json({ error: friendlyMsg });
     }
   });
-
-  // =========================================================================
-  // CUSTOMER DATABASE & GOOGLE OAUTH 2.0 / SUBSCRIPTION APIS
-  // =========================================================================
-  const CUSTOMERS_FILE = path.join(process.cwd(), "data", "customers.json");
-
-  function getCustomersFromFile(): any[] {
-    try {
-      if (fs.existsSync(CUSTOMERS_FILE)) {
-        const raw = fs.readFileSync(CUSTOMERS_FILE, "utf-8");
-        return JSON.parse(raw);
-      }
-    } catch (e) {
-      console.error("Error reading customers.json:", e);
-    }
-    return [];
-  }
-
-  function saveCustomersToFile(customers: any[]): void {
-    try {
-      const dir = path.dirname(CUSTOMERS_FILE);
-      if (!fs.existsSync(dir)) {
-        fs.mkdirSync(dir, { recursive: true });
-      }
-      fs.writeFileSync(CUSTOMERS_FILE, JSON.stringify(customers, null, 2), "utf-8");
-    } catch (e) {
-      console.error("Error writing customers.json:", e);
-    }
-  }
 
   // Google OAuth 2.0 Callback Handler (handles token or code redirect from Google OAuth Popup)
   app.get(["/google-callback", "/auth/callback"], (req, res) => {
@@ -434,265 +560,399 @@ Bước 3: Kết luận rõ ràng đáp số.
   });
 
   // POST /api/auth/signup - Đăng ký tài khoản mới qua Google
-  app.post("/api/auth/signup", (req, res) => {
-    const { email, name, avatar } = req.body;
-    if (!email) {
-      return res.status(400).json({ success: false, error: "Thiếu email đăng ký" });
-    }
+  app.post("/api/auth/signup", async (req, res) => {
+    try {
+      const { accessToken, email: reqEmail, name: reqName, avatar: reqAvatar } = req.body;
+      let email = "";
+      let name = "";
+      let avatar = "";
 
-    const customers = getCustomersFromFile();
-    const normalizedEmail = email.trim().toLowerCase();
-    const existing = customers.find(
-      (c: any) => c.email && c.email.toLowerCase() === normalizedEmail
-    );
+      if (accessToken) {
+        const verified = await verifyGoogleTokenOnServer(accessToken);
+        if (!verified) {
+          return res.status(401).json({ success: false, error: "Mã xác thực Google không hợp lệ hoặc đã hết hạn." });
+        }
+        email = verified.email;
+        name = verified.name;
+        avatar = verified.avatar || "";
+      } else if (reqEmail) {
+        email = reqEmail.trim().toLowerCase();
+        name = reqName || email.split("@")[0];
+        avatar = reqAvatar || "";
+      } else {
+        return res.status(400).json({ success: false, error: "Thiếu thông tin xác thực Google hoặc email" });
+      }
 
-    if (existing) {
-      return res.status(409).json({
-        success: false,
-        alreadyExists: true,
-        error: "Tài khoản với email này đã tồn tại trên hệ thống. Vui lòng chuyển sang tab Đăng nhập.",
+      const customers = getCustomersFromFile();
+      const normalizedEmail = email.trim().toLowerCase();
+      const existing = customers.find(
+        (c: any) => c.email && c.email.toLowerCase() === normalizedEmail
+      );
+
+      if (existing) {
+        return res.status(409).json({
+          success: false,
+          alreadyExists: true,
+          error: "Tài khoản với email này đã tồn tại trên hệ thống. Vui lòng chuyển sang tab Đăng nhập.",
+        });
+      }
+
+      const newStt = customers.length + 1;
+      const now = new Date();
+      const todayVN = getVietnamTodayString();
+      const part = (normalizedEmail.split("@")[0] || "User").trim();
+      const formattedName =
+        name?.trim() ||
+        part
+          .split(/[\._\- ]+/)
+          .filter(Boolean)
+          .map((w: string) => w.charAt(0).toUpperCase() + w.slice(1))
+          .join(" ");
+
+      const newCustomer = {
+        id: `usr_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`,
+        stt: newStt,
+        email: normalizedEmail,
+        name: formattedName,
+        avatar: avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(normalizedEmail)}`,
+        plan: "free",
+        price: 0,
+        currency: "USD",
+        paymentMethod: "google_signup",
+        subscribedAt: now.toISOString(),
+        expiresAt: null,
+        status: "active",
+        aiCountToday: 0,
+        aiResetDate: todayVN,
+        aiQuotaRemaining: 3,
+        totalAiQueries: 0,
+        lastLoginAt: now.toISOString(),
+      };
+
+      customers.push(newCustomer);
+      saveCustomersToFile(customers);
+
+      return res.json({
+        success: true,
+        isNew: true,
+        customer: newCustomer,
+        message: `Đăng ký thành công tài khoản Free (3 lượt AI/ngày, có quảng cáo) cho ${normalizedEmail}!`,
       });
+    } catch (err: any) {
+      return res.status(500).json({ success: false, error: err?.message || "Lỗi xử lý đăng ký" });
     }
-
-    const newStt = customers.length + 1;
-    const now = new Date();
-    const part = (normalizedEmail.split("@")[0] || "User").trim();
-    const formattedName =
-      name?.trim() ||
-      part
-        .split(/[\._\- ]+/)
-        .filter(Boolean)
-        .map((w: string) => w.charAt(0).toUpperCase() + w.slice(1))
-        .join(" ");
-
-    const newCustomer = {
-      id: `cust_${Date.now()}`,
-      stt: newStt,
-      email: normalizedEmail,
-      name: formattedName,
-      avatar: avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(normalizedEmail)}`,
-      plan: "free",
-      price: 0,
-      currency: "USD",
-      paymentMethod: "google_signup",
-      subscribedAt: now.toISOString(),
-      expiresAt: null,
-      status: "active",
-      lastLoginAt: now.toISOString()
-    };
-
-    customers.push(newCustomer);
-    saveCustomersToFile(customers);
-
-    return res.json({
-      success: true,
-      isNew: true,
-      customer: newCustomer,
-      message: `Đăng ký thành công tài khoản Free cho ${normalizedEmail}!`,
-    });
   });
 
-  // POST /api/auth/login - Đăng nhập tài khoản
-  app.post("/api/auth/login", (req, res) => {
-    const { email, name, avatar } = req.body;
+  // POST /api/auth/login - Đăng nhập tài khoản qua Google
+  app.post("/api/auth/login", async (req, res) => {
+    try {
+      const { accessToken, email: reqEmail, name: reqName, avatar: reqAvatar } = req.body;
+      let email = "";
+      let name = "";
+      let avatar = "";
+
+      if (accessToken) {
+        const verified = await verifyGoogleTokenOnServer(accessToken);
+        if (!verified) {
+          return res.status(401).json({ success: false, error: "Mã xác thực Google không hợp lệ hoặc đã hết hạn." });
+        }
+        email = verified.email;
+        name = verified.name;
+        avatar = verified.avatar || "";
+      } else if (reqEmail) {
+        email = reqEmail.trim().toLowerCase();
+        name = reqName || email.split("@")[0];
+        avatar = reqAvatar || "";
+      } else {
+        return res.status(400).json({ success: false, error: "Thiếu thông tin xác thực Google hoặc email" });
+      }
+
+      const customers = getCustomersFromFile();
+      const normalizedEmail = email.trim().toLowerCase();
+      const existingIdx = customers.findIndex(
+        (c: any) => c.email && c.email.toLowerCase() === normalizedEmail
+      );
+
+      if (existingIdx < 0) {
+        return res.status(404).json({
+          success: false,
+          notRegistered: true,
+          error: "Chưa có tài khoản. Vui lòng chuyển sang tab Đăng ký để tạo tài khoản mới.",
+        });
+      }
+
+      const current = customers[existingIdx];
+      if (name) current.name = name.trim();
+      if (avatar) current.avatar = avatar;
+      current.lastLoginAt = new Date().toISOString();
+
+      // Cập nhật reset AI theo giờ Việt Nam
+      const todayVN = getVietnamTodayString();
+      if (current.aiResetDate !== todayVN) {
+        current.aiCountToday = 0;
+        current.aiResetDate = todayVN;
+      }
+
+      // Kiểm tra hết hạn VIP
+      const now = Date.now();
+      const isFree = current.plan === "free";
+      const expiresTime = current.expiresAt ? new Date(current.expiresAt).getTime() : 0;
+      const diffMs = expiresTime - now;
+      const daysRemaining = isFree ? undefined : Math.max(0, Math.ceil(diffMs / 86400000));
+      const isVipExpired = !isFree && expiresTime > 0 && diffMs <= 0;
+      const effectivePlan = isVipExpired ? "free" : current.plan;
+
+      if (isVipExpired) {
+        current.plan = "free";
+        current.status = "expired";
+      }
+
+      saveCustomersToFile(customers);
+
+      return res.json({
+        success: true,
+        customer: {
+          ...current,
+          plan: effectivePlan,
+          rawPlan: current.plan,
+          isExpired: isVipExpired,
+          daysRemaining,
+          status: isVipExpired ? "expired" : "active",
+          aiCountToday: current.aiCountToday || 0,
+          aiQuotaRemaining: current.aiQuotaRemaining ?? (effectivePlan === "yearly" ? 7200 : effectivePlan === "monthly" ? 1500 : Math.max(0, 3 - (current.aiCountToday || 0))),
+        },
+        message: isVipExpired
+          ? "Đăng nhập thành công! Gói VIP đã hết hạn và chuyển về gói Free."
+          : `Đăng nhập thành công! Chào mừng ${current.name}.`,
+      });
+    } catch (err: any) {
+      return res.status(500).json({ success: false, error: err?.message || "Lỗi xử lý đăng nhập" });
+    }
+  });
+
+  // GET /api/auth/me - Tra cứu phiên đăng nhập người dùng
+  app.get("/api/auth/me", (req, res) => {
+    const email = (req.query.email as string || req.headers["x-user-email"] as string || "").trim().toLowerCase();
     if (!email) {
-      return res.status(400).json({ success: false, error: "Thiếu email đăng nhập" });
+      return res.status(401).json({ success: false, error: "Chưa đăng nhập" });
     }
 
     const customers = getCustomersFromFile();
-    const normalizedEmail = email.trim().toLowerCase();
-    const existingIdx = customers.findIndex(
-      (c: any) => c.email && c.email.toLowerCase() === normalizedEmail
-    );
-
-    if (existingIdx < 0) {
-      return res.status(404).json({
-        success: false,
-        notRegistered: true,
-        error: "Tài khoản chưa tồn tại. Vui lòng chuyển sang tab Đăng ký để tạo tài khoản mới.",
-      });
+    const customer = customers.find((c: any) => c.email && c.email.toLowerCase() === email);
+    if (!customer) {
+      return res.status(404).json({ success: false, notRegistered: true, error: "Tài khoản không tồn tại" });
     }
 
-    const current = customers[existingIdx];
-    if (name) current.name = name.trim();
-    if (avatar) current.avatar = avatar;
-    current.lastLoginAt = new Date().toISOString();
-    saveCustomersToFile(customers);
+    const todayVN = getVietnamTodayString();
+    if (customer.aiResetDate !== todayVN) {
+      customer.aiCountToday = 0;
+      customer.aiResetDate = todayVN;
+    }
 
     const now = Date.now();
-    const isFree = current.plan === "free";
-    const expiresTime = current.expiresAt ? new Date(current.expiresAt).getTime() : 0;
+    const isFree = customer.plan === "free";
+    const expiresTime = customer.expiresAt ? new Date(customer.expiresAt).getTime() : 0;
     const diffMs = expiresTime - now;
-    const daysRemaining = isFree ? undefined : Math.max(0, Math.ceil(diffMs / (1000 * 60 * 60 * 24)));
     const isVipExpired = !isFree && expiresTime > 0 && diffMs <= 0;
-    const effectivePlan = isVipExpired ? "free" : current.plan;
+    const effectivePlan = isVipExpired ? "free" : customer.plan;
+    const daysRemaining = isFree ? undefined : Math.max(0, Math.ceil(diffMs / 86400000));
 
     return res.json({
       success: true,
       customer: {
-        ...current,
+        ...customer,
         plan: effectivePlan,
-        rawPlan: current.plan,
         isExpired: isVipExpired,
         daysRemaining,
-        status: isVipExpired ? "expired" : "active",
-      },
-      message: isVipExpired
-        ? "Đăng nhập thành công! Gói VIP đã hết hạn và chuyển về gói Free."
-        : `Đăng nhập thành công! Chào mừng ${current.name}.`,
+        aiQuotaRemaining: customer.aiQuotaRemaining ?? (effectivePlan === "yearly" ? 7200 : effectivePlan === "monthly" ? 1500 : Math.max(0, 3 - (customer.aiCountToday || 0))),
+      }
     });
   });
 
-  // POST /api/customers/login-sync - Đồng bộ người dùng đăng nhập Google
-  app.post("/api/customers/login-sync", (req, res) => {
-    const { email, name, avatar, plan = "free" } = req.body;
-    if (!email) {
-      return res.status(400).json({ success: false, error: "Thiếu địa chỉ email Google" });
-    }
+  // POST /api/customers/subscribe - ĐÃ VÔ HIỆU HÓA ĐỂ BẢO MẬT
+  app.post("/api/customers/subscribe", (_req, res) => {
+    return res.status(403).json({
+      success: false,
+      error: "Cổng /api/customers/subscribe đã bị vô hiệu hóa vì lý do bảo mật. Vui lòng sử dụng /api/payments/paypal-confirm hoặc xác nhận thủ công từ Admin.",
+    });
+  });
 
-    const customers = getCustomersFromFile();
-    const normalizedEmail = email.trim().toLowerCase();
-    const existingIdx = customers.findIndex(
-      (c: any) => c.email && c.email.toLowerCase() === normalizedEmail
-    );
+  // POST /api/payments/paypal-confirm - Xác nhận đơn hàng PayPal tự động
+  app.post("/api/payments/paypal-confirm", async (req, res) => {
+    try {
+      const { orderId, plan, email: reqEmail, accessToken } = req.body;
+      let email = reqEmail ? reqEmail.trim().toLowerCase() : "";
 
-    const now = new Date();
-
-    if (existingIdx >= 0) {
-      const current = customers[existingIdx];
-      current.name = name || current.name;
-      current.avatar = avatar || current.avatar;
-      current.lastLoginAt = now.toISOString();
-      if (!current.stt) {
-        current.stt = existingIdx + 1;
+      if (accessToken) {
+        const verified = await verifyGoogleTokenOnServer(accessToken);
+        if (verified) email = verified.email;
       }
+
+      if (!orderId || !plan || !email) {
+        return res.status(400).json({ success: false, error: "Thiếu orderId, plan hoặc email" });
+      }
+
+      if (plan !== "monthly" && plan !== "yearly") {
+        return res.status(400).json({ success: false, error: "Gói cước không hợp lệ" });
+      }
+
+      const customers = getCustomersFromFile();
+      let customer = customers.find((c: any) => c.email && c.email.toLowerCase() === email);
+      if (!customer) {
+        return res.status(404).json({ success: false, error: "Tài khoản chưa tồn tại trong hệ thống. Vui lòng đăng ký trước." });
+      }
+
+      const durationDays = plan === "yearly" ? 365 : 30;
+      const additionalQuota = plan === "yearly" ? 7200 : 1500;
+      const price = plan === "yearly" ? 49.99 : 4.99;
+      const now = Date.now();
+
+      // Cộng dồn hạn VIP: Nếu còn hạn thì cộng từ hạn cũ, nếu hết thì cộng từ bây giờ
+      let baseTime = now;
+      if (customer.expiresAt && customer.plan !== "free") {
+        const currentExp = new Date(customer.expiresAt).getTime();
+        if (currentExp > now) {
+          baseTime = currentExp;
+        }
+      }
+
+      const newExpiresAt = new Date(baseTime + durationDays * 86400000).toISOString();
+      const currentQuota = (typeof customer.aiQuotaRemaining === "number" && customer.plan !== "free")
+        ? customer.aiQuotaRemaining
+        : 0;
+      const newAiQuota = currentQuota + additionalQuota;
+
+      customer.plan = plan;
+      customer.price = price;
+      customer.currency = "USD";
+      customer.paymentMethod = "paypal";
+      customer.paypalOrderId = orderId;
+      customer.subscribedAt = new Date().toISOString();
+      customer.expiresAt = newExpiresAt;
+      customer.status = "active";
+      customer.aiQuotaRemaining = newAiQuota;
+
       saveCustomersToFile(customers);
 
-      let daysRemaining = undefined;
-      if (current.expiresAt && current.plan !== "free") {
-        const diffMs = new Date(current.expiresAt).getTime() - Date.now();
-        daysRemaining = Math.max(0, Math.ceil(diffMs / (1000 * 60 * 60 * 24)));
+      const daysRemaining = Math.max(0, Math.ceil((new Date(newExpiresAt).getTime() - Date.now()) / 86400000));
+
+      return res.json({
+        success: true,
+        customer: {
+          ...customer,
+          daysRemaining,
+        },
+        message: `Kích hoạt thành công gói VIP ${plan === "yearly" ? "1 Năm (+7200 câu)" : "1 Tháng (+1500 câu)"} cho ${email}`,
+      });
+    } catch (err: any) {
+      return res.status(500).json({ success: false, error: err?.message || "Lỗi xử lý thanh toán PayPal" });
+    }
+  });
+
+  // POST /api/payments/transfer-submit - Khách hàng xác nhận đã chuyển khoản VietQR / MoMo (chờ duyệt)
+  app.post("/api/payments/transfer-submit", (req, res) => {
+    try {
+      const { plan, paymentMethod = "vietqr", memo, amount, email } = req.body;
+      if (!email || !plan) {
+        return res.status(400).json({ success: false, error: "Thiếu email hoặc gói cước" });
       }
 
       return res.json({
         success: true,
-        isNew: false,
+        pending: true,
+        memo,
+        message: "Đã ghi nhận thông tin chuyển khoản! Ban quản trị sẽ đối soát và kích hoạt gói VIP cho bạn trong thời gian sớm nhất (thường từ 1-5 phút).",
+      });
+    } catch (err: any) {
+      return res.status(500).json({ success: false, error: err?.message || "Lỗi xử lý yêu cầu chuyển khoản" });
+    }
+  });
+
+  // POST /api/admin/grant - Xác nhận thủ công bằng ADMIN_KEY sau khi thấy tiền về
+  app.post("/api/admin/grant", (req, res) => {
+    try {
+      const { adminKey, email, plan = "monthly", days, quota, paymentMethod = "vietqr_manual" } = req.body;
+      const headerKey = req.headers["x-admin-key"] as string;
+      const providedKey = adminKey || headerKey;
+      const configuredKey = process.env.ADMIN_KEY || "admin_secret_key_123";
+
+      if (!providedKey || providedKey !== configuredKey) {
+        return res.status(403).json({ success: false, error: "Sai mã bảo mật ADMIN_KEY. Từ chối cấp quyền." });
+      }
+
+      if (!email) {
+        return res.status(400).json({ success: false, error: "Thiếu email khách hàng" });
+      }
+
+      const normalizedEmail = email.trim().toLowerCase();
+      const customers = getCustomersFromFile();
+      let customer = customers.find((c: any) => c.email && c.email.toLowerCase() === normalizedEmail);
+
+      const durationDays = days || (plan === "yearly" ? 365 : 30);
+      const addedQuota = quota || (plan === "yearly" ? 7200 : 1500);
+      const price = plan === "yearly" ? 49.99 : 4.99;
+      const now = Date.now();
+      const nowIso = new Date().toISOString();
+
+      if (!customer) {
+        customer = {
+          id: `usr_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`,
+          stt: customers.length + 1,
+          email: normalizedEmail,
+          name: normalizedEmail.split("@")[0],
+          avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(normalizedEmail)}`,
+          plan,
+          price,
+          currency: "USD",
+          paymentMethod,
+          subscribedAt: nowIso,
+          expiresAt: new Date(now + durationDays * 86400000).toISOString(),
+          status: "active",
+          aiCountToday: 0,
+          aiResetDate: getVietnamTodayString(),
+          aiQuotaRemaining: addedQuota,
+          totalAiQueries: 0,
+          lastLoginAt: nowIso,
+        };
+        customers.push(customer);
+      } else {
+        // Cộng dồn ngày và câu hỏi
+        let baseTime = now;
+        if (customer.expiresAt && customer.plan !== "free") {
+          const currentExp = new Date(customer.expiresAt).getTime();
+          if (currentExp > now) {
+            baseTime = currentExp;
+          }
+        }
+        const newExpiresAt = new Date(baseTime + durationDays * 86400000).toISOString();
+        const currentQuota = (typeof customer.aiQuotaRemaining === "number" && customer.plan !== "free")
+          ? customer.aiQuotaRemaining
+          : 0;
+
+        customer.plan = plan;
+        customer.price = price;
+        customer.paymentMethod = paymentMethod;
+        customer.subscribedAt = nowIso;
+        customer.expiresAt = newExpiresAt;
+        customer.status = "active";
+        customer.aiQuotaRemaining = currentQuota + addedQuota;
+      }
+
+      saveCustomersToFile(customers);
+
+      const daysRemaining = Math.max(0, Math.ceil((new Date(customer.expiresAt).getTime() - Date.now()) / 86400000));
+
+      return res.json({
+        success: true,
+        message: `Admin đã kích hoạt VIP ${plan === "yearly" ? "1 Năm (+7200 câu)" : "1 Tháng (+1500 câu)"} cho ${normalizedEmail}`,
         customer: {
-          ...current,
+          ...customer,
           daysRemaining,
         },
       });
+    } catch (err: any) {
+      return res.status(500).json({ success: false, error: err?.message || "Lỗi cấp quyền Admin" });
     }
-
-    const newStt = customers.length + 1;
-    const newCustomer = {
-      id: `cust_${Date.now()}`,
-      stt: newStt,
-      email: normalizedEmail,
-      name: name?.trim() || normalizedEmail.split("@")[0],
-      avatar: avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(normalizedEmail)}`,
-      plan: plan || "free",
-      price: plan === "yearly" ? 49.99 : plan === "monthly" ? 4.99 : 0,
-      currency: "USD",
-      paymentMethod: "google_login",
-      subscribedAt: now.toISOString(),
-      expiresAt:
-        plan === "yearly"
-          ? new Date(now.getTime() + 365 * 86400000).toISOString()
-          : plan === "monthly"
-          ? new Date(now.getTime() + 30 * 86400000).toISOString()
-          : null,
-      status: "active",
-      lastLoginAt: now.toISOString(),
-    };
-
-    customers.push(newCustomer);
-    saveCustomersToFile(customers);
-
-    return res.json({
-      success: true,
-      isNew: true,
-      customer: newCustomer,
-      message: `Đã tự động lưu khách hàng Google ${normalizedEmail} vào Database với STT ${newStt}`,
-    });
-  });
-
-  // POST /api/customers/subscribe - Nâng cấp gói cước VIP (Gói 1 tháng: 4.99$, Gói 1 năm: 49.99$)
-  app.post("/api/customers/subscribe", (req, res) => {
-    const { email, name, avatar, plan, paymentMethod, paypalOrderId } = req.body;
-    if (!email || !plan) {
-      return res.status(400).json({ success: false, error: "Thiếu email hoặc gói đăng ký" });
-    }
-
-    const customers = getCustomersFromFile();
-    const now = new Date();
-    const durationDays = plan === "yearly" ? 365 : plan === "monthly" ? 30 : 0;
-    const expiresDate = durationDays > 0 ? new Date(now.getTime() + durationDays * 24 * 60 * 60 * 1000) : null;
-    const price = plan === "yearly" ? 49.99 : plan === "monthly" ? 4.99 : 0;
-    const planLabel = plan === "yearly" ? "Gói VIP 1 Năm ($49.99/năm)" : plan === "monthly" ? "Gói VIP 1 Tháng ($4.99/tháng)" : "Gói Free";
-
-    const normalizedEmail = email.trim().toLowerCase();
-    const existingIdx = customers.findIndex(
-      (c: any) => c.email && c.email.toLowerCase() === normalizedEmail
-    );
-
-    let updatedCustomer: any;
-
-    if (existingIdx >= 0) {
-      const current = customers[existingIdx];
-      let newExpiresDate: string | null = null;
-      if (plan === "free") {
-        newExpiresDate = null;
-      } else {
-        const currentExpiry = current.expiresAt ? new Date(current.expiresAt).getTime() : 0;
-        const baseTime = currentExpiry > now.getTime() ? currentExpiry : now.getTime();
-        newExpiresDate = new Date(baseTime + durationDays * 24 * 60 * 60 * 1000).toISOString();
-      }
-
-      updatedCustomer = {
-        ...current,
-        name: name || current.name,
-        avatar: avatar || current.avatar,
-        plan,
-        price,
-        paymentMethod: paymentMethod || "vietqr",
-        paypalOrderId: paypalOrderId || current.paypalOrderId || `ORD-${Date.now()}`,
-        subscribedAt: now.toISOString(),
-        expiresAt: newExpiresDate,
-        status: "active",
-        stt: current.stt || (existingIdx + 1),
-      };
-      customers[existingIdx] = updatedCustomer;
-    } else {
-      updatedCustomer = {
-        id: `cust_${Date.now()}`,
-        stt: customers.length + 1,
-        email: normalizedEmail,
-        name: name || normalizedEmail.split("@")[0],
-        avatar: avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(normalizedEmail)}`,
-        plan,
-        price,
-        currency: "USD",
-        paymentMethod: paymentMethod || "vietqr",
-        paypalOrderId: paypalOrderId || (plan === "free" ? "FREE-TIER" : `ORD-${Date.now()}`),
-        subscribedAt: now.toISOString(),
-        expiresAt: expiresDate ? expiresDate.toISOString() : null,
-        status: "active",
-      };
-      customers.push(updatedCustomer);
-    }
-
-    saveCustomersToFile(customers);
-
-    const daysRemaining = updatedCustomer.expiresAt && updatedCustomer.plan !== "free"
-      ? Math.max(0, Math.ceil((new Date(updatedCustomer.expiresAt).getTime() - Date.now()) / (1000 * 60 * 60 * 24)))
-      : undefined;
-
-    return res.json({
-      success: true,
-      customer: { ...updatedCustomer, daysRemaining },
-      message: `Kích hoạt thành công ${planLabel} cho ${normalizedEmail}`,
-    });
   });
 
   // GET /api/customers/check/:email - Kiểm tra trạng thái gói cước khách hàng
@@ -726,7 +986,7 @@ Bước 3: Kết luận rõ ràng đáp số.
     const now = Date.now();
     const expiresTime = new Date(customer.expiresAt).getTime();
     const diffMs = expiresTime - now;
-    const daysRemaining = Math.max(0, Math.ceil(diffMs / (1000 * 60 * 60 * 24)));
+    const daysRemaining = Math.max(0, Math.ceil(diffMs / 86400000));
     const isActive = diffMs > 0;
 
     return res.json({
@@ -737,53 +997,6 @@ Bước 3: Kết luận rõ ràng đáp số.
         daysRemaining,
         status: isActive ? "active" : "expired",
       },
-    });
-  });
-
-  // PATCH /api/customers/:id/plan - Đổi gói trực tiếp
-  app.patch("/api/customers/:id/plan", (req, res) => {
-    const { id } = req.params;
-    const { plan } = req.body;
-    if (!plan || !["free", "monthly", "yearly"].includes(plan)) {
-      return res.status(400).json({ success: false, error: "Gói dịch vụ không hợp lệ (free, monthly, yearly)" });
-    }
-
-    const customers = getCustomersFromFile();
-    const customer = customers.find((c: any) => c.id === id);
-    if (!customer) {
-      return res.status(404).json({ success: false, error: "Không tìm thấy khách hàng" });
-    }
-
-    const now = new Date();
-    customer.plan = plan;
-    customer.subscribedAt = now.toISOString();
-
-    if (plan === "free") {
-      customer.price = 0;
-      customer.expiresAt = null;
-      customer.status = "active";
-    } else if (plan === "monthly") {
-      customer.price = 4.99;
-      customer.expiresAt = new Date(now.getTime() + 30 * 86400000).toISOString();
-      customer.status = "active";
-    } else if (plan === "yearly") {
-      customer.price = 49.99;
-      customer.expiresAt = new Date(now.getTime() + 365 * 86400000).toISOString();
-      customer.status = "active";
-    }
-
-    saveCustomersToFile(customers);
-
-    let daysRemaining = undefined;
-    if (customer.expiresAt && customer.plan !== "free") {
-      const diffMs = new Date(customer.expiresAt).getTime() - Date.now();
-      daysRemaining = Math.max(0, Math.ceil(diffMs / (1000 * 60 * 60 * 24)));
-    }
-
-    return res.json({
-      success: true,
-      customer: { ...customer, daysRemaining },
-      message: `Đã cập nhật gói thành công cho ${customer.email} sang gói ${plan}`,
     });
   });
 
