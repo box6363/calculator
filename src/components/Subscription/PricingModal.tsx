@@ -152,13 +152,13 @@ export const PricingModal: React.FC = () => {
               <h3 className="font-extrabold text-base sm:text-lg text-slate-900 dark:text-white flex items-center gap-2">
                 <span>{isVi ? 'Nâng Cấp Gói VIP Pro' : 'Upgrade to VIP Pro'}</span>
                 <span className="text-[10px] uppercase font-bold px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-600 dark:text-amber-400 border border-amber-500/30">
-                  {selectedPlan === 'yearly' ? '49.99$/năm' : '4.99$/tháng'}
+                  {selectedPlan === 'yearly' ? 'GIẢM $89.99 ➔ $49.99/NĂM' : 'GIẢM $6.99 ➔ $4.99/THÁNG'}
                 </span>
               </h3>
               <p className="text-xs text-slate-500 dark:text-slate-400">
                 {isVi 
-                  ? 'Mở khóa không giới hạn AI Solver • Xuất báo cáo PDF/Excel 4K • Tốc độ tối đa'
-                  : 'Unlimited AI Solver • 4K PDF/Excel Exports • Priority Speed'}
+                  ? 'Sử dụng AI tool 1.500 lượt hỏi/tháng • Tắt 100% quảng cáo • Xuất file 4K'
+                  : '1,500 AI queries/month • 100% Ad-Free • 4K Exports'}
               </p>
             </div>
           </div>
@@ -188,8 +188,8 @@ export const PricingModal: React.FC = () => {
                 </h4>
                 <p className="text-xs text-emerald-700 dark:text-emerald-300 max-w-md mx-auto">
                   {isVi
-                    ? 'Dữ liệu bản quyền VIP đã được đồng bộ vào CSDL hệ thống. Bạn đã mở khóa không giới hạn lượt dùng Gemini AI và các tính năng cao cấp!'
-                    : 'Your VIP license has been recorded in the database. Unlimited Gemini AI and premium features are now unlocked!'}
+                    ? 'Dữ liệu bản quyền VIP đã được đồng bộ vào CSDL hệ thống. Bạn đã có 1.500 lượt hỏi AI Tool/tháng và tắt hoàn toàn quảng cáo!'
+                    : 'Your VIP license has been recorded in the database. 1,500 AI queries/month and 100% ad-free experience are now active!'}
                 </p>
 
                 {/* Bảng chi tiết */}
@@ -201,8 +201,16 @@ export const PricingModal: React.FC = () => {
                   <div className="flex items-center justify-between pb-2 border-b border-slate-100 dark:border-slate-800">
                     <span className="text-slate-500 dark:text-slate-400">{isVi ? 'Gói dịch vụ:' : 'Plan:'}</span>
                     <span className="font-bold text-amber-600 dark:text-amber-400">
-                      {successData.plan === 'yearly' ? 'Gói 1 Năm ($49.99)' : 'Gói 1 Tháng ($4.99)'}
+                      {successData.plan === 'yearly' ? 'Gói 1 Năm (Giảm còn $49.99)' : 'Gói 1 Tháng (Giảm còn $4.99)'}
                     </span>
+                  </div>
+                  <div className="flex items-center justify-between pb-2 border-b border-slate-100 dark:border-slate-800">
+                    <span className="text-slate-500 dark:text-slate-400">{isVi ? 'Hạn mức AI:' : 'AI Quota:'}</span>
+                    <span className="font-bold text-emerald-600 dark:text-emerald-400">1.500 lượt hỏi / tháng</span>
+                  </div>
+                  <div className="flex items-center justify-between pb-2 border-b border-slate-100 dark:border-slate-800">
+                    <span className="text-slate-500 dark:text-slate-400">{isVi ? 'Quảng cáo:' : 'Ads:'}</span>
+                    <span className="font-bold text-emerald-600 dark:text-emerald-400">Tắt 100%</span>
                   </div>
                   <div className="flex items-center justify-between pb-2 border-b border-slate-100 dark:border-slate-800">
                     <span className="text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
@@ -254,8 +262,8 @@ export const PricingModal: React.FC = () => {
                 </h4>
                 <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
                   {isVi
-                    ? 'Để đảm bảo quyền lợi gói VIP ($4.99/tháng hoặc $49.99/năm) được kích hoạt chính xác cho bạn và lưu trữ lâu dài vào CSDL, vui lòng đăng nhập tài khoản Google.'
-                    : 'To ensure your VIP license ($4.99/mo or $49.99/yr) is attached to your account and saved permanently in the database, please sign in with Google.'}
+                    ? 'Để đảm bảo quyền lợi gói VIP (giảm còn $4.99/tháng hoặc $49.99/năm) được kích hoạt chính xác cho bạn và lưu trữ lâu dài vào CSDL, vui lòng đăng nhập tài khoản Google.'
+                    : 'To ensure your VIP license (discounted to $4.99/mo or $49.99/yr) is attached to your account, please sign in with Google.'}
                 </p>
               </div>
 
@@ -293,15 +301,29 @@ export const PricingModal: React.FC = () => {
               {/* Thông tin 2 gói */}
               <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 text-left space-y-2 text-xs text-slate-600 dark:text-slate-300 max-w-md mx-auto">
                 <div className="font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider text-[11px]">
-                  {isVi ? 'Các gói cước VIP có sẵn:' : 'Available VIP Plans:'}
+                  {isVi ? 'Các gói cước VIP ưu đãi sẵn sàng:' : 'Available Discounted VIP Plans:'}
                 </div>
                 <div className="flex items-center justify-between">
                   <span>• {isVi ? 'Gói VIP 1 Tháng (30 ngày):' : 'VIP 1 Month (30 days):'}</span>
-                  <span className="font-bold text-blue-600 dark:text-blue-400">$4.99 / tháng (~125.000đ)</span>
+                  <span className="font-bold text-blue-600 dark:text-blue-400">
+                    <span className="line-through text-slate-400 font-normal mr-1.5">$6.99</span>$4.99 / tháng (~125.000đ)
+                  </span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span>• {isVi ? 'Gói VIP 1 Năm (12 tháng - Tiết kiệm):' : 'VIP 1 Year (12 months - Best Value):'}</span>
-                  <span className="font-bold text-amber-600 dark:text-amber-400">$49.99 / năm (~1.250.000đ)</span>
+                  <span>• {isVi ? 'Gói VIP 1 Năm (12 tháng - Siêu rẻ):' : 'VIP 1 Year (12 months):'}</span>
+                  <span className="font-bold text-amber-600 dark:text-amber-400">
+                    <span className="line-through text-slate-400 font-normal mr-1.5">$89.99</span>$49.99 / năm (~1.250.000đ)
+                  </span>
+                </div>
+                <div className="pt-1.5 border-t border-slate-200/60 dark:border-slate-800 space-y-1 text-[11px] text-emerald-600 dark:text-emerald-400 font-medium">
+                  <div className="flex items-center gap-1.5">
+                    <Check className="w-3.5 h-3.5 text-emerald-500" />
+                    <span>{isVi ? 'Sử dụng AI tool 1.500 lượt hỏi / tháng' : '1,500 AI queries / month'}</span>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <Check className="w-3.5 h-3.5 text-emerald-500" />
+                    <span>{isVi ? 'Tắt 100% quảng cáo gây gián đoạn' : '100% Ad-Free Experience'}</span>
+                  </div>
                 </div>
               </div>
             </div>
@@ -340,9 +362,9 @@ export const PricingModal: React.FC = () => {
                 </div>
               </div>
 
-              {/* Lựa chọn 2 gói: $4.99/tháng & $49.99/năm */}
+              {/* Lựa chọn 2 gói: $6.99 giảm về $4.99/tháng & $89.99 giảm về $49.99/năm */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-                {/* Gói 1 Tháng: 4.99$ */}
+                {/* Gói 1 Tháng: Giảm từ 6.99$ xuống 4.99$ */}
                 <div
                   id="btn-select-plan-monthly"
                   onClick={() => setSelectedPlan('monthly')}
@@ -356,24 +378,25 @@ export const PricingModal: React.FC = () => {
                     <span className="font-bold text-sm text-slate-900 dark:text-white">
                       {isVi ? 'Gói VIP 1 Tháng' : 'VIP 1 Month'}
                     </span>
-                    {selectedPlan === 'monthly' && (
-                      <span className="w-5 h-5 rounded-full bg-blue-600 text-white flex items-center justify-center shadow-xs">
-                        <Check className="w-3 h-3" />
-                      </span>
-                    )}
+                    <span className="px-1.5 py-0.5 rounded-md text-[10px] font-black bg-rose-500/15 text-rose-600 dark:text-rose-400">
+                      GIẢM ~29%
+                    </span>
                   </div>
-                  <div className="flex items-baseline gap-1 my-1">
-                    <span className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white">
+                  <div className="flex items-baseline gap-1.5 my-1">
+                    <span className="text-sm sm:text-base font-semibold text-slate-400 line-through">
+                      $6.99
+                    </span>
+                    <span className="text-2xl sm:text-3xl font-black text-blue-600 dark:text-blue-400">
                       $4.99
                     </span>
                     <span className="text-xs text-slate-500">/ {isVi ? 'tháng' : 'month'}</span>
                   </div>
                   <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-snug">
-                    {isVi ? 'Tương đương ~125.000 VNĐ. Thời hạn 30 ngày, mở khóa toàn bộ tính năng và AI.' : 'Equivalent to ~125,000 VND. 30-day access to all premium features and AI.'}
+                    {isVi ? 'Gói 6.99$ giảm về 4.99$ (~125.000 VNĐ). Sử dụng AI tool 1.500 lượt hỏi/tháng, tắt 100% quảng cáo.' : 'Discounted from $6.99 to $4.99 (~125,000 VND). 1,500 AI queries/mo, 100% ad-free.'}
                   </p>
                 </div>
 
-                {/* Gói 1 Năm: 49.99$ */}
+                {/* Gói 1 Năm: Giảm từ 89.99$ xuống 49.99$ */}
                 <div
                   id="btn-select-plan-yearly"
                   onClick={() => setSelectedPlan('yearly')}
@@ -384,7 +407,7 @@ export const PricingModal: React.FC = () => {
                   }`}
                 >
                   <span className="absolute -top-2.5 right-4 px-2.5 py-0.5 rounded-full bg-gradient-to-r from-amber-500 to-rose-500 text-white text-[10px] font-extrabold uppercase shadow-xs">
-                    {isVi ? 'Tiết Kiệm ~17%' : 'Best Value ~17% Off'}
+                    {isVi ? 'GIẢM SỐC: $89.99 ➔ $49.99' : 'DEAL: $89.99 ➔ $49.99'}
                   </span>
                   <div className="flex items-center justify-between mb-1">
                     <span className="font-bold text-sm text-slate-900 dark:text-white flex items-center gap-1.5">
@@ -397,14 +420,17 @@ export const PricingModal: React.FC = () => {
                       </span>
                     )}
                   </div>
-                  <div className="flex items-baseline gap-1 my-1">
-                    <span className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white">
+                  <div className="flex items-baseline gap-1.5 my-1">
+                    <span className="text-sm sm:text-base font-semibold text-slate-400 line-through">
+                      $89.99
+                    </span>
+                    <span className="text-2xl sm:text-3xl font-black text-amber-500 dark:text-amber-400">
                       $49.99
                     </span>
                     <span className="text-xs text-slate-500">/ {isVi ? 'năm (12 tháng)' : 'year (12 mo)'}</span>
                   </div>
                   <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-snug">
-                    {isVi ? 'Tương đương ~1.250.000 VNĐ (~4.16$/tháng). Tiết kiệm tối đa, thanh toán 1 lần dùng cả năm.' : 'Equivalent to ~1,250,000 VND (~$4.16/mo). Best price for 365 days of unlimited access.'}
+                    {isVi ? 'Gói 89.99$ giảm về 49.99$ (~1.250.000 VNĐ, chỉ ~4.16$/tháng). Tiết kiệm tối đa cả năm.' : 'Discounted from $89.99 to $49.99 (~1,250,000 VND, ~$4.16/mo). Maximum annual savings.'}
                   </p>
                 </div>
               </div>
@@ -590,27 +616,36 @@ export const PricingModal: React.FC = () => {
               )}
 
               {/* Quyền lợi VIP */}
-              <div className="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 space-y-1.5 text-xs text-slate-600 dark:text-slate-300">
-                <div className="font-bold text-slate-800 dark:text-slate-200 flex items-center gap-1.5">
-                  <Sparkles className="w-4 h-4 text-amber-500" />
-                  <span>Quyền lợi tài khoản VIP Pro ({selectedPlan === 'yearly' ? '$49.99/năm' : '$4.99/tháng'}):</span>
+              <div className="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 space-y-2 text-xs text-slate-600 dark:text-slate-300">
+                <div className="font-bold text-slate-800 dark:text-slate-200 flex items-center justify-between">
+                  <span className="flex items-center gap-1.5">
+                    <Sparkles className="w-4 h-4 text-amber-500" />
+                    <span>Quyền lợi gói VIP Pro ({selectedPlan === 'yearly' ? '89.99$ ➔ 49.99$/năm' : '6.99$ ➔ 4.99$/tháng'}):</span>
+                  </span>
+                  <span className="text-[10px] font-black uppercase text-rose-500 bg-rose-500/10 px-2 py-0.5 rounded-md">
+                    ƯU ĐÃI GIỚI HẠN
+                  </span>
                 </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5 pt-1">
-                  <div className="flex items-center gap-1.5">
-                    <Check className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
-                    <span>Không giới hạn câu hỏi giải toán AI Gemini</span>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
+                  <div className="flex items-center gap-2 p-2 rounded-xl bg-amber-500/10 border border-amber-500/20">
+                    <Check className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0" />
+                    <span className="font-bold text-amber-700 dark:text-amber-300">
+                      Sử dụng AI tool 1.500 lượt hỏi / tháng
+                    </span>
                   </div>
-                  <div className="flex items-center gap-1.5">
-                    <Check className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
-                    <span>Tốc độ xử lý ưu tiên băng thông cao nhất</span>
+                  <div className="flex items-center gap-2 p-2 rounded-xl bg-emerald-500/10 border border-emerald-500/20">
+                    <Check className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
+                    <span className="font-bold text-emerald-700 dark:text-emerald-300">
+                      Tắt 100% quảng cáo gây gián đoạn
+                    </span>
                   </div>
-                  <div className="flex items-center gap-1.5">
-                    <Check className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
-                    <span>Xuất báo cáo PDF, Excel & Biểu đồ 4K</span>
+                  <div className="flex items-center gap-2 px-1">
+                    <Check className="w-3.5 h-3.5 text-blue-500 shrink-0" />
+                    <span>Tốc độ xử lý ưu tiên băng thông máy chủ cao nhất</span>
                   </div>
-                  <div className="flex items-center gap-1.5">
-                    <Check className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
-                    <span>Sạch 100% không quảng cáo gây gián đoạn</span>
+                  <div className="flex items-center gap-2 px-1">
+                    <Check className="w-3.5 h-3.5 text-blue-500 shrink-0" />
+                    <span>Xuất báo cáo PDF, Excel & Biểu đồ 4K không giới hạn</span>
                   </div>
                 </div>
               </div>

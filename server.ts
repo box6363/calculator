@@ -837,6 +837,11 @@ Bước 3: Kết luận rõ ràng đáp số.
 
   // International SEO Routing & Geo-Targeting for root /
   app.get('/', (req, res, next) => {
+    // In development mode, pass directly to Vite middleware so / serves 200 OK HTML immediately
+    if (process.env.NODE_ENV !== "production") {
+      return next();
+    }
+
     // Skip if user explicitly requests no redirect
     if (req.query.noredirect === '1') {
       return next();
