@@ -98,9 +98,42 @@ export const Header: React.FC<HeaderProps> = ({
           </div>
         </div>
 
-        {/* Right: Person Icon (Sign In & VIP inside), Currency Selector (USD/VND), Language Switcher, Theme Toggle */}
+        {/* Right: Currency Selector (USD/VND), Language Switcher, Theme Toggle, Person Icon (Sign In & VIP inside) */}
         <div className="flex items-center gap-1.5 sm:gap-2">
-          {/* Unified User & VIP Person Icon Button ("icon đầu người") */}
+          {/* Currency Selector (USD Base) */}
+          <CurrencySelector variant="header" />
+
+          {/* 16 Major Languages Selector */}
+          <LanguageSelector variant="header" />
+
+          {/* Light / Dark Mode Toggle Button */}
+          <button
+            id="header-theme-toggle-btn"
+            onClick={toggleTheme}
+            type="button"
+            title={themeId === 'light' ? (isVi ? 'Chuyển sang Chế độ Tối' : 'Switch to Dark Mode') : (isVi ? 'Chuyển sang Chế độ Sáng (Nền trắng chữ đen)' : 'Switch to Light Mode')}
+            aria-label={themeId === 'light' ? 'Chế độ Sáng' : 'Chế độ Tối'}
+            className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 sm:py-2 text-xs font-semibold rounded-xl border transition-all duration-100 cursor-pointer shadow-xs active:scale-90 scale-95 origin-center"
+            style={{
+              backgroundColor: themeId === 'light' ? '#f1f5f9' : 'rgba(30, 41, 59, 0.6)',
+              borderColor: themeId === 'light' ? '#cbd5e1' : 'rgba(51, 65, 85, 0.8)',
+              color: themeId === 'light' ? '#0f172a' : '#f8fafc',
+            }}
+          >
+            {themeId === 'light' ? (
+              <>
+                <Sun className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-amber-500" />
+                <span className="hidden lg:inline text-xs font-semibold text-slate-800">Sáng</span>
+              </>
+            ) : (
+              <>
+                <Moon className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-cyan-400" />
+                <span className="hidden lg:inline text-xs font-semibold text-slate-200">Tối</span>
+              </>
+            )}
+          </button>
+
+          {/* Unified User & VIP Person Icon Button ("icon đầu người" đặt sau biểu tượng Sáng/Tối) */}
           <div className="relative" ref={userMenuRef}>
             <button
               id="header-user-menu-btn"
@@ -199,7 +232,7 @@ export const Header: React.FC<HeaderProps> = ({
                   </div>
                 )}
 
-                {/* 2. VIP Package Card (Gói 6.99$ giảm về 4.99$, gói 89.99$ giảm về 49.99$, 1500 lượt hỏi AI/tháng, tắt quảng cáo) */}
+                {/* 2. VIP Package Card (Gói 13.99$ giảm về 9.99$, gói 169.99$ giảm về 109.99$, 1500 lượt hỏi AI/tháng, tắt quảng cáo) */}
                 <div className="p-3 rounded-xl bg-gradient-to-br from-amber-500/15 via-rose-500/10 to-amber-500/5 border border-amber-500/30 space-y-2">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-1.5 font-bold text-xs text-amber-600 dark:text-amber-400">
@@ -207,7 +240,7 @@ export const Header: React.FC<HeaderProps> = ({
                       <span>{isVip ? 'Gói VIP Pro đang kích hoạt' : 'Nâng cấp Gói VIP Pro'}</span>
                     </div>
                     <span className="text-[10px] font-black uppercase text-rose-500 bg-rose-500/10 px-1.5 py-0.5 rounded">
-                      GIẢM ĐẾN ~44%
+                      GIẢM ĐẾN ~35%
                     </span>
                   </div>
 
@@ -216,8 +249,8 @@ export const Header: React.FC<HeaderProps> = ({
                     <div className="flex items-center justify-between p-1.5 rounded-lg bg-white/70 dark:bg-slate-900/60 border border-slate-200/60 dark:border-slate-800">
                       <span className="text-[11px] text-slate-600 dark:text-slate-300 font-medium">Gói 1 Tháng:</span>
                       <div className="flex items-baseline gap-1">
-                        <span className="line-through text-slate-400 text-[11px]">$6.99</span>
-                        <span className="font-extrabold text-blue-600 dark:text-blue-400 text-xs">$4.99</span>
+                        <span className="line-through text-slate-400 text-[11px]">$13.99</span>
+                        <span className="font-extrabold text-blue-600 dark:text-blue-400 text-xs">$9.99</span>
                         <span className="text-[10px] text-slate-400">/tháng</span>
                       </div>
                     </div>
@@ -228,8 +261,8 @@ export const Header: React.FC<HeaderProps> = ({
                         <span className="text-[9px] bg-amber-500 text-white px-1 rounded font-black">HOT</span>
                       </span>
                       <div className="flex items-baseline gap-1">
-                        <span className="line-through text-slate-400 text-[11px]">$89.99</span>
-                        <span className="font-extrabold text-amber-500 text-xs">$49.99</span>
+                        <span className="line-through text-slate-400 text-[11px]">$169.99</span>
+                        <span className="font-extrabold text-amber-500 text-xs">$109.99</span>
                         <span className="text-[10px] text-slate-400">/năm</span>
                       </div>
                     </div>
@@ -261,7 +294,7 @@ export const Header: React.FC<HeaderProps> = ({
                     className="w-full py-2 px-3 rounded-xl bg-gradient-to-r from-amber-500 via-amber-600 to-rose-500 hover:brightness-105 text-white font-bold text-xs shadow-md shadow-amber-500/20 transition-all cursor-pointer flex items-center justify-center gap-1.5 active:scale-95"
                   >
                     <Crown className="w-3.5 h-3.5 fill-white" />
-                    <span>{isVip ? 'Gia hạn gói VIP Pro' : 'Nâng cấp VIP (Từ $4.99)'}</span>
+                    <span>{isVip ? 'Gia hạn gói VIP Pro' : 'Nâng cấp VIP (Từ $9.99)'}</span>
                   </button>
                 </div>
 
@@ -295,39 +328,6 @@ export const Header: React.FC<HeaderProps> = ({
               </div>
             )}
           </div>
-
-          {/* Currency Selector (USD Base) */}
-          <CurrencySelector variant="header" />
-
-          {/* 16 Major Languages Selector */}
-          <LanguageSelector variant="header" />
-
-          {/* Light / Dark Mode Toggle Button */}
-          <button
-            id="header-theme-toggle-btn"
-            onClick={toggleTheme}
-            type="button"
-            title={themeId === 'light' ? (isVi ? 'Chuyển sang Chế độ Tối' : 'Switch to Dark Mode') : (isVi ? 'Chuyển sang Chế độ Sáng (Nền trắng chữ đen)' : 'Switch to Light Mode')}
-            aria-label={themeId === 'light' ? 'Chế độ Sáng' : 'Chế độ Tối'}
-            className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 sm:py-2 text-xs font-semibold rounded-xl border transition-all duration-100 cursor-pointer shadow-xs active:scale-90 scale-95 origin-center"
-            style={{
-              backgroundColor: themeId === 'light' ? '#f1f5f9' : 'rgba(30, 41, 59, 0.6)',
-              borderColor: themeId === 'light' ? '#cbd5e1' : 'rgba(51, 65, 85, 0.8)',
-              color: themeId === 'light' ? '#0f172a' : '#f8fafc',
-            }}
-          >
-            {themeId === 'light' ? (
-              <>
-                <Sun className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-amber-500" />
-                <span className="hidden lg:inline text-xs font-semibold text-slate-800">Sáng</span>
-              </>
-            ) : (
-              <>
-                <Moon className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-cyan-400" />
-                <span className="hidden lg:inline text-xs font-semibold text-slate-200">Tối</span>
-              </>
-            )}
-          </button>
         </div>
       </header>
     </>

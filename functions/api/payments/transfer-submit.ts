@@ -1,4 +1,4 @@
-import { Env, verifyGoogleToken, jsonResponse } from '../../utils/d1Auth';
+import { Env, verifyGoogleToken, jsonResponse, getD1 } from '../../utils/d1Auth';
 
 interface EventContext {
   request: Request;
@@ -40,13 +40,14 @@ export async function onRequest(context: EventContext): Promise<Response> {
       return jsonResponse({ success: false, error: 'Thiếu email hoặc gói cước' }, 400);
     }
 
-    const priceVND = amount || (plan === 'yearly' ? 1250000 : 125000);
+    const priceVND = amount || (plan === 'yearly' ? 2750000 : 250000);
     const payRecordId = `req_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`;
     const nowIso = new Date().toISOString();
 
-    if (env.DB) {
+    const db = getD1(env);
+    if (db) {
       try {
-        await env.DB.prepare(`
+        await db.prepare(`
           INSERT INTO payment_records (
             id, user_email, plan, amount, currency, payment_method, order_id, status, memo
           ) VALUES (?, ?, ?, ?, 'VND', ?, ?, 'pending', ?)

@@ -1,4 +1,4 @@
-import { Env, jsonResponse } from '../../utils/d1Auth';
+import { Env, jsonResponse, getD1 } from '../../utils/d1Auth';
 
 interface EventContext {
   request: Request;
@@ -41,16 +41,17 @@ export async function onRequest(context: EventContext): Promise<Response> {
       return jsonResponse({ success: false, error: 'Thiếu email cần cấp quyền VIP' }, 400);
     }
 
-    if (!env.DB) {
+    const db = getD1(env);
+    if (!db) {
       return jsonResponse({ success: false, error: 'D1 Database chưa cấu hình' }, 503);
     }
 
     const durationDays = body.days || (plan === 'yearly' ? 365 : 30);
     const addedQuota = body.quota || (plan === 'yearly' ? 7200 : 1500);
-    const price = plan === 'yearly' ? 49.99 : 4.99;
+    const price = plan === 'yearly' ? 109.99 : 9.99;
     const now = Date.now();
 
-    let user = await env.DB.prepare('SELECT * FROM users WHERE email = ?').bind(email).first() as any;
+    let user = await db.prepare('SELECT * FROM users WHERE email = ?').bind(email).first() as any;
 
     const nowIso = new Date().toISOString();
 
@@ -58,10 +59,10 @@ export async function onRequest(context: EventContext): Promise<Response> {
       // Tự động tạo user mới nếu chưa có
       const newId = `usr_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`;
       const expiresAt = new Date(now + durationDays * 86400000).toISOString();
-      const countRow = await env.DB.prepare('SELECT count(*) as total FROM users').first() as any;
+      const countRow = await db.prepare('SELECT count(*) as total FROM users').first() as any;
       const nextStt = (countRow?.total || 0) + 1;
 
-      await env.DB.prepare(`
+      await db.prepare(`
         INSERT INTO users (
           id, stt, email, name, avatar, plan, price, currency, payment_method,
           subscribed_at, expires_at, status, ai_quota_remaining, last_login_at
@@ -81,7 +82,7 @@ export async function onRequest(context: EventContext): Promise<Response> {
         nowIso
       ).run();
 
-      user = await env.DB.prepare('SELECT * FROM users WHERE email = ?').bind(email).first();
+      user = await db.prepare('SELECT * FROM users WHERE email = ?').bind(email).first();
     } else {
       // Đã có user: tính hạn cộng dồn
       let baseTime = now;
@@ -97,7 +98,7 @@ export async function onRequest(context: EventContext): Promise<Response> {
         : 0;
       const newQuota = currentQuota + addedQuota;
 
-      await env.DB.prepare(`
+      await db.prepare(`
         UPDATE users
         SET plan = ?,
             price = ?,

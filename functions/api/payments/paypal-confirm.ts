@@ -1,4 +1,4 @@
-import { Env, verifyGoogleToken, jsonResponse } from '../../utils/d1Auth';
+import { Env, verifyGoogleToken, jsonResponse, getD1 } from '../../utils/d1Auth';
 
 interface EventContext {
   request: Request;
@@ -42,8 +42,9 @@ export async function onRequest(context: EventContext): Promise<Response> {
       return jsonResponse({ success: false, error: 'Gói cước không hợp lệ (chỉ hỗ trợ monthly hoặc yearly)' }, 400);
     }
 
-    if (!env.DB) {
-      return jsonResponse({ success: false, error: 'Database D1 chưa được cấu hình' }, 503);
+    const db = getD1(env);
+    if (!db) {
+      return jsonResponse({ success: false, error: 'Database D1 chưa được cấu hình. Vui lòng kiểm tra Bindings.' }, 503);
     }
 
     // 1. Kiểm tra xác thực đơn hàng từ PayPal nếu cấu hình API credentials
@@ -85,7 +86,7 @@ export async function onRequest(context: EventContext): Promise<Response> {
     }
 
     // 2. Tra cứu người dùng trong D1
-    const user = await env.DB.prepare('SELECT * FROM users WHERE email = ?').bind(email).first() as any;
+    const user = await db.prepare('SELECT * FROM users WHERE email = ?').bind(email).first() as any;
 
     if (!user) {
       return jsonResponse({
@@ -96,7 +97,7 @@ export async function onRequest(context: EventContext): Promise<Response> {
 
     const durationDays = plan === 'yearly' ? 365 : 30;
     const additionalQuota = plan === 'yearly' ? 7200 : 1500;
-    const price = plan === 'yearly' ? 49.99 : 4.99;
+    const price = plan === 'yearly' ? 109.99 : 9.99;
     const now = Date.now();
 
     // Tính hạn sử dụng: Nếu đang còn VIP thì cộng dồn từ hạn cũ, nếu đã hết hạn thì tính từ hiện tại
@@ -119,7 +120,7 @@ export async function onRequest(context: EventContext): Promise<Response> {
     const nowIso = new Date().toISOString();
 
     // Cập nhật D1 Database
-    await env.DB.prepare(`
+    await db.prepare(`
       UPDATE users 
       SET plan = ?,
           price = ?,
@@ -135,7 +136,7 @@ export async function onRequest(context: EventContext): Promise<Response> {
 
     // Ghi nhận lịch sử giao dịch
     const payRecordId = `pay_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`;
-    await env.DB.prepare(`
+    await db.prepare(`
       INSERT INTO payment_records (
         id, user_email, plan, amount, currency, payment_method, order_id, status, memo, confirmed_at
       ) VALUES (?, ?, ?, ?, 'USD', 'paypal', ?, 'completed', 'Thanh toán trực tuyến PayPal', ?)

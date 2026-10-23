@@ -1,4 +1,4 @@
-import { Env, verifyGoogleToken, getVietnamTodayString, jsonResponse } from '../../utils/d1Auth';
+import { Env, verifyGoogleToken, getVietnamTodayString, jsonResponse, getD1 } from '../../utils/d1Auth';
 
 interface EventContext {
   request: Request;
@@ -38,15 +38,16 @@ export async function onRequest(context: EventContext): Promise<Response> {
       return jsonResponse({ success: false, error: 'Thiếu token xác thực Google hoặc email' }, 400);
     }
 
-    if (!env.DB) {
+    const db = getD1(env);
+    if (!db) {
       return jsonResponse({
         success: false,
-        error: 'Cloudflare D1 Database chưa được liên kết với binding DB.'
+        error: 'Cloudflare D1 Database chưa được liên kết. Vui lòng kiểm tra Bindings trong Cloudflare Pages Settings.'
       }, 503);
     }
 
     // Tra cứu người dùng trong D1 Database
-    const user = await env.DB.prepare('SELECT * FROM users WHERE email = ?').bind(email).first() as any;
+    const user = await db.prepare('SELECT * FROM users WHERE email = ?').bind(email).first() as any;
 
     if (!user) {
       return jsonResponse({
@@ -74,7 +75,7 @@ export async function onRequest(context: EventContext): Promise<Response> {
 
     // Cập nhật lại trạng thái nếu có thay đổi
     const nowIso = new Date().toISOString();
-    await env.DB.prepare(`
+    await db.prepare(`
       UPDATE users 
       SET last_login_at = ?,
           plan = ?,

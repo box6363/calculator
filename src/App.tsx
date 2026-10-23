@@ -498,7 +498,7 @@ export default function App() {
       {/* Google Login & Signup Modal */}
       <GoogleLoginModal />
 
-      {/* VIP Pricing & Multi-channel Payment Modal ($4.99/mo & $49.99/yr) */}
+      {/* VIP Pricing & Multi-channel Payment Modal ($9.99/mo & $109.99/yr) */}
       <PricingModal />
 
       {/* Gemini Right Slide-Over Drawer with Ads (Triggered via `>` button) */}

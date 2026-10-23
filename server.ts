@@ -804,7 +804,7 @@ Bước 3: Kết luận rõ ràng đáp số.
 
       const durationDays = plan === "yearly" ? 365 : 30;
       const additionalQuota = plan === "yearly" ? 7200 : 1500;
-      const price = plan === "yearly" ? 49.99 : 4.99;
+      const price = plan === "yearly" ? 109.99 : 9.99;
       const now = Date.now();
 
       // Cộng dồn hạn VIP: Nếu còn hạn thì cộng từ hạn cũ, nếu hết thì cộng từ bây giờ
@@ -890,7 +890,7 @@ Bước 3: Kết luận rõ ràng đáp số.
 
       const durationDays = days || (plan === "yearly" ? 365 : 30);
       const addedQuota = quota || (plan === "yearly" ? 7200 : 1500);
-      const price = plan === "yearly" ? 49.99 : 4.99;
+      const price = plan === "yearly" ? 109.99 : 9.99;
       const now = Date.now();
       const nowIso = new Date().toISOString();
 

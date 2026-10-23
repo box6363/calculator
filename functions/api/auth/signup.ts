@@ -1,4 +1,4 @@
-import { Env, verifyGoogleToken, getVietnamTodayString, jsonResponse } from '../../utils/d1Auth';
+import { Env, verifyGoogleToken, getVietnamTodayString, jsonResponse, getD1 } from '../../utils/d1Auth';
 
 interface EventContext {
   request: Request;
@@ -38,15 +38,16 @@ export async function onRequest(context: EventContext): Promise<Response> {
       return jsonResponse({ success: false, error: 'Thiếu token xác thực Google hoặc email' }, 400);
     }
 
-    if (!env.DB) {
+    const db = getD1(env);
+    if (!db) {
       return jsonResponse({
         success: false,
-        error: 'Cloudflare D1 Database chưa được liên kết với binding DB.'
+        error: 'Cloudflare D1 Database chưa được liên kết. Vui lòng kiểm tra Bindings trong Cloudflare Pages Settings.'
       }, 503);
     }
 
     // Tra cứu xem tài khoản đã tồn tại chưa
-    const existing = await env.DB.prepare('SELECT id, email FROM users WHERE email = ?').bind(email).first();
+    const existing = await db.prepare('SELECT id, email FROM users WHERE email = ?').bind(email).first();
 
     if (existing) {
       return jsonResponse({
@@ -57,7 +58,7 @@ export async function onRequest(context: EventContext): Promise<Response> {
     }
 
     // Đếm số lượng users để cấp STT
-    const countRow = await env.DB.prepare('SELECT count(*) as total FROM users').first() as any;
+    const countRow = await db.prepare('SELECT count(*) as total FROM users').first() as any;
     const nextStt = (countRow?.total || 0) + 1;
 
     const todayVN = getVietnamTodayString();
@@ -65,7 +66,7 @@ export async function onRequest(context: EventContext): Promise<Response> {
     const newId = `usr_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
     const formattedAvatar = avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(email)}`;
 
-    await env.DB.prepare(`
+    await db.prepare(`
       INSERT INTO users (
         id, stt, email, name, avatar, plan, price, currency, payment_method,
         subscribed_at, expires_at, status, ai_count_today, ai_reset_date,

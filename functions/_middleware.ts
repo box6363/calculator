@@ -145,9 +145,10 @@ export async function onRequest(context: EventContext): Promise<Response> {
       const vnTime = new Date(now.getTime() + (7 * 60 + now.getTimezoneOffset()) * 60000);
       const todayVN = `${vnTime.getFullYear()}-${String(vnTime.getMonth() + 1).padStart(2, '0')}-${String(vnTime.getDate()).padStart(2, '0')}`;
 
-      if (env.DB) {
+      const db = env.DB || env.acccalculator || env.DATABASE || env.d1;
+      if (db) {
         try {
-          userRecord = await env.DB.prepare('SELECT * FROM users WHERE email = ?').bind(userEmail).first();
+          userRecord = await db.prepare('SELECT * FROM users WHERE email = ?').bind(userEmail).first();
           if (!userRecord) {
             return new Response(
               JSON.stringify({
@@ -238,17 +239,17 @@ Always output clean plain text or simple markdown. Keep answers under 150 words.
       const answer = geminiData.candidates?.[0]?.content?.parts?.[0]?.text || 'No explanation generated.';
 
       // Cập nhật lượt hỏi trong D1
-      if (env.DB && userRecord) {
+      if (db && userRecord) {
         try {
           if (userRecord.plan === 'free') {
             let nextCount = (userRecord.ai_reset_date === todayVN ? (userRecord.ai_count_today || 0) : 0) + 1;
-            await env.DB.prepare(`
+            await db.prepare(`
               UPDATE users 
               SET ai_count_today = ?, ai_reset_date = ?, total_ai_queries = total_ai_queries + 1
               WHERE email = ?
             `).bind(nextCount, todayVN, userEmail).run();
           } else {
-            await env.DB.prepare(`
+            await db.prepare(`
               UPDATE users 
               SET ai_quota_remaining = MAX(0, ai_quota_remaining - 1), total_ai_queries = total_ai_queries + 1
               WHERE email = ?

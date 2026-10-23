@@ -2,13 +2,13 @@
 
 export interface Env {
   DB?: any; // Cloudflare D1 binding
-  GEMINI_API_KEY?: string;
-  GOOGLE_CLIENT_ID?: string;
-  ADMIN_KEY?: string;
-  PAYPAL_CLIENT_ID?: string;
-  PAYPAL_SECRET?: string;
-  APP_URL?: string;
+  acccalculator?: any; // Custom D1 binding name
   [key: string]: any;
+}
+
+// Lấy đối tượng D1 linh hoạt theo tên binding
+export function getD1(env: Env): any {
+  return env.DB || env.acccalculator || env.DATABASE || env.d1 || null;
 }
 
 // Vietnam date format YYYY-MM-DD (UTC+7)

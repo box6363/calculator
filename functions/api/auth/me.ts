@@ -1,4 +1,4 @@
-import { Env, verifyGoogleToken, getVietnamTodayString, jsonResponse } from '../../utils/d1Auth';
+import { Env, verifyGoogleToken, getVietnamTodayString, jsonResponse, getD1 } from '../../utils/d1Auth';
 
 interface EventContext {
   request: Request;
@@ -30,12 +30,13 @@ export async function onRequest(context: EventContext): Promise<Response> {
     return jsonResponse({ success: false, error: 'Chưa đăng nhập' }, 401);
   }
 
-  if (!env.DB) {
+  const db = getD1(env);
+  if (!db) {
     return jsonResponse({ success: false, error: 'Database chưa cấu hình' }, 503);
   }
 
   try {
-    const user = await env.DB.prepare('SELECT * FROM users WHERE email = ?').bind(email).first() as any;
+    const user = await db.prepare('SELECT * FROM users WHERE email = ?').bind(email).first() as any;
 
     if (!user) {
       return jsonResponse({ success: false, notRegistered: true, error: 'Tài khoản không tồn tại' }, 404);

@@ -109,6 +109,30 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     return () => window.removeEventListener('message', handleAuthMessage);
   }, []);
 
+  // Helper an toàn đọc phản hồi JSON tránh lỗi Unexpected end of JSON input
+  const safeFetchJson = async (url: string, options: RequestInit): Promise<{ res: Response; data: any }> => {
+    const res = await fetch(url, options);
+    let data: any = {};
+    const text = await res.text();
+    if (text) {
+      try {
+        data = JSON.parse(text);
+      } catch {
+        data = { error: text.slice(0, 250) };
+      }
+    }
+    if (!res.ok && !data.error) {
+      if (res.status === 405) {
+        data.error = 'Lỗi 405 (Method Not Allowed): Cloudflare Pages chưa nhận diện được route Functions /api/auth. Vui lòng kiểm tra lại D1 binding trong Cloudflare Pages Settings.';
+      } else if (res.status === 503) {
+        data.error = 'Lỗi 503: Chưa cấu hình binding D1 Database trong Cloudflare Pages > Settings > Functions.';
+      } else {
+        data.error = `Lỗi kết nối máy chủ (${res.status})`;
+      }
+    }
+    return { res, data };
+  };
+
   const signupWithGoogle = async (
     emailOrToken: string,
     customName?: string,
@@ -124,12 +148,12 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         };
 
     try {
-      const res = await fetch('/api/auth/signup', {
+      const { res, data } = await safeFetchJson('/api/auth/signup', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(bodyPayload),
       });
-      const data = await res.json();
+
       if (res.status === 409 || data.alreadyExists) {
         return {
           success: false,
@@ -165,12 +189,12 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         };
 
     try {
-      const res = await fetch('/api/auth/login', {
+      const { res, data } = await safeFetchJson('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(bodyPayload),
       });
-      const data = await res.json();
+
       if (res.status === 404 || data.notRegistered) {
         return {
           success: false,
@@ -199,7 +223,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
 
     try {
-      const res = await fetch('/api/payments/paypal-confirm', {
+      const { res, data } = await safeFetchJson('/api/payments/paypal-confirm', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -208,7 +232,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           email: user.email,
         })
       });
-      const data = await res.json();
+
       if (data.success && data.customer) {
         setUser(data.customer);
         localStorage.setItem(STORAGE_KEY, JSON.stringify(data.customer));
@@ -233,7 +257,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
 
     try {
-      const res = await fetch('/api/payments/transfer-submit', {
+      const { data } = await safeFetchJson('/api/payments/transfer-submit', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -244,7 +268,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           email: user.email,
         })
       });
-      const data = await res.json();
       return data;
     } catch (err: any) {
       return { success: false, error: err.message || 'Lỗi gửi yêu cầu chuyển khoản' };
@@ -260,7 +283,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     quota?: number
   ): Promise<any> => {
     try {
-      const res = await fetch('/api/admin/grant', {
+      const { data } = await safeFetchJson('/api/admin/grant', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -271,7 +294,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           quota,
         })
       });
-      const data = await res.json();
+
       if (data.success && data.customer) {
         if (user?.email && user.email.toLowerCase() === email.toLowerCase()) {
           setUser(data.customer);

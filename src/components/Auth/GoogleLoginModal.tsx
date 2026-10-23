@@ -238,9 +238,9 @@ export const GoogleLoginModal: React.FC = () => {
                   {isVip && <Crown className="w-3.5 h-3.5 fill-amber-500" />}
                   <span>
                     {user.plan === 'yearly'
-                      ? (isVi ? 'Gói VIP 1 Năm ($49.99)' : 'VIP 1 Year ($49.99)')
+                      ? (isVi ? 'Gói VIP 1 Năm ($109.99)' : 'VIP 1 Year ($109.99)')
                       : user.plan === 'monthly'
-                      ? (isVi ? 'Gói VIP 1 Tháng ($4.99)' : 'VIP 1 Month ($4.99)')
+                      ? (isVi ? 'Gói VIP 1 Tháng ($9.99)' : 'VIP 1 Month ($9.99)')
                       : (isVi ? 'Gói Miễn Phí (Free)' : 'Free Tier')}
                   </span>
                 </span>
@@ -276,7 +276,7 @@ export const GoogleLoginModal: React.FC = () => {
                   className="w-full h-11 px-4 rounded-xl bg-gradient-to-r from-amber-500 via-amber-600 to-rose-500 hover:brightness-105 text-white font-bold text-xs sm:text-sm shadow-md shadow-amber-500/20 transition-all cursor-pointer flex items-center justify-center gap-2 active:scale-[0.99]"
                 >
                   <Crown className="w-4 h-4 fill-white" />
-                  <span>{isVi ? 'Nâng cấp Gói VIP (Chỉ từ 4.99$)' : 'Upgrade to VIP (From $4.99)'}</span>
+                  <span>{isVi ? 'Nâng cấp Gói VIP (Chỉ từ 9.99$)' : 'Upgrade to VIP (From $9.99)'}</span>
                 </button>
               ) : (
                 <button

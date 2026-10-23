@@ -450,7 +450,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
             </div>
             {!isVip ? (
               <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded-full bg-gradient-to-r from-amber-500 to-rose-500 text-white shadow-xs">
-                4.99$/tháng
+                9.99$/tháng
               </span>
             ) : (
               <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-600 dark:text-emerald-400">

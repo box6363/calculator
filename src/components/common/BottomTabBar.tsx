@@ -227,7 +227,7 @@ export const BottomTabBar: React.FC<BottomTabBarProps> = ({
                 <Crown className="w-4 h-4 fill-amber-500 text-amber-500 shrink-0" />
                 <div className="min-w-0">
                   <div className="truncate leading-tight">{isVip ? 'VIP Pro' : 'Nâng cấp VIP'}</div>
-                  <div className="text-[10px] text-slate-500 dark:text-slate-400 font-normal truncate">Chỉ từ 4.99$/tháng</div>
+                  <div className="text-[10px] text-slate-500 dark:text-slate-400 font-normal truncate">Chỉ từ 9.99$/tháng</div>
                 </div>
               </button>
 

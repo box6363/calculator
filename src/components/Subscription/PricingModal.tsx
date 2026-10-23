@@ -35,7 +35,7 @@ export const PricingModal: React.FC = () => {
   const { language } = useLanguage();
   const isVi = language === 'vi';
 
-  // Selected plan: 'monthly' ($4.99) or 'yearly' ($49.99)
+  // Selected plan: 'monthly' ($9.99) or 'yearly' ($109.99)
   const [selectedPlan, setSelectedPlan] = useState<'monthly' | 'yearly'>('monthly');
   const [paymentChannel, setPaymentChannel] = useState<'vietqr' | 'momo' | 'paypal'>('vietqr');
   const [selectedBank, setSelectedBank] = useState<VietQRBank>(VIETQR_BANKS[0]);
@@ -66,16 +66,16 @@ export const PricingModal: React.FC = () => {
 
   if (!isPricingModalOpen) return null;
 
-  const currentPriceUSD = selectedPlan === 'yearly' ? 49.99 : 4.99;
-  const currentPriceVND = selectedPlan === 'yearly' ? 1250000 : 125000;
+  const currentPriceUSD = selectedPlan === 'yearly' ? 109.99 : 9.99;
+  const currentPriceVND = selectedPlan === 'yearly' ? 2750000 : 250000;
   const durationDays = selectedPlan === 'yearly' ? 365 : 30;
   const planLabel = selectedPlan === 'yearly' 
-    ? (isVi ? 'Gói VIP 1 Năm ($49.99)' : 'VIP 1 Year ($49.99)')
-    : (isVi ? 'Gói VIP 1 Tháng ($4.99)' : 'VIP 1 Month ($4.99)');
+    ? (isVi ? 'Gói VIP 1 Năm ($109.99)' : 'VIP 1 Year ($109.99)')
+    : (isVi ? 'Gói VIP 1 Tháng ($9.99)' : 'VIP 1 Month ($9.99)');
 
   const userEmail = user?.email || 'guest@example.com';
   const cleanEmailTag = userEmail.replace(/[^a-zA-Z0-9]/g, '').substring(0, 10).toUpperCase();
-  const transferMemo = `VIP${selectedPlan === 'yearly' ? '4999' : '499'} ${cleanEmailTag}`;
+  const transferMemo = `VIP${selectedPlan === 'yearly' ? '10999' : '999'} ${cleanEmailTag}`;
   const defaultAccountNumber = '1023456789';
   const beneficiaryName = 'CONG TY WEB CALCULATOR PRO';
 
@@ -205,7 +205,7 @@ export const PricingModal: React.FC = () => {
               <h3 className="font-extrabold text-base sm:text-lg text-slate-900 dark:text-white flex items-center gap-2">
                 <span>{isVi ? 'Nâng Cấp Gói VIP Pro' : 'Upgrade to VIP Pro'}</span>
                 <span className="text-[10px] uppercase font-bold px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-600 dark:text-amber-400 border border-amber-500/30">
-                  {selectedPlan === 'yearly' ? 'GIẢM $89.99 ➔ $49.99/NĂM' : 'GIẢM $6.99 ➔ $4.99/THÁNG'}
+                  {selectedPlan === 'yearly' ? 'GIẢM $169.99 ➔ $109.99/NĂM' : 'GIẢM $13.99 ➔ $9.99/THÁNG'}
                 </span>
               </h3>
               <p className="text-xs text-slate-500 dark:text-slate-400">
@@ -254,7 +254,7 @@ export const PricingModal: React.FC = () => {
                   <div className="flex items-center justify-between pb-2 border-b border-slate-100 dark:border-slate-800">
                     <span className="text-slate-500 dark:text-slate-400">{isVi ? 'Gói dịch vụ:' : 'Plan:'}</span>
                     <span className="font-bold text-amber-600 dark:text-amber-400">
-                      {successData.plan === 'yearly' ? 'Gói 1 Năm (Giảm còn $49.99)' : 'Gói 1 Tháng (Giảm còn $4.99)'}
+                      {successData.plan === 'yearly' ? 'Gói 1 Năm (Giảm còn $109.99)' : 'Gói 1 Tháng (Giảm còn $9.99)'}
                     </span>
                   </div>
                   <div className="flex items-center justify-between pb-2 border-b border-slate-100 dark:border-slate-800">
@@ -378,8 +378,8 @@ export const PricingModal: React.FC = () => {
                 </h4>
                 <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
                   {isVi
-                    ? 'Để đảm bảo quyền lợi gói VIP (giảm còn $4.99/tháng hoặc $49.99/năm) được kích hoạt chính xác cho bạn và lưu trữ lâu dài vào CSDL, vui lòng đăng nhập tài khoản Google.'
-                    : 'To ensure your VIP license (discounted to $4.99/mo or $49.99/yr) is attached to your account, please sign in with Google.'}
+                    ? 'Để đảm bảo quyền lợi gói VIP (giảm còn $9.99/tháng hoặc $109.99/năm) được kích hoạt chính xác cho bạn và lưu trữ lâu dài vào CSDL, vui lòng đăng nhập tài khoản Google.'
+                    : 'To ensure your VIP license (discounted to $9.99/mo or $109.99/yr) is attached to your account, please sign in with Google.'}
                 </p>
               </div>
 
@@ -422,13 +422,13 @@ export const PricingModal: React.FC = () => {
                 <div className="flex items-center justify-between">
                   <span>• {isVi ? 'Gói VIP 1 Tháng (30 ngày):' : 'VIP 1 Month (30 days):'}</span>
                   <span className="font-bold text-blue-600 dark:text-blue-400">
-                    <span className="line-through text-slate-400 font-normal mr-1.5">$6.99</span>$4.99 / tháng (~125.000đ)
+                    <span className="line-through text-slate-400 font-normal mr-1.5">$13.99</span>$9.99 / tháng (~250.000đ)
                   </span>
                 </div>
                 <div className="flex items-center justify-between">
                   <span>• {isVi ? 'Gói VIP 1 Năm (12 tháng - Siêu rẻ):' : 'VIP 1 Year (12 months):'}</span>
                   <span className="font-bold text-amber-600 dark:text-amber-400">
-                    <span className="line-through text-slate-400 font-normal mr-1.5">$89.99</span>$49.99 / năm (~1.250.000đ)
+                    <span className="line-through text-slate-400 font-normal mr-1.5">$169.99</span>$109.99 / năm (~2.750.000đ)
                   </span>
                 </div>
                 <div className="pt-1.5 border-t border-slate-200/60 dark:border-slate-800 space-y-1 text-[11px] text-emerald-600 dark:text-emerald-400 font-medium">
@@ -478,9 +478,9 @@ export const PricingModal: React.FC = () => {
                 </div>
               </div>
 
-              {/* Lựa chọn 2 gói: $6.99 giảm về $4.99/tháng & $89.99 giảm về $49.99/năm */}
+              {/* Lựa chọn 2 gói: $13.99 giảm về $9.99/tháng & $169.99 giảm về $109.99/năm */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-                {/* Gói 1 Tháng: Giảm từ 6.99$ xuống 4.99$ */}
+                {/* Gói 1 Tháng: Giảm từ 13.99$ xuống 9.99$ */}
                 <div
                   id="btn-select-plan-monthly"
                   onClick={() => setSelectedPlan('monthly')}
@@ -500,19 +500,19 @@ export const PricingModal: React.FC = () => {
                   </div>
                   <div className="flex items-baseline gap-1.5 my-1">
                     <span className="text-sm sm:text-base font-semibold text-slate-400 line-through">
-                      $6.99
+                      $13.99
                     </span>
                     <span className="text-2xl sm:text-3xl font-black text-blue-600 dark:text-blue-400">
-                      $4.99
+                      $9.99
                     </span>
                     <span className="text-xs text-slate-500">/ {isVi ? 'tháng' : 'month'}</span>
                   </div>
                   <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-snug">
-                    {isVi ? 'Gói 6.99$ giảm về 4.99$ (~125.000 VNĐ). Sử dụng AI tool 1.500 lượt hỏi/tháng, tắt 100% quảng cáo.' : 'Discounted from $6.99 to $4.99 (~125,000 VND). 1,500 AI queries/mo, 100% ad-free.'}
+                    {isVi ? 'Gói 13.99$ giảm về 9.99$ (~250.000 VNĐ). Sử dụng AI tool 1.500 lượt hỏi/tháng, tắt 100% quảng cáo.' : 'Discounted from $13.99 to $9.99 (~250,000 VND). 1,500 AI queries/mo, 100% ad-free.'}
                   </p>
                 </div>
 
-                {/* Gói 1 Năm: Giảm từ 89.99$ xuống 49.99$ */}
+                {/* Gói 1 Năm: Giảm từ 169.99$ xuống 109.99$ */}
                 <div
                   id="btn-select-plan-yearly"
                   onClick={() => setSelectedPlan('yearly')}
@@ -523,7 +523,7 @@ export const PricingModal: React.FC = () => {
                   }`}
                 >
                   <span className="absolute -top-2.5 right-4 px-2.5 py-0.5 rounded-full bg-gradient-to-r from-amber-500 to-rose-500 text-white text-[10px] font-extrabold uppercase shadow-xs">
-                    {isVi ? 'GIẢM SỐC: $89.99 ➔ $49.99' : 'DEAL: $89.99 ➔ $49.99'}
+                    {isVi ? 'GIẢM SỐC: $169.99 ➔ $109.99' : 'DEAL: $169.99 ➔ $109.99'}
                   </span>
                   <div className="flex items-center justify-between mb-1">
                     <span className="font-bold text-sm text-slate-900 dark:text-white flex items-center gap-1.5">
@@ -538,15 +538,15 @@ export const PricingModal: React.FC = () => {
                   </div>
                   <div className="flex items-baseline gap-1.5 my-1">
                     <span className="text-sm sm:text-base font-semibold text-slate-400 line-through">
-                      $89.99
+                      $169.99
                     </span>
                     <span className="text-2xl sm:text-3xl font-black text-amber-500 dark:text-amber-400">
-                      $49.99
+                      $109.99
                     </span>
                     <span className="text-xs text-slate-500">/ {isVi ? 'năm (12 tháng)' : 'year (12 mo)'}</span>
                   </div>
                   <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-snug">
-                    {isVi ? 'Gói 89.99$ giảm về 49.99$ (~1.250.000 VNĐ, chỉ ~4.16$/tháng). Tiết kiệm tối đa cả năm.' : 'Discounted from $89.99 to $49.99 (~1,250,000 VND, ~$4.16/mo). Maximum annual savings.'}
+                    {isVi ? 'Gói 169.99$ giảm về 109.99$ (~2.750.000 VNĐ, chỉ ~9.16$/tháng). Tiết kiệm tối đa cả năm.' : 'Discounted from $169.99 to $109.99 (~2,750,000 VND, ~$9.16/mo). Maximum annual savings.'}
                   </p>
                 </div>
               </div>
@@ -736,7 +736,7 @@ export const PricingModal: React.FC = () => {
                 <div className="font-bold text-slate-800 dark:text-slate-200 flex items-center justify-between">
                   <span className="flex items-center gap-1.5">
                     <Sparkles className="w-4 h-4 text-amber-500" />
-                    <span>Quyền lợi gói VIP Pro ({selectedPlan === 'yearly' ? '89.99$ ➔ 49.99$/năm' : '6.99$ ➔ 4.99$/tháng'}):</span>
+                    <span>Quyền lợi gói VIP Pro ({selectedPlan === 'yearly' ? '169.99$ ➔ 109.99$/năm' : '13.99$ ➔ 9.99$/tháng'}):</span>
                   </span>
                   <span className="text-[10px] font-black uppercase text-rose-500 bg-rose-500/10 px-2 py-0.5 rounded-md">
                     ƯU ĐÃI GIỚI HẠN
