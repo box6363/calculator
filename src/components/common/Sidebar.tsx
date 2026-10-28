@@ -267,19 +267,19 @@ export const Sidebar: React.FC<SidebarProps> = ({
         title={localizedName}
         className={`w-full group flex items-center justify-between px-2.5 py-1.5 rounded-xl text-left transition-all duration-200 cursor-pointer ${
           isActive 
-            ? 'sidebar-tool-active bg-blue-600 text-white shadow-md shadow-blue-500/25 ring-1 ring-blue-400/40' 
+            ? 'sidebar-tool-active bg-blue-50 dark:bg-sky-950/40 border border-blue-300 dark:border-sky-700/60 shadow-sm' 
             : 'sidebar-tool-inactive text-slate-700 dark:text-slate-200 hover:text-blue-600 dark:hover:text-sky-300 hover:bg-slate-100/90 dark:hover:bg-slate-800/60'
         }`}
       >
         <div className="flex items-center gap-2.5 min-w-0 flex-1 pr-2">
-          <span className={`w-7 h-7 flex items-center justify-center shrink-0 transition-transform duration-200 group-hover:scale-110 ${
-            isActive 
-              ? 'text-white' 
-              : colorTheme.iconColor
+          <span className={`sidebar-tool-icon w-7 h-7 flex items-center justify-center shrink-0 transition-transform duration-200 group-hover:scale-110 ${
+            tool.id === 'love' ? 'text-red-500' : colorTheme.iconColor
           }`}>
-            <ToolIcon id={tool.id} className="w-[19px] h-[19px]" />
+            <ToolIcon id={tool.id} className={`w-[19px] h-[19px] ${tool.id === 'love' ? 'text-red-500 fill-red-500' : colorTheme.iconColor}`} />
           </span>
-          <span className="text-[14px] font-medium leading-snug break-words group-hover:text-blue-600 dark:group-hover:text-sky-300">
+          <span className={`sidebar-tool-label text-[14px] font-medium leading-snug break-words ${
+            isActive ? 'font-semibold text-blue-900 dark:text-sky-200' : 'text-slate-700 dark:text-slate-200 group-hover:text-blue-600 dark:group-hover:text-sky-300'
+          }`}>
             {localizedName}
           </span>
         </div>

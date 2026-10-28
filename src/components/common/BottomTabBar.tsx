@@ -134,11 +134,11 @@ export const BottomTabBar: React.FC<BottomTabBarProps> = ({
               >
                 <div className={`p-1.5 transition-all ${
                   isLove 
-                    ? 'text-red-600 dark:text-red-500' 
-                    : (isActive ? 'text-[#3B82F6]' : theme.iconColor)
+                    ? 'text-red-500' 
+                    : theme.iconColor
                 }`}>
                   {isLove ? (
-                    <Heart className={`w-5 h-5 text-red-600 dark:text-red-500 transition-all ${isActive ? 'fill-red-600 dark:fill-red-500 scale-110' : 'fill-red-500/20'}`} />
+                    <Heart className={`w-5 h-5 text-red-500 transition-all ${isActive ? 'fill-red-500 scale-110' : 'fill-red-500/80'}`} />
                   ) : (
                     tool.icon
                   )}
