@@ -476,7 +476,7 @@ export const BasicCalculator: React.FC<BasicCalculatorProps> = ({ initialMode = 
   // Modern, tactile button styling definitions with device-adaptive typography
   const numBtnClass = "calc-num-btn h-12 sm:h-13 md:h-14 rounded-xl sm:rounded-2xl bg-slate-800/80 hover:bg-slate-700 active:bg-slate-600 text-white font-semibold text-xl sm:text-2xl md:text-2xl border border-slate-700/80 hover:border-slate-600 shadow-xs active:scale-[0.97] transition-all flex items-center justify-center select-none cursor-pointer touch-manipulation font-sans tabular-nums";
   const opBtnClass = "calc-op-btn h-12 sm:h-13 md:h-14 rounded-xl sm:rounded-2xl bg-blue-600/25 hover:bg-blue-600/35 active:bg-blue-600/45 text-blue-400 hover:text-blue-300 font-bold text-2xl sm:text-3xl md:text-3xl border border-blue-500/40 shadow-xs active:scale-[0.97] transition-all flex items-center justify-center select-none cursor-pointer touch-manipulation font-sans";
-  const equalsBtnClass = "calc-equals-btn h-12 sm:h-13 md:h-14 rounded-xl sm:rounded-2xl bg-blue-600 hover:bg-blue-500 active:bg-blue-700 text-white font-bold text-2xl sm:text-3xl md:text-3xl shadow-md shadow-blue-600/35 active:scale-[0.97] transition-all flex items-center justify-center select-none cursor-pointer touch-manipulation";
+  const equalsBtnClass = "calc-equals-btn h-12 sm:h-13 md:h-14 rounded-xl sm:rounded-2xl bg-[#035dfd] hover:bg-[#0050e6] active:bg-[#0040b8] text-white font-bold text-2xl sm:text-3xl md:text-3xl shadow-md shadow-[#035dfd]/40 active:scale-[0.97] transition-all flex items-center justify-center select-none cursor-pointer touch-manipulation";
   const clearBtnClass = "calc-clear-btn h-12 sm:h-13 md:h-14 rounded-xl sm:rounded-2xl bg-rose-600/25 hover:bg-rose-600/35 active:bg-rose-600/45 text-rose-400 hover:text-rose-300 font-bold text-base sm:text-lg md:text-lg border border-rose-500/40 shadow-xs active:scale-[0.97] transition-all flex items-center justify-center select-none cursor-pointer touch-manipulation";
   const actionBtnClass = "calc-action-btn h-12 sm:h-13 md:h-14 rounded-xl sm:rounded-2xl bg-slate-800/70 hover:bg-slate-700 active:bg-slate-600 text-slate-300 hover:text-white font-bold text-base sm:text-lg md:text-lg border border-slate-700/70 shadow-xs active:scale-[0.97] transition-all flex items-center justify-center select-none cursor-pointer touch-manipulation";
   const sciBtnClass = "calc-sci-btn h-10.5 sm:h-11 md:h-11 lg:h-12 rounded-xl bg-slate-800/60 hover:bg-slate-700/80 active:bg-slate-600 text-slate-200 hover:text-white font-medium text-[13px] sm:text-[13.5px] md:text-[13.5px] lg:text-[15px] border border-slate-700/60 shadow-xs active:scale-[0.97] transition-all flex items-center justify-center select-none tracking-tight cursor-pointer touch-manipulation font-sans tabular-nums";
@@ -769,7 +769,14 @@ export const BasicCalculator: React.FC<BasicCalculatorProps> = ({ initialMode = 
                 <button onClick={handleToggleSign} className={numBtnClass}>±</button>
                 <button onClick={() => handleDigit('0')} className={numBtnClass}>0</button>
                 <button onClick={() => handleDigit('.')} className={numBtnClass}>.</button>
-                <button id="calc-equals-button" onClick={handleEquals} className={equalsBtnClass}>=</button>
+                <button 
+                  id="calc-equals-button" 
+                  onClick={handleEquals} 
+                  className={equalsBtnClass}
+                  style={{ backgroundColor: '#035dfd', color: '#ffffff' }}
+                >
+                  =
+                </button>
               </div>
             </div>
 
@@ -913,7 +920,14 @@ export const BasicCalculator: React.FC<BasicCalculatorProps> = ({ initialMode = 
                     <button onClick={handleToggleSign} className={numBtnClass}>±</button>
                     <button onClick={() => handleDigit('0')} className={numBtnClass}>0</button>
                     <button onClick={() => handleDigit('.')} className={numBtnClass}>.</button>
-                    <button id="calc-equals-button" onClick={handleEquals} className={equalsBtnClass}>=</button>
+                    <button 
+                      id="calc-equals-button" 
+                      onClick={handleEquals} 
+                      className={equalsBtnClass}
+                      style={{ backgroundColor: '#035dfd', color: '#ffffff' }}
+                    >
+                      =
+                    </button>
                   </div>
 
                 </div>

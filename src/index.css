@@ -503,7 +503,7 @@ div[class*="translate-x-full"] {
 [data-theme="light"] .segment-tab-active,
 [data-theme="light"] div[class*="bg-slate-100"] > button[class*="shadow-"],
 [data-theme="light"] div[class*="bg-slate-200"] > button[class*="shadow-"],
-[data-theme="light"] button[class*="bg-blue-600"]:not(.calc-num-btn):not(#main-header *):not(.sidebar-tool-active) {
+[data-theme="light"] button[class*="bg-blue-600"]:not(.calc-num-btn):not(#main-header *):not(.sidebar-tool-active):not(.calc-equals-btn):not(#calc-equals-button) {
   background-color: #ffffff !important;
   color: #000000 !important;
   border: 1px solid #cbd5e1 !important;
@@ -512,7 +512,7 @@ div[class*="translate-x-full"] {
 }
 [data-theme="light"] div[class*="bg-slate-100"] > button[class*="shadow-"] *,
 [data-theme="light"] div[class*="bg-slate-200"] > button[class*="shadow-"] *,
-[data-theme="light"] button[class*="bg-blue-600"]:not(.calc-num-btn):not(#main-header *) * {
+[data-theme="light"] button[class*="bg-blue-600"]:not(.calc-num-btn):not(#main-header *):not(.calc-equals-btn):not(#calc-equals-button) * {
   color: #000000 !important;
 }
 
@@ -771,23 +771,37 @@ div[class*="translate-x-full"] {
   color: #0f172a !important;
 }
 
+html[data-theme="light"] #calc-equals-button,
+html[data-theme="light"] button.calc-equals-btn,
+[data-theme="light"] #calc-equals-button,
 [data-theme="light"] .calc-equals-btn {
   background-color: #035dfd !important;
   background: #035dfd !important;
   color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
   border: 1px solid #0052e6 !important;
-  box-shadow: 0 4px 12px rgba(3, 93, 253, 0.35) !important;
+  box-shadow: 0 4px 12px rgba(3, 93, 253, 0.4) !important;
 }
 
+html[data-theme="light"] #calc-equals-button:hover,
+html[data-theme="light"] button.calc-equals-btn:hover,
+[data-theme="light"] #calc-equals-button:hover,
 [data-theme="light"] .calc-equals-btn:hover {
   background-color: #0050e6 !important;
   background: #0050e6 !important;
-  box-shadow: 0 6px 16px rgba(3, 93, 253, 0.45) !important;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  box-shadow: 0 6px 16px rgba(3, 93, 253, 0.5) !important;
 }
 
+html[data-theme="light"] #calc-equals-button:active,
+html[data-theme="light"] button.calc-equals-btn:active,
+[data-theme="light"] #calc-equals-button:active,
 [data-theme="light"] .calc-equals-btn:active {
   background-color: #0040b8 !important;
   background: #0040b8 !important;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
 }
 
 /* Nút bấm chip và nút xám trong Chế độ Sáng */
