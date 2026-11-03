@@ -402,6 +402,36 @@ export const TOOL_COLOR_MAP: Record<ToolId, ToolColorTheme> = {
     badgeClass: 'bg-indigo-50 text-indigo-600 border border-indigo-200/80 dark:bg-indigo-950/50 dark:text-indigo-400 dark:border-indigo-800/50 shadow-xs',
     activeClass: 'bg-white/20 text-white',
     hoverClass: 'group-hover:border-indigo-400'
+  },
+  about: {
+    iconColor: 'text-blue-600 dark:text-blue-400',
+    badgeClass: 'bg-blue-50 text-blue-600 border border-blue-200/80 dark:bg-blue-950/50 dark:text-blue-400 dark:border-blue-800/50 shadow-xs',
+    activeClass: 'bg-white/20 text-white',
+    hoverClass: 'group-hover:border-blue-400'
+  },
+  terms: {
+    iconColor: 'text-slate-600 dark:text-slate-300',
+    badgeClass: 'bg-slate-100 text-slate-700 border border-slate-200/80 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-700 shadow-xs',
+    activeClass: 'bg-white/20 text-white',
+    hoverClass: 'group-hover:border-slate-400'
+  },
+  privacy: {
+    iconColor: 'text-emerald-600 dark:text-emerald-400',
+    badgeClass: 'bg-emerald-50 text-emerald-600 border border-emerald-200/80 dark:bg-emerald-950/50 dark:text-emerald-400 dark:border-emerald-800/50 shadow-xs',
+    activeClass: 'bg-white/20 text-white',
+    hoverClass: 'group-hover:border-emerald-400'
+  },
+  disclaimer: {
+    iconColor: 'text-amber-600 dark:text-amber-400',
+    badgeClass: 'bg-amber-50 text-amber-600 border border-amber-200/80 dark:bg-amber-950/50 dark:text-amber-400 dark:border-amber-800/50 shadow-xs',
+    activeClass: 'bg-white/20 text-white',
+    hoverClass: 'group-hover:border-amber-400'
+  },
+  sitemap: {
+    iconColor: 'text-cyan-600 dark:text-cyan-400',
+    badgeClass: 'bg-cyan-50 text-cyan-600 border border-cyan-200/80 dark:bg-cyan-950/50 dark:text-cyan-400 dark:border-cyan-800/50 shadow-xs',
+    activeClass: 'bg-white/20 text-white',
+    hoverClass: 'group-hover:border-cyan-400'
   }
 };
 

@@ -1,11 +1,10 @@
 User-agent: *
-Disallow: /
+Allow: /
 
 User-agent: Googlebot
-Disallow: /
-
-User-agent: Googlebot-Image
-Disallow: /
+Allow: /
 
 User-agent: Mediapartners-Google
-Disallow: /
+Allow: /
+
+Sitemap: https://testsp123.top/sitemap.xml

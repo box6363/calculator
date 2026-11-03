@@ -153,6 +153,16 @@ const CATEGORIES: CategoryDefinition[] = [
     color: 'text-purple-600 dark:text-purple-400',
     badgeBg: 'bg-purple-500/15 border-purple-500/30',
     badgeText: 'text-purple-600 dark:text-purple-400'
+  },
+  {
+    id: 'knowledge',
+    nameVi: 'Thông tin & Pháp lý',
+    nameEn: 'Information & Legal',
+    shortNameVi: 'Pháp lý',
+    shortNameEn: 'Legal',
+    color: 'text-indigo-600 dark:text-indigo-400',
+    badgeBg: 'bg-indigo-500/15 border-indigo-500/30',
+    badgeText: 'text-indigo-600 dark:text-indigo-400'
   }
 ];
 

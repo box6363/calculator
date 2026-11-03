@@ -13,7 +13,7 @@ import { GlobalFooterEcosystem } from './components/common/GlobalFooterEcosystem
 import { GoogleLoginModal } from './components/Auth/GoogleLoginModal';
 import { PricingModal } from './components/Subscription/PricingModal';
 import { useLanguage } from './context/LanguageContext';
-import { ShieldCheck, Copyright, FileText, Lock, Globe, BookOpen } from 'lucide-react';
+import { ShieldCheck, Lock, Globe } from 'lucide-react';
 
 // Direct synchronous imports for instant (0ms) zero-latency tab switching without loading delays
 import { BasicCalculator } from './components/tools/BasicCalculator';
@@ -80,6 +80,11 @@ import { USLotteryCalculator } from './components/tools/lottery/USLotteryCalcula
 import { UtilityBillCalculator } from './components/tools/UtilityBillCalculator';
 import { LoveCalculator } from './components/tools/LoveCalculator';
 import { BlogSection } from './components/tools/BlogSection';
+import { AboutPage } from './components/pages/AboutPage';
+import { TermsPage } from './components/pages/TermsPage';
+import { PrivacyPage } from './components/pages/PrivacyPage';
+import { DisclaimerPage } from './components/pages/DisclaimerPage';
+import { SitemapPage } from './components/pages/SitemapPage';
 
 // Helper to parse tool ID from clean path or hash
 const parseToolFromUrl = (): ToolId => {
@@ -356,6 +361,16 @@ export default function App() {
         return <UtilityBillCalculator key={resetKey} />;
       case 'blog':
         return <BlogSection key={resetKey} onSelectTool={handleSelectTool} />;
+      case 'about':
+        return <AboutPage key={resetKey} onSelectTool={handleSelectTool} />;
+      case 'terms':
+        return <TermsPage key={resetKey} onSelectTool={handleSelectTool} />;
+      case 'privacy':
+        return <PrivacyPage key={resetKey} onSelectTool={handleSelectTool} />;
+      case 'disclaimer':
+        return <DisclaimerPage key={resetKey} onSelectTool={handleSelectTool} />;
+      case 'sitemap':
+        return <SitemapPage key={resetKey} onSelectTool={handleSelectTool} />;
       default:
         return <BasicCalculator key={resetKey} />;
     }
@@ -427,50 +442,87 @@ export default function App() {
               </span>
             </div>
 
-            {/* Middle row: Links & Language Switcher */}
-            <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-6 pt-2">
+            {/* Middle row: About, Blog, Terms, Privacy, Disclaimer, Sitemap & Language Switcher */}
+            <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-6 pt-2 text-xs">
+              <button
+                id="footer-about-btn"
+                onClick={() => handleSelectTool('about')}
+                className={`transition-colors cursor-pointer font-medium hover:underline ${
+                  currentToolId === 'about'
+                    ? 'text-blue-400 font-bold'
+                    : 'text-slate-300 hover:text-white'
+                }`}
+                title={language === 'vi' ? 'Giới thiệu về Web Calculator & AC Studio' : 'About Web Calculator & AC Studio'}
+              >
+                <span>{language === 'vi' ? 'About Us' : 'About'}</span>
+              </button>
+
               <button
                 id="footer-blog-btn"
-                onClick={() => {
-                  handleSelectTool('blog');
-                  window.scrollTo({ top: 0, behavior: 'smooth' });
-                }}
-                className={`flex items-center gap-1.5 transition-colors cursor-pointer font-medium ${
+                onClick={() => handleSelectTool('blog')}
+                className={`transition-colors cursor-pointer font-medium hover:underline ${
                   currentToolId === 'blog'
                     ? 'text-blue-400 font-bold'
                     : 'text-slate-300 hover:text-white'
                 }`}
                 title={language === 'vi' ? 'Xem Cẩm nang & Blog Tính Toán' : 'Calculation Guides & Blog'}
               >
-                <BookOpen className="w-3.5 h-3.5 text-blue-400" />
-                <span>{language === 'vi' ? 'Cẩm nang & Blog' : 'Guides & Blog'}</span>
+                <span>{language === 'vi' ? 'Blog' : 'Blog'}</span>
               </button>
 
               <button
-                onClick={() => setIsTermsOpen(true)}
-                className="flex items-center gap-1.5 text-slate-300 hover:text-white transition-colors cursor-pointer font-medium"
+                id="footer-terms-btn"
+                onClick={() => handleSelectTool('terms')}
+                className={`transition-colors cursor-pointer font-medium hover:underline ${
+                  currentToolId === 'terms'
+                    ? 'text-blue-400 font-bold'
+                    : 'text-slate-300 hover:text-white'
+                }`}
+                title={language === 'vi' ? 'Điều khoản dịch vụ' : 'Terms of Service'}
               >
-                <FileText className="w-3.5 h-3.5 text-blue-400" />
-                <span>{t.termsTitle}</span>
+                <span>Terms of Service</span>
               </button>
 
               <button
-                onClick={() => setIsTermsOpen(true)}
-                className="flex items-center gap-1.5 text-slate-300 hover:text-white transition-colors cursor-pointer font-medium"
+                id="footer-privacy-btn"
+                onClick={() => handleSelectTool('privacy')}
+                className={`transition-colors cursor-pointer font-medium hover:underline ${
+                  currentToolId === 'privacy'
+                    ? 'text-emerald-400 font-bold'
+                    : 'text-slate-300 hover:text-white'
+                }`}
+                title={language === 'vi' ? 'Chính sách bảo mật quyền riêng tư' : 'Privacy Policy'}
               >
-                <Lock className="w-3.5 h-3.5 text-emerald-400" />
-                <span>{t.privacyTitle}</span>
+                <span>Privacy Policy</span>
               </button>
 
               <button
-                onClick={() => setIsTermsOpen(true)}
-                className="flex items-center gap-1.5 text-slate-300 hover:text-white transition-colors cursor-pointer font-medium"
+                id="footer-disclaimer-btn"
+                onClick={() => handleSelectTool('disclaimer')}
+                className={`transition-colors cursor-pointer font-medium hover:underline ${
+                  currentToolId === 'disclaimer'
+                    ? 'text-amber-400 font-bold'
+                    : 'text-slate-300 hover:text-white'
+                }`}
+                title={language === 'vi' ? 'Tuyên bố miễn trừ trách nhiệm' : 'Disclaimer'}
               >
-                <Copyright className="w-3.5 h-3.5 text-amber-400" />
-                <span>Bản quyền AC Studio</span>
+                <span>Disclaimer</span>
               </button>
 
-              <div className="flex items-center gap-2">
+              <button
+                id="footer-sitemap-btn"
+                onClick={() => handleSelectTool('sitemap')}
+                className={`transition-colors cursor-pointer font-medium hover:underline ${
+                  currentToolId === 'sitemap'
+                    ? 'text-cyan-400 font-bold'
+                    : 'text-slate-300 hover:text-white'
+                }`}
+                title={language === 'vi' ? 'Sơ đồ trang web toàn bộ tiện ích' : 'HTML Sitemap'}
+              >
+                <span>Sitemap</span>
+              </button>
+
+              <div className="flex items-center gap-1.5 pl-1 sm:pl-2 border-l border-slate-700/60">
                 <Globe className="w-3.5 h-3.5 text-slate-400" />
                 <LanguageSelector variant="footer" />
               </div>

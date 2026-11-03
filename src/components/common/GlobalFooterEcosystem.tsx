@@ -471,42 +471,14 @@ export const GlobalFooterEcosystem: React.FC<GlobalFooterEcosystemProps> = ({
             <ul className="space-y-2 text-slate-400">
               <li>
                 <button 
-                  onClick={onOpenTerms}
+                  onClick={() => handleToolClick('about')}
                   className="group flex items-start gap-1.5 text-left hover:text-white transition-colors cursor-pointer w-full"
                 >
                   <span className="text-slate-500 group-hover:text-blue-400 group-hover:translate-x-0.5 transition-all shrink-0 mt-0.5 font-mono text-xs">›</span>
-                  <span>Tiêu chuẩn số thực IEEE 754 kép</span>
+                  <span>Về chúng tôi (About Us)</span>
                 </button>
               </li>
               <li>
-                <button 
-                  onClick={onOpenTerms}
-                  className="group flex items-start gap-1.5 text-left hover:text-white transition-colors cursor-pointer w-full"
-                >
-                  <span className="text-slate-500 group-hover:text-blue-400 group-hover:translate-x-0.5 transition-all shrink-0 mt-0.5 font-mono text-xs">›</span>
-                  <span>Quy chuẩn TVM tài chính quốc tế</span>
-                </button>
-              </li>
-              <li>
-                <button 
-                  onClick={onOpenTerms}
-                  className="group flex items-start gap-1.5 text-left hover:text-white transition-colors cursor-pointer w-full"
-                >
-                  <span className="text-slate-500 group-hover:text-blue-400 group-hover:translate-x-0.5 transition-all shrink-0 mt-0.5 font-mono text-xs">›</span>
-                  <span>Chính sách bảo mật dữ liệu người dùng</span>
-                </button>
-              </li>
-              <li>
-                <button 
-                  onClick={onOpenTerms}
-                  className="group flex items-start gap-1.5 text-left hover:text-white transition-colors cursor-pointer w-full"
-                >
-                  <span className="text-slate-500 group-hover:text-blue-400 group-hover:translate-x-0.5 transition-all shrink-0 mt-0.5 font-mono text-xs">›</span>
-                  <span>Điều khoản dịch vụ & Miễn trừ tài chính</span>
-                </button>
-              </li>
-
-              <li className="pt-1">
                 <button 
                   onClick={() => handleToolClick('blog')}
                   className="group flex items-start gap-1.5 text-left text-blue-400 hover:text-white transition-colors cursor-pointer w-full font-bold"
@@ -515,8 +487,43 @@ export const GlobalFooterEcosystem: React.FC<GlobalFooterEcosystemProps> = ({
                   <span>Cẩm nang &amp; Blog Tính Toán (Mới)</span>
                 </button>
               </li>
-
               <li>
+                <button 
+                  onClick={() => handleToolClick('terms')}
+                  className="group flex items-start gap-1.5 text-left hover:text-white transition-colors cursor-pointer w-full"
+                >
+                  <span className="text-slate-500 group-hover:text-blue-400 group-hover:translate-x-0.5 transition-all shrink-0 mt-0.5 font-mono text-xs">›</span>
+                  <span>Điều khoản dịch vụ (Terms of Service)</span>
+                </button>
+              </li>
+              <li>
+                <button 
+                  onClick={() => handleToolClick('privacy')}
+                  className="group flex items-start gap-1.5 text-left hover:text-white transition-colors cursor-pointer w-full"
+                >
+                  <span className="text-slate-500 group-hover:text-blue-400 group-hover:translate-x-0.5 transition-all shrink-0 mt-0.5 font-mono text-xs">›</span>
+                  <span>Chính sách bảo mật (Privacy Policy)</span>
+                </button>
+              </li>
+              <li>
+                <button 
+                  onClick={() => handleToolClick('disclaimer')}
+                  className="group flex items-start gap-1.5 text-left hover:text-white transition-colors cursor-pointer w-full"
+                >
+                  <span className="text-slate-500 group-hover:text-blue-400 group-hover:translate-x-0.5 transition-all shrink-0 mt-0.5 font-mono text-xs">›</span>
+                  <span>Tuyên bố miễn trừ (Disclaimer)</span>
+                </button>
+              </li>
+              <li>
+                <button 
+                  onClick={() => handleToolClick('sitemap')}
+                  className="group flex items-start gap-1.5 text-left hover:text-white transition-colors cursor-pointer w-full"
+                >
+                  <span className="text-slate-500 group-hover:text-blue-400 group-hover:translate-x-0.5 transition-all shrink-0 mt-0.5 font-mono text-xs">›</span>
+                  <span>Sơ đồ trang web (HTML Sitemap)</span>
+                </button>
+              </li>
+              <li className="pt-1">
                 <button 
                   onClick={() => {
                     if (onOpenGemini) {
@@ -525,7 +532,7 @@ export const GlobalFooterEcosystem: React.FC<GlobalFooterEcosystemProps> = ({
                       handleToolClick('ai');
                     }
                   }}
-                  className="group flex items-start gap-1.5 text-left hover:text-white transition-colors cursor-pointer w-full"
+                  className="group flex items-start gap-1.5 text-left text-purple-400 hover:text-white transition-colors cursor-pointer w-full"
                 >
                   <span className="text-slate-500 group-hover:text-blue-400 group-hover:translate-x-0.5 transition-all shrink-0 mt-0.5 font-mono text-xs">›</span>
                   <span>Trợ lý Gemini AI Giải Toán &amp; Tài Chính</span>

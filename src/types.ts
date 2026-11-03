@@ -68,7 +68,13 @@ export type ToolId =
   | 'utilitybill'
   | 'love'
   | 'ai'
-  | 'blog';
+  | 'blog'
+  // Institutional & Legal Pages
+  | 'about'
+  | 'terms'
+  | 'privacy'
+  | 'disclaimer'
+  | 'sitemap';
 
 export interface ToolMeta {
   id: ToolId;

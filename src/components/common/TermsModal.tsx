@@ -1,5 +1,5 @@
 import React from 'react';
-import { X, ShieldCheck, FileText, CheckCircle2, Lock, Sparkles, Copyright, Mail } from 'lucide-react';
+import { X, ShieldCheck, FileText, CheckCircle2, Lock, Copyright, Mail } from 'lucide-react';
 import { useLanguage } from '../../context/LanguageContext';
 
 interface TermsModalProps {
@@ -109,27 +109,11 @@ export const TermsModal: React.FC<TermsModalProps> = ({ isOpen, onClose }) => {
             </div>
           </section>
 
-          {/* 4. Google AdSense & Third-party Compliance */}
-          <section className="space-y-2.5">
-            <div className="flex items-center gap-2 text-white font-bold text-base">
-              <Sparkles className="w-5 h-5 text-blue-400" />
-              <h3>4. Tuân thủ chính sách Google AdSense &amp; Quảng cáo</h3>
-            </div>
-            <p>
-              Nền tảng tuân thủ nghiêm ngặt theo các nguyên tắc quản lý chất lượng nội dung và hiển thị quảng cáo của <strong>Google AdSense</strong>:
-            </p>
-            <ul className="list-disc pl-5 space-y-1 text-slate-300 text-xs">
-              <li>Không sử dụng quảng cáo che khuất nội dung, không có pop-up chuyển hướng gây hiểu nhầm.</li>
-              <li>Các khối quảng cáo hiển thị rõ nhãn "QUẢNG CÁO" / "ĐƯỢC TÀI TRỢ" theo tiêu chuẩn của Google.</li>
-              <li>Hệ thống đáp ứng chuẩn Core Web Vitals (Tốc độ tải LCP &lt; 2.5s, CLS = 0, FID/INP tối ưu).</li>
-            </ul>
-          </section>
-
-          {/* 5. Contact & AC Studio Support */}
+          {/* 4. Contact & AC Studio Support */}
           <section className="p-4 rounded-xl bg-slate-800/80 border border-slate-700 space-y-2">
             <div className="flex items-center gap-2 text-white font-bold text-sm">
               <Mail className="w-4 h-4 text-amber-400" />
-              <h4>5. Thông tin liên hệ &amp; Hỗ trợ bản quyền AC Studio</h4>
+              <h4>4. Thông tin liên hệ &amp; Hỗ trợ bản quyền AC Studio</h4>
             </div>
             <p className="text-xs text-slate-300">
               Mọi ý kiến đóng góp, đề xuất tính năng mới hoặc yêu cầu về vấn đề bản quyền, hợp tác kinh doanh xin vui lòng gửi thư điện tử về:

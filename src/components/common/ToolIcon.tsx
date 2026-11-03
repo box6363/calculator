@@ -48,7 +48,12 @@ import {
   Network, 
   Zap, 
   Boxes,
-  BookOpen
+  BookOpen,
+  Info,
+  FileText,
+  Lock,
+  ShieldAlert,
+  Compass
 } from 'lucide-react';
 import { ToolId } from '../../types';
 import { AppLogo } from './AppLogo';
@@ -124,6 +129,11 @@ export const ToolIcon: React.FC<ToolIconProps> = ({ id, className = "w-5 h-5" })
     case 'concrete': return <Boxes className={className} />;
     case 'love': return <Heart className={`${className} text-red-500 fill-red-500`} />;
     case 'blog': return <BookOpen className={className} />;
+    case 'about': return <Info className={className} />;
+    case 'terms': return <FileText className={className} />;
+    case 'privacy': return <Lock className={className} />;
+    case 'disclaimer': return <ShieldAlert className={className} />;
+    case 'sitemap': return <Compass className={className} />;
     default: return <Calculator className={className} />;
   }
 };

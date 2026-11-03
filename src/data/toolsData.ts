@@ -1728,5 +1728,141 @@ export const TOOLS_CONFIG: Record<string, ToolMeta> = {
       }
     ],
     relatedToolIds: ['salary', 'tax', 'mortgage', 'interest', 'utilitybill', 'bmi']
+  },
+  about: {
+    id: 'about',
+    category: 'knowledge',
+    name: 'Về chúng tôi (About Us)',
+    shortName: 'About Us',
+    tierNumber: 1,
+    iconName: 'Info',
+    badge: 'AC Studio',
+    seoTitle: 'About Us – Giới Thiệu Nền Tảng Web Calculator & AC Studio',
+    seoH1: 'Về Chúng Tôi – Hệ Sinh Thái Web Calculator & Đội Ngũ Kỹ Sư AC Studio',
+    tagline: 'Sứ mệnh phổ cập công cụ tính toán số học & tài chính chuẩn xác 100%',
+    description: 'Web Calculator là nền tảng tính toán trực tuyến toàn diện được phát triển bởi AC Studio. Hỗ trợ 50+ công cụ tài chính, sức khỏe, toán học và chuyển đổi đơn vị với độ chính xác số học IEEE 754 kép 64-bit và bảo mật dữ liệu tuyệt đối.',
+    formulaDescription: 'Quy chuẩn tính toán chuẩn xác IEEE 754 và bảo vệ quyền riêng tư người dùng.',
+    formulaEquation: 'Accuracy = 100%_IEEE_754 + Realtime_Formulas',
+    usageSteps: [
+      'Tìm hiểu về lịch sử phát triển và sứ mệnh của Web Calculator.',
+      'Khám phá tiêu chuẩn kỹ thuật số học và kiến trúc bảo mật Client-Side.',
+      'Liên hệ trực tiếp với đội ngũ phát triển AC Studio để đóng góp ý kiến.'
+    ],
+    faqs: [
+      {
+        question: 'Web Calculator do đơn vị nào phát triển?',
+        answer: 'Nền tảng được thiết kế, tối ưu thuật toán và phát triển độc quyền bởi AC Studio (Copyright © 2026 AC Studio. All rights reserved).'
+      },
+      {
+        question: 'Dữ liệu tính toán của tôi có được gửi lên máy chủ không?',
+        answer: 'Không. 100% các phép tính toán tài chính, sức khỏe và đời sống đều được xử lý trực tiếp trên trình duyệt máy khách (Client-Side), đảm bảo sự riêng tư tuyệt đối.'
+      }
+    ],
+    relatedToolIds: ['basic', 'blog', 'terms', 'privacy', 'sitemap']
+  },
+  terms: {
+    id: 'terms',
+    category: 'knowledge',
+    name: 'Điều khoản dịch vụ (Terms of Service)',
+    shortName: 'Terms',
+    tierNumber: 1,
+    iconName: 'FileText',
+    seoTitle: 'Terms of Service – Điều Khoản Dịch Vụ Web Calculator',
+    seoH1: 'Điều Khoản Dịch Vụ & Bản Quyền Sở Hữu Trí Tuệ AC Studio',
+    tagline: 'Quy định sử dụng dịch vụ và chính sách bản quyền sở hữu trí tuệ',
+    description: 'Điều khoản dịch vụ quy định các quyền và trách nhiệm của người dùng khi truy cập và sử dụng bộ công cụ tính toán Web Calculator, cùng quy định bản quyền thuộc AC Studio.',
+    formulaDescription: 'Quy chuẩn pháp lý và điều kiện sử dụng dịch vụ minh bạch.',
+    formulaEquation: 'Legal = User_Rights + Responsible_Usage',
+    usageSteps: [
+      'Đọc kỹ các điều khoản sử dụng và quy định bản quyền.',
+      'Sử dụng dịch vụ hợp pháp cho mục đích học tập, nghiên cứu và quản lý tài chính.',
+      'Tôn trọng bản quyền tác giả và sở hữu trí tuệ của AC Studio.'
+    ],
+    faqs: [
+      {
+        question: 'Tôi có thể dùng công cụ tính toán cho mục đích thương mại không?',
+        answer: 'Bạn có thể sử dụng kết quả tính toán cho công việc cá nhân hoặc doanh nghiệp. Tuy nhiên, hành vi sao chép mã nguồn hoặc phân phối lại dịch vụ bị nghiêm cấm theo bản quyền của AC Studio.'
+      }
+    ],
+    relatedToolIds: ['privacy', 'disclaimer', 'about', 'sitemap']
+  },
+  privacy: {
+    id: 'privacy',
+    category: 'knowledge',
+    name: 'Chính sách bảo mật (Privacy Policy)',
+    shortName: 'Privacy',
+    tierNumber: 1,
+    iconName: 'Lock',
+    seoTitle: 'Privacy Policy – Chính Sách Bảo Mật Quyền Riêng Tư Web Calculator',
+    seoH1: 'Chính Sách Bảo Mật Dữ Liệu & Quyền Riêng Tư Người Dùng',
+    tagline: 'Bảo vệ quyền riêng tư tuyệt đối với kiến trúc tính toán Client-Side',
+    description: 'Chính sách bảo mật giải thích cách Web Calculator bảo vệ dữ liệu người dùng: không thu thập số liệu nhập tính toán, lưu trữ cục bộ LocalStorage và tuân thủ các tiêu chuẩn bảo mật dữ liệu hiện đại.',
+    formulaDescription: 'Cam kết bảo mật 100% dữ liệu số học trên trình duyệt.',
+    formulaEquation: 'Privacy = Zero_Telemetry + Local_Processing',
+    usageSteps: [
+      'Xem các quyền riêng tư được bảo vệ khi dùng Web Calculator.',
+      'Quản lý dữ liệu lưu trữ lịch sử tính toán trong LocalStorage trình duyệt.',
+      'Tìm hiểu về cơ chế xác thực an toàn qua Google Sign-In.'
+    ],
+    faqs: [
+      {
+        question: 'Website có sử dụng cookie theo dõi hành vi không?',
+        answer: 'Chúng tôi chỉ sử dụng Cookie kỹ thuật tối thiểu phục vụ đăng nhập bảo mật và LocalStorage để lưu cài đặt ngôn ngữ và lịch sử tính toán cá nhân.'
+      }
+    ],
+    relatedToolIds: ['terms', 'disclaimer', 'about', 'sitemap']
+  },
+  disclaimer: {
+    id: 'disclaimer',
+    category: 'knowledge',
+    name: 'Tuyên bố miễn trừ (Disclaimer)',
+    shortName: 'Disclaimer',
+    tierNumber: 1,
+    iconName: 'ShieldAlert',
+    seoTitle: 'Disclaimer – Tuyên Bố Miễn Trừ Trách Nhiệm Web Calculator',
+    seoH1: 'Tuyên Bố Miễn Trừ Trách Nhiệm Về Tài Chính, Sức Khỏe & Pháp Lý',
+    tagline: 'Minh bạch về phạm vi và giới hạn trách nhiệm của các kết quả tính toán',
+    description: 'Tuyên bố miễn trừ trách nhiệm pháp lý đối với các mô phỏng tài chính, tính toán lãi suất ngân hàng, định giá bất động sản và các chỉ số sức khỏe y tế trên Web Calculator.',
+    formulaDescription: 'Kết quả tính toán mang tính chất tham khảo khoa học và mô phỏng.',
+    formulaEquation: 'Results = Scientific_Simulation (Reference_Only)',
+    usageSteps: [
+      'Đọc thông tin miễn trừ trước khi đưa ra quyết định tài chính hoặc y tế.',
+      'Tham chiếu biểu phí và hợp đồng thực tế từ ngân hàng hoặc tổ chức tài chính.',
+      'Tham vấn ý kiến bác sĩ chuyên khoa đối với các chỉ số sức khỏe y học.'
+    ],
+    faqs: [
+      {
+        question: 'Kết quả tính lãi suất vay có áp dụng được nguyên vẹn tại mọi ngân hàng không?',
+        answer: 'Kết quả được tính theo thuật toán tài chính chuẩn quốc tế TVM. Tuy nhiên mỗi ngân hàng có thể áp dụng các loại phí phạt, phí bảo hiểm khoản vay hoặc chính sách lãi suất riêng.'
+      }
+    ],
+    relatedToolIds: ['terms', 'privacy', 'about', 'sitemap']
+  },
+  sitemap: {
+    id: 'sitemap',
+    category: 'knowledge',
+    name: 'Sơ đồ trang web (HTML Sitemap)',
+    shortName: 'Sitemap',
+    tierNumber: 1,
+    iconName: 'Compass',
+    badge: '50+ Tools',
+    seoTitle: 'HTML Sitemap – Sơ Đồ Danh Mục Toàn Bộ Công Cụ Web Calculator',
+    seoH1: 'Sơ Đồ Trang Web – Tra Cứu Toàn Diện 50+ Máy Tính & Tiện Ích Trực Tuyến',
+    tagline: 'Tra cứu nhanh chóng mọi công cụ tính toán phân theo danh mục',
+    description: 'Sơ đồ trang web HTML tương tác đầy đủ giúp bạn dễ dàng tìm kiếm và truy cập trực tiếp vào hơn 50 công cụ tính toán tài chính, sức khỏe, toán học, quy đổi đơn vị và các trang thông tin pháp lý.',
+    formulaDescription: 'Cấu trúc thư mục thông minh phân theo nhóm chuyên môn chuẩn SEO.',
+    formulaEquation: 'Sitemap = Categories × 50+_Specialized_Tools',
+    usageSteps: [
+      'Sử dụng ô tìm kiếm để lọc nhanh công cụ bạn cần.',
+      'Chọn danh mục: Tài chính, Sức khỏe, Toán học, Hình học, Quy đổi hoặc Pháp lý.',
+      'Nhấp chuột để chuyển thẳng đến công cụ mong muốn tức thì.'
+    ],
+    faqs: [
+      {
+        question: 'Sơ đồ trang web này có tự động cập nhật khi có công cụ mới không?',
+        answer: 'Có. Sitemap tự động liên kết động với danh sách công cụ chính thức của hệ thống để đảm bảo mọi tính năng mới đều được liệt kê đầy đủ.'
+      }
+    ],
+    relatedToolIds: ['about', 'blog', 'terms', 'privacy', 'disclaimer']
   }
 };
